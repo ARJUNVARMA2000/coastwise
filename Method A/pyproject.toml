@@ -1,0 +1,38 @@
+[project]
+name = "coastwise"
+version = "0.1.0"
+description = "Evidence-based inspection report extraction with comparable A and B methods"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
+  "python-multipart>=0.0.20,<1",
+  "pymupdf>=1.25,<2",
+  "pdfplumber>=0.11,<1",
+  "httpx>=0.28,<1",
+  "jsonschema>=4.23,<5",
+  "python-dotenv>=1.2.4",
+  "itsdangerous>=2.2.0",
+  "google-cloud-storage>=3.17.1",
+  "google-cloud-tasks>=2.26.0",
+]
+
+[project.scripts]
+coastwise = "coastwise.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/coastwise"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
