@@ -1,0 +1,283 @@
+Seawall deterioration scoring rubric
+Sep 29, 2026 · @Lachlan
+How to use this rubric
+Each report gets one overall score from 1 (good) to 4 (serious or critical). Higher numbers
+mean worse condition.
+What is rated: the structure as it stands today compared with its condition when
+newly built. Whether it meets current design standards does not affect the score, and
+neither do current loads that are lighter than its design loads.
+Structures covered: seawalls, bulkheads, revetments, gravity and retaining walls,
+groins and jetties, in concrete, steel, timber, masonry, rock or composite.
+Basis: the scale condenses the six-level condition assessment rating used byASCE
+MOP 130 and the NYC waterfront inspection manual into four levels. Material
+thresholds come from the same manual's element damage grades.
+Evidence only: score only what the report states. Absence of a finding is not evidence
+of good condition unless the report says the element was inspected.
+Score definitions
+The split between 2 and 3 is whether deterioration is localized or widespread. The split
+between 3 and 4 is whether load-bearing capacity of primary elements is significantly
+affected.
+Score Label ASCE / NYC
+equivalent
+What the report
+describes
+Load capacity Typical action
+1 Good Good,
+Satisfactory
+No defects, or minor to
+moderate defects. No
+overstressing.
+Unaffected No action; routine
+inspection cycle
+2 Fair Fair All primary elements
+sound. Minor to
+moderate deterioration,
+with possible localized
+moderate to advanced
+areas.
+Not significantly
+reduced
+Routine maintenance
+and repair
+Seawall deterioration scoring rubric
+Page 1 of 5Flag a score of 4 as critical, rather than serious, when localized failure of a primary
+element has already occurred or wider failure is likely.
+Element damage thresholds by material
+Use these to grade individual elements before scoring the whole structure. Any one listed
+defect is enough to place an element in that grade.
+Score Label ASCE / NYC
+equivalent
+What the report
+describes
+Load capacity Typical action
+3 Poor Poor Advanced deterioration
+or overstressing on
+widespread portions of
+the structure.
+Not yet
+significantly
+reduced
+Priority repair, typically
+within 1 to 3 years
+4 Serious /
+critical
+Serious,
+Critical
+Advanced deterioration,
+overstressing or
+breakage of primary
+elements. Local failure
+possible or already
+present.
+Significantly
+reduced
+Immediate action,
+engineering analysis,
+possible load or access
+restrictions
+Material Minor Moderate Advanced Severe
+Reinforced
+concrete
+General cracks
+up to 1/16 in.;
+abrasion up to 1
+in.; occasional
+rust stains or
+small pop-out
+spalls
+Structural cracks
+up to 1/16 in.;
+corrosion cracks
+up to 1/4 in.; soft
+concrete or
+rounded corners
+up to 1 in. deep
+Structural cracks
+1/16 to 1/4 in.;
+corrosion cracks
+over 1/4 in.; open
+spalls; surface
+disintegration
+Structural
+cracks over 1/4
+in. or breakage;
+cover lost with
+over 30% rebar
+diameter loss;
+over 30% crosssection loss
+Steel Corrosion on
+under 50% of
+perimeter;
+thickness loss
+up to 15%
+Corrosion on
+over 50% of
+perimeter;
+thickness loss 15
+to 30%
+Partial loss of
+flange edges;
+thickness loss 30
+to 50%
+Buckling, bends,
+perforations;
+lost
+connections;
+thickness loss
+over 50%
+Seawall deterioration scoring rubric
+Page 2 of 5Crack widths for reference: hairline under 1/32 in., fine 1/32 to 1/16 in., medium 1/16 to 1/8 in.,
+wide over 1/8 in. Spalls: small under 6 in. across and 1 in. deep, medium 6 to 12 in. and up to
+2 in. deep, large over 12 in. (NYC EDC manual, Tables 3-3 to 3-7)
+Seawall, bulkhead and revetmentindicators
+These system-level signs often matter more than material damage, because they show
+the wall is losing support or retained soil. The thresholds here are compiled from common
+coastal inspection practice, not a single standard; adjust them to your reports.
+Material Minor Moderate Advanced Severe
+Timber Checks, splits
+or gouges
+under 0.5 in.
+wide
+Checks over 0.5
+in.; diameter loss
+up to 15%; area
+loss up to 25%;
+marine borers;
+corroded
+hardware
+Splits through full
+depth; diameter
+loss 15 to 30%;
+area loss 25 to
+50%; misaligned
+connections
+Diameter loss
+over 30%; area
+loss over 50%;
+broken, nonbearing or lost
+connections
+Composite
+(FRP)
+Weathered or
+scratched;
+thickness loss
+up to 15%
+Thickness loss 15
+to 30%;
+occasional
+delamination or
+surface cracks
+Full-depth cracks;
+thickness loss 30
+to 50%; multiple
+delaminations;
+fractures
+Permanent
+deformation;
+thickness loss
+over 50%; partial
+or full breakage
+Indicator Points toward 2 Points toward 3 Points toward 4
+Toe scour or
+undermining
+Minor scour, toe
+still buried
+Toe exposed along
+several stations
+Undermining beneath
+the toe or footing
+Loss of backfill Minor settlement
+of paving behind
+wall
+Voids, sinkholes or soil
+loss through joints
+Large or active
+sinkholes; ongoing
+soil loss
+Settlement, tilt,
+rotation
+None reported Measurable lean or
+differential settlement
+Active movement,
+bulging or sliding
+Joints and weep
+holes
+Open joints, some
+clogged weeps
+Failed joint seals with
+soil loss
+Separated or
+displaced wall panels
+Seawall deterioration scoring rubric
+Page 3 of 5Combining findings into one score
+The overall score is driven by the worst primary component, weighted by how widespread
+the damage is.
+1. Sort components into primary and secondary.
+Primary: wall face or sheeting, toe and footing, piles, tiebacks and anchors, armor
+layer.
+Secondary: cap and coping, railings, paving, fenders, drainage outlets.
+2. Grade each component with the material table and the system indicators above.
+3. Judge each finding on four factors: how many defects, how severe, whether local or
+general, and how structurally important the component is.
+4. Apply the extent rules for primary components.
+Advanced damage that is localized: score 2.
+Advanced damage or overstressing that is widespread: score 3.
+Severe damage, breakage, or any finding that significantly reduces load-bearing
+capacity: score 4.
+5. Limit secondary components. Damage to secondary components alone can raise the
+score at most one level above what the primary components indicate.
+6. When two scores are equally supported, choose the more severe one and state the
+alternative.
+Indicator Points toward 2 Points toward 3 Points toward 4
+Tiebacks,
+anchors, wales
+Surface corrosion Section loss or loose
+connections
+Failed or missing
+tiebacks; broken
+wales
+Armor stone
+(revetments)
+Isolated displaced
+stones
+Displaced armor
+exposing underlayer
+Underlayer or core
+exposed; slope failure
+Crest and
+overtopping
+Minor crest
+damage
+Crest below design
+level; overtopping
+damage behind wall
+Breach or loss of
+crest
+Seawall deterioration scoring rubric
+Page 4 of 5Edge cases
+Missing information: if the report skips an element the rubric depends on, such as no
+underwater inspection of the toe, score from what was inspected. List the gap and
+mark confidence as low. Do not assume the unseen element is sound or damaged.
+Only a rating word, no details: if the report says "fair" or "poor" without describing
+defects, map the word with the score table. Mark confidence as medium at best.
+Post-event reports: these rate event damage only and may leave out long-term
+deterioration. Score what is described and note that the report is post-event.
+Repaired structures: score the condition after repair as described. Mention the repair
+in the rationale.
+Multiple segments in one report: score each segment separately if the report rates
+them separately. The report-level score is the worst segment unless that segment is
+secondary.
+Urgent safety concern: regardless of score, flag any report that recommends closure,
+load restrictions or emergency repair.
+Sources
+NYC EDC Waterfront Facilities Maintenance Management System, Inspection
+Guidelines Manual (2016): condition assessment ratings (Section 3.3), damage grades
+(Tables 3-3 to 3-7), recommended actions (Section 3.4)
+ASCE, Engineers take a deep dive into inspecting waterfront infrastructure (2025):
+element damage ratings in ASCE MOP 130
+ASCE, New MOP brings waterfront inspection practices into the modern era (2025):
+MOP 130 second edition
+FHWA National Bridge Inventory condition ratings (summary): comparable 0 to 9 scale
+for scour and section loss
+Seawall deterioration scoring rubric
+Page 5 of 5

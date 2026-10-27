@@ -1,0 +1,9 @@
+<reference_reports>
+{examples}
+</reference_reports>
+
+<report id="{report_id}">
+{report_text}
+</report>
+
+Assess this report. First list and grade each component (material, primary or secondary, damage grade, extent), using NR for anything not covered, and collect the verbatim evidence with page numbers. Then apply the rubric's combining rules and edge cases, and only then choose the overall score.

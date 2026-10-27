@@ -1,0 +1,376 @@
+{
+  "type": "object",
+  "properties": {
+    "report_id": {
+      "type": "string"
+    },
+    "structure_type": {
+      "type": "string",
+      "description": "e.g. seawall, bulkhead, revetment, groin, jetty"
+    },
+    "post_event": {
+      "type": "boolean",
+      "description": "True if the report assesses damage from a specific event (storm, impact) rather than a routine inspection."
+    },
+    "repaired": {
+      "type": "boolean",
+      "description": "True if the report describes a repaired structure. The score reflects condition after repair."
+    },
+    "rating_word_only": {
+      "type": "boolean",
+      "description": "True if the report gives only a rating word (e.g. 'fair', 'poor') with no described defects."
+    },
+    "components": {
+      "type": "array",
+      "description": "Each structural element that applies to this structure type, including ones the report does not cover (recorded as NR).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "component": {
+            "type": "string",
+            "description": "e.g. face, toe, piles, tiebacks, armor layer, cap, paving"
+          },
+          "segment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Segment name if the report divides the structure into segments, else null."
+          },
+          "material": {
+            "type": "string",
+            "enum": [
+              "reinforced_concrete",
+              "steel",
+              "timber",
+              "composite_frp",
+              "masonry",
+              "rock",
+              "other",
+              "NR"
+            ]
+          },
+          "material_source": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Page number from the <page> tag; null only if the value is NR."
+              },
+              "quote": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Exact text copied from that page; null only if the value is NR."
+              }
+            },
+            "required": [
+              "page",
+              "quote"
+            ],
+            "description": "Page and quote stating the material. Null page and quote if material is NR.",
+            "additionalProperties": false
+          },
+          "primary_or_secondary": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "secondary"
+            ],
+            "description": "Primary: wall face or sheeting, toe and footing, piles, tiebacks and anchors, armor layer. Secondary: cap and coping, railings, paving, fenders, drainage outlets."
+          },
+          "observed_condition": {
+            "type": "string",
+            "description": "What the report says about this component, or NR if it does not cover it."
+          },
+          "condition_source": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Page number from the <page> tag; null only if the value is NR."
+              },
+              "quote": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Exact text copied from that page; null only if the value is NR."
+              }
+            },
+            "required": [
+              "page",
+              "quote"
+            ],
+            "description": "Page and quote for the observed condition. Null page and quote if damage_grade is NR.",
+            "additionalProperties": false
+          },
+          "damage_grade": {
+            "type": "string",
+            "enum": [
+              "none",
+              "minor",
+              "moderate",
+              "advanced",
+              "severe",
+              "NR"
+            ],
+            "description": "Grade from the rubric's material table and system indicators. NR if the report does not cover this component or does not say it was inspected."
+          },
+          "extent": {
+            "type": "string",
+            "enum": [
+              "localized",
+              "widespread",
+              "not_applicable",
+              "NR"
+            ],
+            "description": "NR when damage_grade is NR."
+          },
+          "component_score": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 4,
+            "description": "Score this component alone indicates after applying the rubric's extent rules (1 if no defects or minor). Null when damage_grade is NR."
+          }
+        },
+        "required": [
+          "component",
+          "segment",
+          "material",
+          "material_source",
+          "primary_or_secondary",
+          "observed_condition",
+          "condition_source",
+          "damage_grade",
+          "extent",
+          "component_score"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "description": "Verbatim quotes from the report that drive the score.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "quote": {
+            "type": "string",
+            "description": "Exact text copied from the report"
+          },
+          "page": {
+            "type": "integer",
+            "description": "Page number from the <page> tag the quote appears on"
+          },
+          "rubric_criterion": {
+            "type": "string",
+            "description": "The rubric criterion this quote meets"
+          },
+          "indicated_score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          }
+        },
+        "required": [
+          "quote",
+          "page",
+          "rubric_criterion",
+          "indicated_score"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "segment_scores": {
+      "type": "array",
+      "description": "Only if the report rates segments separately; otherwise an empty array.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "segment": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "secondary_only": {
+            "type": "boolean",
+            "description": "True if this segment's score is driven only by secondary components."
+          }
+        },
+        "required": [
+          "segment",
+          "score",
+          "secondary_only"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4,
+      "description": "Overall (report-level) score. With separately rated segments, the worst segment unless that segment is secondary-only."
+    },
+    "critical": {
+      "type": "boolean",
+      "description": "Only true when score is 4 and localized failure of a primary element has already occurred or wider failure is likely. Otherwise false."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "2-4 sentences tying the evidence to the rubric and explaining why not the adjacent scores. Mention repairs and post-event status where relevant."
+    },
+    "alternative_score": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 4,
+      "description": "The next most plausible score, or null if there is none. Required when two scores are equally supported (then choose the more severe as score)."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Information the rubric needs that the report does not provide (e.g. no underwater inspection of the toe)."
+    },
+    "urgent_safety_concern": {
+      "type": "boolean",
+      "description": "True if the report recommends closure, load restrictions or emergency repair, regardless of score."
+    },
+    "construction_year": {
+      "type": "object",
+      "description": "Year of construction as stated in the report.",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Four-digit year, or NR if the report does not state it. Do not infer."
+        },
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Page number from the <page> tag; null only if the value is NR."
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Exact text copied from that page; null only if the value is NR."
+        }
+      },
+      "required": [
+        "value",
+        "page",
+        "quote"
+      ],
+      "additionalProperties": false
+    },
+    "inspection_date": {
+      "type": "object",
+      "description": "Inspection date as stated in the report.",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "YYYY-MM-DD (or YYYY-MM / YYYY if only partial), or NR if not stated."
+        },
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Page number from the <page> tag; null only if the value is NR."
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Exact text copied from that page; null only if the value is NR."
+        }
+      },
+      "required": [
+        "value",
+        "page",
+        "quote"
+      ],
+      "additionalProperties": false
+    },
+    "exposure_environment": {
+      "type": "object",
+      "description": "Exposure and environment as stated in the report.",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Exposure and environment as the report describes them (wave exposure, tidal range, salt or brackish water, storm history), or NR. Do not infer."
+        },
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Page number from the <page> tag; null only if the value is NR."
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Exact text copied from that page; null only if the value is NR."
+        }
+      },
+      "required": [
+        "value",
+        "page",
+        "quote"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "report_id",
+    "structure_type",
+    "post_event",
+    "repaired",
+    "rating_word_only",
+    "components",
+    "evidence",
+    "segment_scores",
+    "score",
+    "critical",
+    "rationale",
+    "alternative_score",
+    "confidence",
+    "missing_information",
+    "urgent_safety_concern",
+    "construction_year",
+    "inspection_date",
+    "exposure_environment"
+  ],
+  "additionalProperties": false
+}
