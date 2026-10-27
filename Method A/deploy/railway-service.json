@@ -1,0 +1,17 @@
+{
+  "project_id": "4d64a6a4-d4ea-4162-a038-761b3e3fa1b7",
+  "environment_id": "504705a4-30e5-4256-ab76-e7cf3b2b91b7",
+  "service_id": "0a6f7a7c-fff2-472a-81e0-b21bb9566603",
+  "instance": {
+    "dockerfilePath": "Dockerfile",
+    "numReplicas": 1,
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 120,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3,
+    "sleepApplication": false,
+    "overlapSeconds": 0,
+    "drainingSeconds": 120
+  },
+  "limits": {"vCPUs": 1, "memoryGB": 1}
+}
