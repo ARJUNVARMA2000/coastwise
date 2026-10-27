@@ -1,0 +1,394 @@
+"""Seawall deterioration scoring: prompt, output schema, and scoring call for the Claude API.
+
+Follows the "Seawall deterioration scoring rubric": 1 = good, 4 = serious/critical (higher is worse).
+Components are graded by material, then combined by the rubric's primary/secondary and extent rules.
+
+Reporting conventions:
+- Anything the report does not cover is recorded as NR ("not reported / no coverage"), never guessed.
+- Every filled-in field cites the report page and a verbatim quote, and the quote is checked against that page.
+"""
+import anthropic
+
+MODEL = "claude-sonnet-5-5"
+NR = "NR"
+client = anthropic.Anthropic()
+
+# ---------------------------------------------------------------------------
+# 1. System prompt: role, rubric (full text, every call), and scoring rules
+# ---------------------------------------------------------------------------
+SYSTEM_PROMPT = """You are a coastal infrastructure condition assessor. You assign a deterioration score from 1 to 4 to inspection reports for seawalls, bulkheads, revetments, and related coastal structures.
+
+Score strictly by the rubric below. The rubric is the only authority on what each score means, how to grade components, how to combine them, and how to handle edge cases. The reference reports you will be shown are past assessments scored by engineers: use them to calibrate how the rubric is applied, not as a substitute for it. If a reference report seems to conflict with the rubric, follow the rubric.
+
+<rubric>
+{rubric_text}
+</rubric>
+
+The report is divided into pages with <page number="N"> tags.
+
+Rules:
+- Base the score only on conditions stated in the report. Do not assume damage that is not described, and do not treat an element the report does not mention as sound.
+- Score the structure's condition, not its age, environment or inspection date. Use the material of each component only to choose the right damage thresholds.
+- Grade each component (material, primary or secondary, damage grade, extent) before choosing the overall score, and combine them using the rubric's combining rules.
+- Not reported: if the report does not cover a field or an element, record it as "NR". This applies to material, damage_grade, extent, component_score, construction_year, inspection_date and exposure_environment. For every primary and secondary component the rubric lists that applies to this type of structure, include a component entry; use NR for any the report does not cover or does not say were inspected. Do not list components that do not exist on this type of structure.
+- Cite your sources: for every field you fill in with something other than NR (each component's material and condition, each piece of evidence, construction_year, inspection_date, exposure_environment), give the page number from the <page> tag and a quote copied exactly from that page. Use null for page and quote only when the value is NR.
+- Record construction_year, inspection_date and exposure_environment only if the report states them. They are context and must not change the score.
+- If the report lacks information the rubric needs, list it in missing_information and follow the rubric's edge-case rules instead of guessing.
+- Record your assessment with the record_assessment tool."""
+
+# ---------------------------------------------------------------------------
+# 2. User message: retrieved reference reports + the report to score
+# ---------------------------------------------------------------------------
+EXAMPLE_TEMPLATE = """<reference score="{score}" structure_type="{structure_type}">
+<findings>
+{findings}
+</findings>
+<scoring_rationale>{rationale}</scoring_rationale>
+</reference>"""
+
+USER_TEMPLATE = """<reference_reports>
+{examples}
+</reference_reports>
+
+<report id="{report_id}">
+{report_text}
+</report>
+
+Assess this report. First list and grade each component (material, primary or secondary, damage grade, extent), using NR for anything not covered, and collect the verbatim evidence with page numbers. Then apply the rubric's combining rules and edge cases, and only then choose the overall score."""
+
+# ---------------------------------------------------------------------------
+# 3. Output schema. Field order matters: components and evidence come before
+#    the score so the model reasons before it commits.
+# ---------------------------------------------------------------------------
+SCORE = {"type": "integer", "minimum": 1, "maximum": 4}
+
+# Where a filled-in value came from. page and quote are null only when the value is NR.
+SOURCE = {
+    "type": "object",
+    "properties": {
+        "page": {"type": ["integer", "null"], "description": "Page number from the <page> tag; null only if the value is NR."},
+        "quote": {"type": ["string", "null"], "description": "Exact text copied from that page; null only if the value is NR."},
+    },
+    "required": ["page", "quote"],
+}
+
+
+def _sourced(value_schema: dict, description: str) -> dict:
+    """A context field that carries its value and where in the report it came from."""
+    return {
+        "type": "object",
+        "description": description,
+        "properties": {"value": value_schema, "page": SOURCE["properties"]["page"], "quote": SOURCE["properties"]["quote"]},
+        "required": ["value", "page", "quote"],
+    }
+
+
+ASSESSMENT_TOOL = {
+    "name": "record_assessment",
+    "description": "Record the deterioration assessment for one inspection report.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "report_id": {"type": "string"},
+            "structure_type": {
+                "type": "string",
+                "description": "e.g. seawall, bulkhead, revetment, groin, jetty",
+            },
+            "post_event": {
+                "type": "boolean",
+                "description": "True if the report assesses damage from a specific event (storm, impact) rather than a routine inspection.",
+            },
+            "repaired": {
+                "type": "boolean",
+                "description": "True if the report describes a repaired structure. The score reflects condition after repair.",
+            },
+            "rating_word_only": {
+                "type": "boolean",
+                "description": "True if the report gives only a rating word (e.g. 'fair', 'poor') with no described defects.",
+            },
+            "components": {
+                "type": "array",
+                "description": "Each structural element that applies to this structure type, including ones the report does not cover (recorded as NR).",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "component": {"type": "string", "description": "e.g. face, toe, piles, tiebacks, armor layer, cap, paving"},
+                        "segment": {
+                            "type": ["string", "null"],
+                            "description": "Segment name if the report divides the structure into segments, else null.",
+                        },
+                        "material": {
+                            "type": "string",
+                            "enum": ["reinforced_concrete", "steel", "timber", "composite_frp",
+                                     "masonry", "rock", "other", NR],
+                        },
+                        "material_source": {
+                            **SOURCE,
+                            "description": "Page and quote stating the material. Null page and quote if material is NR.",
+                        },
+                        "primary_or_secondary": {
+                            "type": "string",
+                            "enum": ["primary", "secondary"],
+                            "description": "Primary: wall face or sheeting, toe and footing, piles, tiebacks and anchors, armor layer. Secondary: cap and coping, railings, paving, fenders, drainage outlets.",
+                        },
+                        "observed_condition": {
+                            "type": "string",
+                            "description": "What the report says about this component, or NR if it does not cover it.",
+                        },
+                        "condition_source": {
+                            **SOURCE,
+                            "description": "Page and quote for the observed condition. Null page and quote if damage_grade is NR.",
+                        },
+                        "damage_grade": {
+                            "type": "string",
+                            "enum": ["none", "minor", "moderate", "advanced", "severe", NR],
+                            "description": "Grade from the rubric's material table and system indicators. NR if the report does not cover this component or does not say it was inspected.",
+                        },
+                        "extent": {
+                            "type": "string",
+                            "enum": ["localized", "widespread", "not_applicable", NR],
+                            "description": "NR when damage_grade is NR.",
+                        },
+                        "component_score": {
+                            "type": ["integer", "null"],
+                            "minimum": 1,
+                            "maximum": 4,
+                            "description": "Score this component alone indicates after applying the rubric's extent rules (1 if no defects or minor). Null when damage_grade is NR.",
+                        },
+                    },
+                    "required": ["component", "segment", "material", "material_source",
+                                 "primary_or_secondary", "observed_condition", "condition_source",
+                                 "damage_grade", "extent", "component_score"],
+                },
+            },
+            "evidence": {
+                "type": "array",
+                "description": "Verbatim quotes from the report that drive the score.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "quote": {"type": "string", "description": "Exact text copied from the report"},
+                        "page": {"type": "integer", "description": "Page number from the <page> tag the quote appears on"},
+                        "rubric_criterion": {"type": "string", "description": "The rubric criterion this quote meets"},
+                        "indicated_score": SCORE,
+                    },
+                    "required": ["quote", "page", "rubric_criterion", "indicated_score"],
+                },
+            },
+            "segment_scores": {
+                "type": "array",
+                "description": "Only if the report rates segments separately; otherwise an empty array.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "segment": {"type": "string"},
+                        "score": SCORE,
+                        "secondary_only": {
+                            "type": "boolean",
+                            "description": "True if this segment's score is driven only by secondary components.",
+                        },
+                    },
+                    "required": ["segment", "score", "secondary_only"],
+                },
+            },
+            "score": {
+                **SCORE,
+                "description": "Overall (report-level) score. With separately rated segments, the worst segment unless that segment is secondary-only.",
+            },
+            "critical": {
+                "type": "boolean",
+                "description": "Only true when score is 4 and localized failure of a primary element has already occurred or wider failure is likely. Otherwise false.",
+            },
+            "rationale": {
+                "type": "string",
+                "description": "2-4 sentences tying the evidence to the rubric and explaining why not the adjacent scores. Mention repairs and post-event status where relevant.",
+            },
+            "alternative_score": {
+                "type": ["integer", "null"],
+                "minimum": 1,
+                "maximum": 4,
+                "description": "The next most plausible score, or null if there is none. Required when two scores are equally supported (then choose the more severe as score).",
+            },
+            "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+            "missing_information": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Information the rubric needs that the report does not provide (e.g. no underwater inspection of the toe).",
+            },
+            "urgent_safety_concern": {
+                "type": "boolean",
+                "description": "True if the report recommends closure, load restrictions or emergency repair, regardless of score.",
+            },
+            # Context fields: recorded only, placed after score so they do not shape it.
+            "construction_year": _sourced(
+                {"type": "string", "description": f"Four-digit year, or {NR} if the report does not state it. Do not infer."},
+                "Year of construction as stated in the report.",
+            ),
+            "inspection_date": _sourced(
+                {"type": "string", "description": f"YYYY-MM-DD (or YYYY-MM / YYYY if only partial), or {NR} if not stated."},
+                "Inspection date as stated in the report.",
+            ),
+            "exposure_environment": _sourced(
+                {"type": "string", "description": f"Exposure and environment as the report describes them (wave exposure, tidal range, salt or brackish water, storm history), or {NR}. Do not infer."},
+                "Exposure and environment as stated in the report.",
+            ),
+        },
+        "required": [
+            "report_id", "structure_type", "post_event", "repaired", "rating_word_only",
+            "components", "evidence", "segment_scores", "score", "critical", "rationale",
+            "alternative_score", "confidence", "missing_information", "urgent_safety_concern",
+            "construction_year", "inspection_date", "exposure_environment",
+        ],
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# 4. Scoring call with self-consistency, rubric rule enforcement, and review flags
+# ---------------------------------------------------------------------------
+def _normalize(text: str) -> str:
+    return " ".join(text.lower().split())
+
+
+def build_examples(retrieved: list[dict]) -> str:
+    """retrieved: dicts with score, structure_type, findings, rationale (from your vector store)."""
+    return "\n\n".join(EXAMPLE_TEMPLATE.format(**r) for r in retrieved)
+
+
+def format_report(pages: list[str]) -> str:
+    """Wrap each page in a <page number="N"> tag so the model can cite page numbers."""
+    return "\n\n".join(f'<page number="{i}">\n{text}\n</page>' for i, text in enumerate(pages, start=1))
+
+
+def _citations(result: dict):
+    """Yield (field label, page, quote) for every filled-in (non-NR) value that needs a source."""
+    for i, c in enumerate(result["components"]):
+        name = f"components[{i}] {c['component']}"
+        if c["material"] != NR:
+            src = c.get("material_source") or {}
+            yield f"{name}.material", src.get("page"), src.get("quote")
+        if c["damage_grade"] != NR:
+            src = c.get("condition_source") or {}
+            yield f"{name}.condition", src.get("page"), src.get("quote")
+    for i, e in enumerate(result["evidence"]):
+        yield f"evidence[{i}]", e.get("page"), e.get("quote")
+    for field in ("construction_year", "inspection_date", "exposure_environment"):
+        f = result[field]
+        if f["value"] != NR:
+            yield field, f.get("page"), f.get("quote")
+
+
+def _verify_citations(result: dict, pages: list[str]) -> list[dict]:
+    """Every cited quote must appear on the cited page. Returns the citations that fail."""
+    pages_norm = [_normalize(p) for p in pages]
+    problems = []
+    for label, page, quote in _citations(result):
+        if page is None or not quote:
+            problem = "missing page or quote"
+        elif not 1 <= page <= len(pages_norm):
+            problem = "page out of range"
+        elif _normalize(quote) not in pages_norm[page - 1]:
+            problem = "quote not found on cited page"
+        else:
+            continue
+        problems.append({"field": label, "page": page, "quote": quote, "problem": problem})
+    return problems
+
+
+def _apply_rubric_rules(result: dict) -> tuple[dict, list[str]]:
+    """Enforce the rubric's deterministic rules on the model's output. Returns (result, review reasons)."""
+    result = dict(result)
+    reasons = []
+
+    # Edge cases: missing info -> low confidence; rating word only -> medium at best.
+    if result["missing_information"] and result["confidence"] != "low":
+        result["confidence"] = "low"
+    if result["rating_word_only"] and result["confidence"] == "high":
+        result["confidence"] = "medium"
+
+    # Primary components the report does not cover.
+    no_coverage = [c["component"] for c in result["components"]
+                   if c["primary_or_secondary"] == "primary" and c["damage_grade"] == NR]
+    if no_coverage:
+        reasons.append(f"no coverage (NR) for primary components: {', '.join(no_coverage)}")
+
+    # Consistency of the overall score with the component grades.
+    primary = [c["component_score"] for c in result["components"]
+               if c["primary_or_secondary"] == "primary" and c["component_score"] is not None]
+    if primary and not result["segment_scores"]:
+        if result["score"] < max(primary):
+            reasons.append("score is below the worst primary component")
+        if result["score"] > max(primary) + 1:
+            reasons.append("score is more than one level above the worst primary component")
+
+    # Multiple segments: report score is the worst segment unless that segment is secondary-only.
+    if result["segment_scores"]:
+        counted = [s["score"] for s in result["segment_scores"] if not s["secondary_only"]]
+        expected = max(counted) if counted else max(s["score"] for s in result["segment_scores"])
+        if result["score"] != expected:
+            reasons.append(f"report score does not match worst segment ({expected})")
+
+    # 'critical' only makes sense for a 4.
+    if result["critical"] and result["score"] != 4:
+        result["critical"] = False
+        reasons.append("critical flag set on a score below 4")
+
+    return result, reasons
+
+
+def score_report(report_id: str, report_pages: list[str] | str, rubric_text: str,
+                 retrieved: list[dict], n_runs: int = 3) -> dict:
+    """report_pages: the report text split by page (one string per page). A single string is
+    treated as a one-page report, so every citation will say page 1."""
+    pages = [report_pages] if isinstance(report_pages, str) else list(report_pages)
+
+    system = [{
+        "type": "text",
+        "text": SYSTEM_PROMPT.format(rubric_text=rubric_text),
+        "cache_control": {"type": "ephemeral"},  # rubric is identical every call, so cache it
+    }]
+    user = USER_TEMPLATE.format(
+        examples=build_examples(retrieved),
+        report_id=report_id,
+        report_text=format_report(pages),
+    )
+
+    runs = []
+    for _ in range(n_runs):
+        resp = client.messages.create(
+            model=MODEL,
+            max_tokens=6000,
+            system=system,
+            tools=[ASSESSMENT_TOOL],
+            tool_choice={"type": "tool", "name": "record_assessment"},
+            messages=[{"role": "user", "content": user}],
+        )
+        block = next(b for b in resp.content if b.type == "tool_use")
+        runs.append(block.input)
+
+    scores = [r["score"] for r in runs]
+    # Majority vote; ties go to the more severe score (rubric: choose the more severe when equally supported).
+    final = max(scores, key=lambda s: (scores.count(s), s))
+    primary, review_reasons = _apply_rubric_rules(next(r for r in runs if r["score"] == final))
+
+    # Catch hallucinated or mis-paged sources: every cited quote must appear on the cited page.
+    unverified = _verify_citations(primary, pages)
+
+    if len(set(scores)) > 1:
+        review_reasons.append(f"runs disagreed: {scores}")
+    if primary["confidence"] == "low":
+        review_reasons.append("low confidence")
+    if final == 4:
+        review_reasons.append("most severe score")
+    if primary["urgent_safety_concern"]:
+        review_reasons.append("urgent safety concern")
+    if unverified:
+        review_reasons.append("citations not found on the cited page")
+
+    return {
+        **primary,
+        "run_scores": scores,
+        "unverified_citations": unverified,
+        "needs_review": bool(review_reasons),
+        "review_reasons": review_reasons,
+    }
