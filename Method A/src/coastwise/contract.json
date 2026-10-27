@@ -1,0 +1,39 @@
+{
+  "version": "provisional-0.1",
+  "description": "Provisional public extraction contract. Replace with the team's approved contract before benchmarking gold compatibility.",
+  "tables": {
+    "structures": {
+      "structure_name": "Name of the structure, retaining distinct sites or segments.",
+      "structure_type": "Structure type explicitly stated in the source.",
+      "location": "Location as stated, without inferred coordinates.",
+      "material": "Stated construction material(s).",
+      "construction_year": "Construction year as stated. Do not infer from age.",
+      "exposure_environment": "Water type and exposure explicitly stated."
+    },
+    "reports": {
+      "report_title": "Title as stated.",
+      "inspection_date": "Inspection date, range, or partial date exactly as stated. Not the publication date.",
+      "report_date": "Report issue/publication date exactly as stated.",
+      "inspecting_firm": "Inspection firm or agency as stated.",
+      "inspection_type": "Inspection type and methods as stated.",
+      "inspection_coverage": "Coverage, level, inspected areas, and explicitly uninspected areas.",
+      "limitations": "Inspection limitations stated in the report.",
+      "overall_rating_raw": "Report-level rating exactly as written.",
+      "rating_scale_raw": "Rating system as stated, without converting scales."
+    },
+    "observations": {
+      "structure_name": "Name of the structure this individual finding belongs to.",
+      "component": "Component or element this finding belongs to.",
+      "location_on_structure": "Station, elevation, face, or segment as stated, including datum.",
+      "finding": "One distinct finding or measurement. Do not merge unrelated defects.",
+      "defect_type": "Defect type described by this finding, retaining source terminology.",
+      "rating_raw": "Rating of this finding/component exactly as written.",
+      "rating_scale_raw": "Stated rating system for this finding.",
+      "measurement": "Measurement exactly as stated, including ranges or approximations.",
+      "unit": "Unit as stated for that measurement.",
+      "temporal_context": "Current condition, historical comparison, completed repair, or proposed work, as supported by the source.",
+      "recommended_action": "Action recommended for this finding, using the report's wording.",
+      "priority_raw": "Urgency or priority exactly as stated. Do not invent a rank."
+    }
+  }
+}
