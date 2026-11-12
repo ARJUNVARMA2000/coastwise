@@ -41,7 +41,7 @@ def make_assets(assets: Path, *, bad_hash=False, bad_source=False, unsafe=False)
     return metadata
 
 
-def test_install_replaces_only_runtime_data_and_indexes_all_ten_partial_runs(tmp_path, monkeypatch):
+def test_install_replaces_only_runtime_data_and_indexes_four_selected_reports(tmp_path, monkeypatch):
     root = tmp_path / "runs"
     root.mkdir()
     old = root / "superseded-run"
@@ -60,14 +60,14 @@ def test_install_replaces_only_runtime_data_and_indexes_all_ten_partial_runs(tmp
 
     installed = install_release(root, assets)
 
-    assert installed["installed"] and installed["reports"] == 10
+    assert installed["installed"] and installed["reports"] == 4
     assert not old.exists() and not (root / "_reference").exists() and not (root / "_archives").exists()
     assert not (root / "old.zip").exists()
     assert (root / ".env").read_text() == "protected secret"
     assert (tmp_path / "outside.txt").read_text() == "untouched"
     rows = Library(root).rows()
     assert {row["id"] for row in rows} == {r["run_id"] for r in metadata["reports"].values()}
-    assert len(rows) == 10 and all(row["status"] == "partial" for row in rows)
+    assert len(rows) == 4 and all(row["status"] == "partial" for row in rows)
     assert all(row["defect_count"] == 1 for row in rows)
 
 
@@ -84,7 +84,7 @@ def test_same_release_is_idempotent_and_preserves_future_uploads(tmp_path, monke
 
     assert install_release(root, assets)["installed"] is False
     assert (later / "source.pdf").read_bytes() == b"later"
-    assert len(Library(root).rows()) == 11
+    assert len(Library(root).rows()) == 5
     assert (root / MARKER).read_bytes() == marker
 
 

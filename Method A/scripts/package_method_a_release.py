@@ -11,7 +11,7 @@ from pathlib import Path
 from coastwise.method_a_release import VERSION, YEARS, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SOURCE = ROOT / "output/coastwise/method-a-brooklyn-one-shot-2026-11-11"
+DEFAULT_SOURCE = ROOT / "output/coastwise/method-a-four-report-release-2026-11-12"
 DEFAULT_ASSETS = ROOT / "src/coastwise/method_a_assets"
 
 
@@ -19,7 +19,7 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
     checkpoint = json.loads((source / "checkpoint.json").read_text())
     selected = {str(report["year"]): report["run_id"] for report in checkpoint["reports"]}
     if set(selected) != YEARS:
-        raise ValueError("Expected exactly the ten Brooklyn one-shot reports")
+        raise ValueError("Expected only the four Brooklyn one-shot reports from 2015–2018")
     assets.mkdir(parents=True, exist_ok=True)
     reports, files = {}, {}
     for year, run_id in sorted(selected.items()):
@@ -70,10 +70,10 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
         raise ValueError("Release bundle exceeds the 100 MB repository file limit")
     identity = hashlib.sha256(json.dumps({"files": files, "reports": reports}, sort_keys=True).encode()).hexdigest()
     metadata = {"version": VERSION, "release_id": identity, "generated_utc": datetime.now(UTC).isoformat(),
-                "warnings": ["All 524 published project grades are uncertain; missing or ungraded does not mean sound.",
-                             "Four chunk responses across 2024 and 2025 were truncated; no automatic repeats were made.",
-                             "Known finding, repair/currentness, member-location and measurement limitations remain; publication is not engineering verification.",
-                             "Source review found material omissions and ownership/repair-scope errors; inspect the PDF before relying on findings."],
+                "warnings": ["Project grades marked uncertain do not imply sound condition.",
+                             "These four high-reasoning reports took 232–446 seconds through saved exports; the two-minute target was not met.",
+                             "Measurement typing, repeated mentions and original-rating scope errors remain. Some legitimate evidence is rejected by local material matching.",
+                             "The 2018 local merge omitted a distinct pop-out spall finding. Inspect source PDFs; publication is not engineering verification."],
                 "reports": reports, "files_sha256": files, "bundle_sha256": sha256(bundle)}
     (assets / "latest.json").write_text(json.dumps(metadata, indent=2) + "\n")
     return metadata

@@ -58,3 +58,19 @@ The user explicitly authorizes keeping the original analysis and adding a main-p
 ### Review
 
 Restored the original 20-report chart JSON and 25-report score CSV byte-for-byte from preserved shared-repository Git history. Feature importance is accessible through static serving, with links on the main extraction and upload pages and a return link to extraction. No new date label was added. Three latest-workspace tests passed; local HTTP checks returned 200 for the page, JavaScript, stylesheet, JSON and CSV, and confirmed both navigation links. Changes are local only; no model calls, pushes or deployments.
+
+
+## Publish four high-reasoning Brooklyn outputs — authorized 2026-11-12
+
+User requested replacement of four prior outputs, pushes to both existing repositories, and deployment after disclosed limitations. Keep the other six latest reports and existing Feature importance. Preserve Git history, spending records and unrelated work. No model calls or grader fixes.
+
+- [ ] Verify remote heads, isolate published application from concurrent work, and check hosted active jobs.
+- [ ] Package saved 2015–2018 results/PDFs in the existing run format; preserve six other outputs and display actual timing/limitations.
+- [ ] Replace superseded four-report data in working files/current repo trees; preserve spending records and Git history.
+- [ ] Run bounded release, evidence/export and dataset checks.
+- [ ] Push both repositories, deploy exact verified package and check hosted results, evidence, exports and Feature importance.
+- [ ] Record final commits, deployment, cleanup and verification.
+
+Plan check-in: proceeding under the explicit push/remove/deploy request; no additional approval required.
+
+Scope correction: user explicitly requests ONLY the four new 2015–2018 reports. Remove the other six from current working/repository/hosted datasets. Keep Feature importance, spending records and Git history. The release invariant and checks must now require exactly four reports.

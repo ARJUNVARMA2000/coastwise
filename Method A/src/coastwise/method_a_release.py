@@ -21,7 +21,7 @@ from .library import Library
 VERSION = "method-a-latest-release-1"
 ASSETS = Path(__file__).with_name("method_a_assets")
 MARKER = ".method-a-release.json"
-YEARS = {"2015", "2016", "2017", "2018", "2020", "2021", "2022", "2023", "2024", "2025"}
+YEARS = {"2015", "2016", "2017", "2018"}
 MAX_BYTES = 250 * 1024 * 1024
 
 
@@ -58,19 +58,19 @@ def install_release(data_root: Path, assets: Path | None = None) -> dict:
     root = _checked_root(data_root, assets)
     metadata = read_metadata(assets)
     if metadata.get("version") != VERSION or set(metadata.get("reports", {})) != YEARS:
-        raise ValueError("The release must contain exactly the ten Brooklyn versions")
+        raise ValueError("The release must contain only the four Brooklyn reports from 2015–2018")
     bundle = assets / "latest.zip"
     if not bundle.is_file() or sha256(bundle) != metadata.get("bundle_sha256"):
         raise ValueError("Method A release bundle checksum mismatch")
     root.mkdir(parents=True, exist_ok=True)
     marker = root / MARKER
     if marker.is_file() and json.loads(marker.read_text()).get("release_id") == metadata["release_id"]:
-        return {"installed": False, "release_id": metadata["release_id"], "reports": 10}
+        return {"installed": False, "release_id": metadata["release_id"], "reports": len(YEARS)}
 
     reports = metadata["reports"]
     run_ids = {report["run_id"] for report in reports.values()}
-    if len(run_ids) != 10 or any(str(uuid.UUID(value)) != value for value in run_ids):
-        raise ValueError("Release run identifiers must be ten distinct UUIDs")
+    if len(run_ids) != len(YEARS) or any(str(uuid.UUID(value)) != value for value in run_ids):
+        raise ValueError("Release run identifiers must be four distinct UUIDs")
     expected = metadata.get("files_sha256", {})
     if not expected:
         raise ValueError("Release file manifest is empty")
@@ -123,7 +123,7 @@ def install_release(data_root: Path, assets: Path | None = None) -> dict:
                 child.unlink()
         for child in list(stage.iterdir()):
             child.rename(root / child.name)
-        return {"installed": True, "release_id": metadata["release_id"], "reports": 10,
+        return {"installed": True, "release_id": metadata["release_id"], "reports": len(YEARS),
                 "removed_superseded_entries": sorted(removed)}
     finally:
         shutil.rmtree(stage, ignore_errors=True)

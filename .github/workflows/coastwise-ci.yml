@@ -75,7 +75,7 @@ jobs:
           curl --fail --silent --show-error --max-time 3 \
             --retry 20 --retry-delay 1 --retry-all-errors "$url/health"
           curl --fail --silent --show-error "$url/api/extraction?scope=method_a_one_shot" | \
-            uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["reports"]) == 10; assert len(d["manifest"]) == 10'
+            uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["reports"]) == 4; assert len(d["manifest"]) == 4'
           curl --fail --silent --show-error "$url/feature-importance/" | grep --quiet 'Saved Claude analysis'
           curl --fail --silent --show-error "$url/feature-importance/feature_importance.json" | \
             uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["runs"]) == 1; r=d["runs"][0]; assert r["n_scored"] == 25; assert len(r["table"]) == 20; assert len(r["excluded"]) == 5'

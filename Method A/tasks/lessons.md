@@ -115,3 +115,7 @@ The user explicitly stops expansion and repeated edge-case repair/validation. Ke
 ## 2026-11-12 — Preserve the original feature importance page
 
 The user explicitly keeps the original feature importance analysis as an exception to the latest-only cleanup, and wants a main-page navigation tab without an added date label. Preserve its chart JSON and CSV along with its UI when preparing future releases.
+
+
+### Latest-only scope must identify the retained report set — 2026-11-12
+When the user says to publish a new subset and remove older versions, distinguish replacing versions from reducing the report collection. The explicit correction here is to retain ONLY the four high-reasoning 2015–2018 Brooklyn reports, removing the other six from active data and current repository branches while preserving Git history and spending records. Do not keep the earlier ten-report invariant after that correction.
