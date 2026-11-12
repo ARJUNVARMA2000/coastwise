@@ -807,8 +807,6 @@ def structure_workspace_report(inspection_id: str):
 
 
 @app.get("/structure-workspace.html", include_in_schema=False)
-@app.get("/feature-importance", include_in_schema=False)
-@app.get("/feature-importance/{path:path}", include_in_schema=False)
 def retired_workspace(path: str = ""):
     return RedirectResponse("/extraction", status_code=303)
 

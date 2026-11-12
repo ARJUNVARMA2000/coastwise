@@ -1,0 +1,1854 @@
+{
+ "runs": [
+  {
+   "run": "scoring-2026-10-29",
+   "generated_utc": "2026-10-29T22:14:14+00:00",
+   "model": "anthropic/claude-sonnet-5.5",
+   "n_scored": 25,
+   "n_analyzed": 20,
+   "excluded": [
+    {
+     "filename": "2012-windmill-hill-bulkhead-inspection.pdf",
+     "reason": "Human row mostly empty (2 of 18 fields)"
+    },
+    {
+     "filename": "2019-berkeley-pier-bird-habitat-field-evaluation.pdf",
+     "reason": "Human row mostly empty (2 of 18 fields)"
+    },
+    {
+     "filename": "2022-midyear-capital-improvements-report.pdf",
+     "reason": "Human row mostly empty (2 of 18 fields)"
+    },
+    {
+     "filename": "2024-long-wharf-north-seawall-rehabilitation-rfp.pdf",
+     "reason": "Human row mostly empty (2 of 18 fields)"
+    },
+    {
+     "filename": "2024-ocean-beach-pier-stabilization-concepts.pdf",
+     "reason": "Human row mostly empty (2 of 18 fields)"
+    }
+   ],
+   "score_distribution": {
+    "1": 2,
+    "2": 4,
+    "3": 4,
+    "4": 10
+   },
+   "features": [
+    {
+     "key": "human_rating",
+     "label": "Human-reported condition (1-4)",
+     "group": "Human condition rating",
+     "kind": "ordinal",
+     "how": "Worst rating word in 'Reported condition rating_raw' mapped to the rubric: good/satisfactory/excellent=1, fair=2, poor=3, serious/severe/critical/very poor=4. NBI digits: >=6 ->1, 5 ->2, 4 ->3, <=3 ->4.",
+     "n_nonmissing": 16
+    },
+    {
+     "key": "urgency",
+     "label": "Action urgency (0-3)",
+     "group": "Urgency",
+     "kind": "ordinal",
+     "how": "'Defect Severity/ Action urgency': minor/low/monitor=1, moderate/priority=2, urgent/severe/immediate=3.",
+     "n_nonmissing": 15
+    },
+    {
+     "key": "material_steel",
+     "label": "Material: steel",
+     "group": "Materials",
+     "kind": "binary",
+     "how": "Primary or secondary material text matches /steel/.",
+     "n_nonmissing": 19
+    },
+    {
+     "key": "material_concrete",
+     "label": "Material: concrete",
+     "group": "Materials",
+     "kind": "binary",
+     "how": "Primary or secondary material text matches /concre?te|concete/.",
+     "n_nonmissing": 19
+    },
+    {
+     "key": "material_timber",
+     "label": "Material: timber",
+     "group": "Materials",
+     "kind": "binary",
+     "how": "Primary or secondary material text matches /timber|wood/.",
+     "n_nonmissing": 19
+    },
+    {
+     "key": "material_stone_masonry",
+     "label": "Material: stone / masonry",
+     "group": "Materials",
+     "kind": "binary",
+     "how": "Primary or secondary material text matches /granite|stone|rock|masonry|brick/.",
+     "n_nonmissing": 19
+    },
+    {
+     "key": "material_rubber",
+     "label": "Material: rubber",
+     "group": "Materials",
+     "kind": "binary",
+     "how": "Primary or secondary material text matches /rubber/.",
+     "n_nonmissing": 19
+    },
+    {
+     "key": "saltwater",
+     "label": "Saltwater or brackish exposure",
+     "group": "Exposure",
+     "kind": "binary",
+     "how": "'Exposure environment' mentions saltwater or brackish (vs freshwater).",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "zone_submerged",
+     "label": "Zone: submerged",
+     "group": "Exposure zone",
+     "kind": "binary",
+     "how": "'Exposure zone' matches /submerged/.",
+     "n_nonmissing": 15
+    },
+    {
+     "key": "zone_splash_tidal",
+     "label": "Zone: splash / tidal",
+     "group": "Exposure zone",
+     "kind": "binary",
+     "how": "'Exposure zone' matches /splash|tidal|tial\\b/.",
+     "n_nonmissing": 15
+    },
+    {
+     "key": "zone_above_water",
+     "label": "Zone: above / water",
+     "group": "Exposure zone",
+     "kind": "binary",
+     "how": "'Exposure zone' matches /above water/.",
+     "n_nonmissing": 15
+    },
+    {
+     "key": "underwater_inspection",
+     "label": "Underwater inspection",
+     "group": "Inspection type",
+     "kind": "binary",
+     "how": "'Inspection type' mentions underwater, dive or Level I/II.",
+     "n_nonmissing": 20
+    },
+    {
+     "key": "not_an_inspection",
+     "label": "Not a condition inspection",
+     "group": "Inspection type",
+     "kind": "binary",
+     "how": "'Inspection type' is a proposal, memo, guidance manual, planning or vulnerability study.",
+     "n_nonmissing": 20
+    },
+    {
+     "key": "defect_steel",
+     "label": "Defect: steel",
+     "group": "Defect types",
+     "kind": "binary",
+     "how": "'Defect type(s)' matches /steel/.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "defect_concrete",
+     "label": "Defect: concrete",
+     "group": "Defect types",
+     "kind": "binary",
+     "how": "'Defect type(s)' matches /concrete|crack|spall/.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "defect_timber",
+     "label": "Defect: timber",
+     "group": "Defect types",
+     "kind": "binary",
+     "how": "'Defect type(s)' matches /timber/.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "defect_connection",
+     "label": "Defect: connection",
+     "group": "Defect types",
+     "kind": "binary",
+     "how": "'Defect type(s)' matches /connection|hardware/.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "defect_soil_water_loss",
+     "label": "Defect: soil / water / loss",
+     "group": "Defect types",
+     "kind": "binary",
+     "how": "'Defect type(s)' matches /soil|void|water loss/.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "defect_movement",
+     "label": "Defect: movement",
+     "group": "Defect types",
+     "kind": "binary",
+     "how": "'Defect type(s)' matches /movement|displac|tilt/.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "n_defect_types",
+     "label": "Number of defect types",
+     "group": "Defect types",
+     "kind": "numeric",
+     "how": "Count of defect-type flags above.",
+     "n_nonmissing": 18
+    },
+    {
+     "key": "log_n_defects",
+     "label": "Number of defects (log)",
+     "group": "Defect count",
+     "kind": "numeric",
+     "how": "log(1 + first number in 'Number_defects'); NR = missing.",
+     "n_nonmissing": 9
+    },
+    {
+     "key": "repaired",
+     "label": "Repairs since previous inspection",
+     "group": "Repairs",
+     "kind": "binary",
+     "how": "'Repairs since previous inspection' starts with yes/partial = 1, no = 0, unknown = missing.",
+     "n_nonmissing": 14
+    },
+    {
+     "key": "inspection_year",
+     "label": "Inspection year",
+     "group": "Report age",
+     "kind": "numeric",
+     "how": "First year in 'Inspection date', else the year in the PDF filename.",
+     "n_nonmissing": 19
+    },
+    {
+     "key": "human_fields_filled",
+     "label": "Human fields filled (of 18)",
+     "group": "Document",
+     "kind": "numeric",
+     "how": "How many of the 18 human fields are not empty/NR/not stated.",
+     "n_nonmissing": 20
+    },
+    {
+     "key": "log_pages",
+     "label": "Report length, pages (log)",
+     "group": "Document",
+     "kind": "numeric",
+     "how": "log(PDF pages).",
+     "n_nonmissing": 20
+    },
+    {
+     "key": "multi_chunk",
+     "label": "Scored in several pieces",
+     "group": "Document",
+     "kind": "binary",
+     "how": "Report text exceeded 250,000 characters, so the score is the worst piece.",
+     "n_nonmissing": 20
+    }
+   ],
+   "table": [
+    {
+     "filename": "2001-em-1110-2-6054.pdf",
+     "structure_group": "usace-em",
+     "score": 1.0,
+     "score_source": "worst_chunk",
+     "confidence": "low",
+     "human_rating_raw": null,
+     "human_rating": null,
+     "urgency": null,
+     "material_steel": 1.0,
+     "material_concrete": 0.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": null,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 0.0,
+     "defect_connection": 0.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 1.0,
+     "log_n_defects": null,
+     "repaired": null,
+     "inspection_year": 2001.0,
+     "human_fields_filled": 13.0,
+     "log_pages": 4.8903491282,
+     "multi_chunk": 1.0,
+     "disagreement": null
+    },
+    {
+     "filename": "2009-windmill-hill-bulkhead-inspection.pdf",
+     "structure_group": "windmill-hill",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "\"The majority of concrete bulkhead in [all four sections] is severely deteriorated and provides minimal structural support\"\n\"Critical\"",
+     "human_rating": 4.0,
+     "urgency": 3.0,
+     "material_steel": 0.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 1.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 0.0,
+     "defect_connection": 0.0,
+     "defect_soil_water_loss": 1.0,
+     "defect_movement": 1.0,
+     "n_defect_types": 3.0,
+     "log_n_defects": null,
+     "repaired": null,
+     "inspection_year": 2009.0,
+     "human_fields_filled": 16.0,
+     "log_pages": 3.258096538,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2013-us-59-grand-lake-bridge-inspection.pdf",
+     "structure_group": "us59-bridge",
+     "score": 2.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "2012 (URS): Deck 6, Superstructure 7, Substructure 7 (both bridges); 2010: Deck 7, Super 8, Sub 7. Superstructure \"generally good\"",
+     "human_rating": 1.0,
+     "urgency": 1.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 0.0,
+     "zone_submerged": 0.0,
+     "zone_splash_tidal": 0.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 0.0,
+     "defect_connection": 0.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 1.0,
+     "log_n_defects": 1.7917594692,
+     "repaired": 0.0,
+     "inspection_year": 2010.0,
+     "human_fields_filled": 18.0,
+     "log_pages": 4.0253516907,
+     "multi_chunk": 0.0,
+     "disagreement": 1.0
+    },
+    {
+     "filename": "2015-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Overall: Fair. West Bulkhead: Poor. North Bulkhead: Fair. East Bulkhead: Fair. East Fender System: Serious (incidental observation).",
+     "human_rating": 4.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": null,
+     "repaired": null,
+     "inspection_year": 2015.0,
+     "human_fields_filled": 16.0,
+     "log_pages": 3.6888794541,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2016-seawall-earthquake-vulnerability-executive-summary.pdf",
+     "structure_group": "sf-seawall",
+     "score": 2.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "The Study has revealed greater than expected risk to the Seawall",
+     "human_rating": null,
+     "urgency": 3.0,
+     "material_steel": null,
+     "material_concrete": null,
+     "material_timber": null,
+     "material_stone_masonry": null,
+     "material_rubber": null,
+     "saltwater": 1.0,
+     "zone_submerged": null,
+     "zone_splash_tidal": null,
+     "zone_above_water": null,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": null,
+     "defect_concrete": null,
+     "defect_timber": null,
+     "defect_connection": null,
+     "defect_soil_water_loss": null,
+     "defect_movement": null,
+     "n_defect_types": null,
+     "log_n_defects": null,
+     "repaired": null,
+     "inspection_year": 2016.0,
+     "human_fields_filled": 10.0,
+     "log_pages": 3.4657359028,
+     "multi_chunk": 0.0,
+     "disagreement": null
+    },
+    {
+     "filename": "2016-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Overall: Fair. West Bulkhead: Poor. North Bulkhead: Fair. East Bulkhead: Fair. East Fender System: Serious (incidental observation).",
+     "human_rating": 4.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 1.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 5.0,
+     "log_n_defects": null,
+     "repaired": 0.0,
+     "inspection_year": 2016.0,
+     "human_fields_filled": 17.0,
+     "log_pages": 3.7841896339,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2017-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Overall: Fair.  West Bulkhead: Poor.  North Bulkhead: Fair.  East Bulkhead: Fair.  East Fender System: Serious",
+     "human_rating": 4.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": null,
+     "repaired": 1.0,
+     "inspection_year": 2017.0,
+     "human_fields_filled": 17.0,
+     "log_pages": 3.8501476017,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2018-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Overall (New MTS): Satisfactory. Overall (Old MTS): Poor. North Bulkhead: Satisfactory. East Bulkhead: Satisfactory. North Fender System: Fair. East King Pile Fender System: Good. East Fender \n",
+     "human_rating": 3.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": null,
+     "repaired": 1.0,
+     "inspection_year": 2018.0,
+     "human_fields_filled": 17.0,
+     "log_pages": 3.2188758249,
+     "multi_chunk": 0.0,
+     "disagreement": 1.0
+    },
+    {
+     "filename": "2019-long-wharf-seawall-stabilization.pdf",
+     "structure_group": "long-wharf",
+     "score": 3.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": null,
+     "human_rating": null,
+     "urgency": null,
+     "material_steel": 1.0,
+     "material_concrete": 0.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 1.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 0.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 0.0,
+     "defect_connection": 0.0,
+     "defect_soil_water_loss": 1.0,
+     "defect_movement": 1.0,
+     "n_defect_types": 2.0,
+     "log_n_defects": null,
+     "repaired": 1.0,
+     "inspection_year": 2019.0,
+     "human_fields_filled": 12.0,
+     "log_pages": 3.6109179126,
+     "multi_chunk": 0.0,
+     "disagreement": null
+    },
+    {
+     "filename": "2019-shoreline-inventory-assessment.pdf",
+     "structure_group": "hamilton-shoreline",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Per site, very good to very poor",
+     "human_rating": 4.0,
+     "urgency": 1.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 1.0,
+     "material_rubber": 0.0,
+     "saltwater": 0.0,
+     "zone_submerged": null,
+     "zone_splash_tidal": null,
+     "zone_above_water": null,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 0.0,
+     "defect_connection": 0.0,
+     "defect_soil_water_loss": 1.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 1.0,
+     "log_n_defects": 2.5649493575,
+     "repaired": 1.0,
+     "inspection_year": 2019.0,
+     "human_fields_filled": 17.0,
+     "log_pages": 5.4071717715,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2020-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 2.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Timbers: Very good; inspected whalers: Excellent; inspected piles: Excellent",
+     "human_rating": 1.0,
+     "urgency": null,
+     "material_steel": 1.0,
+     "material_concrete": 0.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 1.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 2.0,
+     "log_n_defects": 2.7080502011,
+     "repaired": null,
+     "inspection_year": 2020.0,
+     "human_fields_filled": 16.0,
+     "log_pages": 2.4849066498,
+     "multi_chunk": 0.0,
+     "disagreement": 1.0
+    },
+    {
+     "filename": "2021-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 2.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Timbers: Very good; Whalers: Excellent; Piles: Excellent, except F12 timber damaged/cracked/split from impact",
+     "human_rating": 1.0,
+     "urgency": 1.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 0.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 2.0,
+     "log_n_defects": 2.8332133441,
+     "repaired": 1.0,
+     "inspection_year": 2021.0,
+     "human_fields_filled": 18.0,
+     "log_pages": 2.302585093,
+     "multi_chunk": 0.0,
+     "disagreement": 1.0
+    },
+    {
+     "filename": "2022-electrification-warehouse-a-modernization.pdf",
+     "structure_group": "cleveland-warehouse",
+     "score": 3.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "\"The warehouse is beyond its anticipated useful life and is in a state of disrepair, limiting efficient movement and throughput of cargo and elevating workplace hazards for employees.\n",
+     "human_rating": 4.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": 0.0,
+     "zone_submerged": 0.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 0.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 2.0,
+     "log_n_defects": null,
+     "repaired": 1.0,
+     "inspection_year": 2022.0,
+     "human_fields_filled": 16.0,
+     "log_pages": 3.4657359028,
+     "multi_chunk": 0.0,
+     "disagreement": -1.0
+    },
+    {
+     "filename": "2022-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Timbers: Very good; Whalers: Excellent; Piles: Excellent (NC from 2020), except F12 timber damaged/cracked/split from impact per cover letter.",
+     "human_rating": 1.0,
+     "urgency": 1.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": 3.5553480615,
+     "repaired": 0.0,
+     "inspection_year": 2022.0,
+     "human_fields_filled": 18.0,
+     "log_pages": 2.9957322736,
+     "multi_chunk": 0.0,
+     "disagreement": 3.0
+    },
+    {
+     "filename": "2023-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": " 124 Fair, 59 Poor, 1 Severe",
+     "human_rating": 4.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": 4.1108738642,
+     "repaired": 0.0,
+     "inspection_year": 2023.0,
+     "human_fields_filled": 18.0,
+     "log_pages": 3.9512437186,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2024-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 3.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Poor (North) and Poor (East)",
+     "human_rating": 3.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 1.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": 4.1743872699,
+     "repaired": 0.0,
+     "inspection_year": 2024.0,
+     "human_fields_filled": 18.0,
+     "log_pages": 4.6151205168,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "2025-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+     "structure_group": "sw-brooklyn-mts",
+     "score": 4.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "Poor (North) and Poor (East)",
+     "human_rating": 3.0,
+     "urgency": 3.0,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 1.0,
+     "saltwater": 1.0,
+     "zone_submerged": 1.0,
+     "zone_splash_tidal": 1.0,
+     "zone_above_water": 0.0,
+     "underwater_inspection": 1.0,
+     "not_an_inspection": 0.0,
+     "defect_steel": 1.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 1.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 4.0,
+     "log_n_defects": 4.1743872699,
+     "repaired": 1.0,
+     "inspection_year": 2025.0,
+     "human_fields_filled": 18.0,
+     "log_pages": 4.5538768916,
+     "multi_chunk": 0.0,
+     "disagreement": 1.0
+    },
+    {
+     "filename": "asr-diagnosis-prognosis-mitigation-transportation-structures.pdf",
+     "structure_group": "asr-manual",
+     "score": 1.0,
+     "score_source": "worst_chunk",
+     "confidence": "low",
+     "human_rating_raw": null,
+     "human_rating": null,
+     "urgency": null,
+     "material_steel": 0.0,
+     "material_concrete": 1.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": null,
+     "zone_submerged": null,
+     "zone_splash_tidal": null,
+     "zone_above_water": null,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": null,
+     "defect_concrete": null,
+     "defect_timber": null,
+     "defect_connection": null,
+     "defect_soil_water_loss": null,
+     "defect_movement": null,
+     "n_defect_types": null,
+     "log_n_defects": null,
+     "repaired": null,
+     "inspection_year": null,
+     "human_fields_filled": 5.0,
+     "log_pages": 5.0369526024,
+     "multi_chunk": 1.0,
+     "disagreement": null
+    },
+    {
+     "filename": "seawall-be-memo.pdf",
+     "structure_group": "mission-beach-seawall",
+     "score": 3.0,
+     "score_source": "report",
+     "confidence": "low",
+     "human_rating_raw": "\t\u201cseveral sections\u2026 in poor condition\u201d",
+     "human_rating": 3.0,
+     "urgency": null,
+     "material_steel": 1.0,
+     "material_concrete": 1.0,
+     "material_timber": 0.0,
+     "material_stone_masonry": 0.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": null,
+     "zone_splash_tidal": null,
+     "zone_above_water": null,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 0.0,
+     "defect_connection": 0.0,
+     "defect_soil_water_loss": 1.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 1.0,
+     "log_n_defects": null,
+     "repaired": 1.0,
+     "inspection_year": 2021.0,
+     "human_fields_filled": 14.0,
+     "log_pages": 4.1588830834,
+     "multi_chunk": 0.0,
+     "disagreement": 0.0
+    },
+    {
+     "filename": "sesuit-harbor-use-and-capacity-study.pdf",
+     "structure_group": "sesuit-harbor",
+     "score": 4.0,
+     "score_source": "worst_chunk",
+     "confidence": "low",
+     "human_rating_raw": "Piers and docks Fair overall; MA DCR structures: 1 Good, 2 Fair, 2 Poor",
+     "human_rating": 3.0,
+     "urgency": 3.0,
+     "material_steel": 0.0,
+     "material_concrete": 0.0,
+     "material_timber": 1.0,
+     "material_stone_masonry": 1.0,
+     "material_rubber": 0.0,
+     "saltwater": 1.0,
+     "zone_submerged": null,
+     "zone_splash_tidal": null,
+     "zone_above_water": null,
+     "underwater_inspection": 0.0,
+     "not_an_inspection": 1.0,
+     "defect_steel": 0.0,
+     "defect_concrete": 0.0,
+     "defect_timber": 1.0,
+     "defect_connection": 1.0,
+     "defect_soil_water_loss": 0.0,
+     "defect_movement": 0.0,
+     "n_defect_types": 2.0,
+     "log_n_defects": 2.0794415417,
+     "repaired": 1.0,
+     "inspection_year": 2013.0,
+     "human_fields_filled": 17.0,
+     "log_pages": 5.3518581335,
+     "multi_chunk": 1.0,
+     "disagreement": 1.0
+    }
+   ],
+   "univariate": {
+    "score": [
+     {
+      "feature": "n_defect_types",
+      "n": 18,
+      "rho": 0.6369681760960417,
+      "ci_low": 0.09152508201995119,
+      "ci_high": 0.913512279414326,
+      "p": 0.004470959165124912
+     },
+     {
+      "feature": "human_rating",
+      "n": 16,
+      "rho": 0.5876686412366185,
+      "ci_low": -0.2629666147894667,
+      "ci_high": 0.8961797368619888,
+      "p": 0.016670124171018097
+     },
+     {
+      "feature": "material_timber",
+      "n": 19,
+      "rho": 0.5644037449393717,
+      "ci_low": 0.22933593431771437,
+      "ci_high": 0.8500953587951948,
+      "p": 0.01182229529880276
+     },
+     {
+      "feature": "zone_splash_tidal",
+      "n": 15,
+      "rho": 0.5063696835418333,
+      "ci_low": -0.5590169943749475,
+      "ci_high": 0.7751897395393625,
+      "p": 0.05409016536363633
+     },
+     {
+      "feature": "not_an_inspection",
+      "n": 20,
+      "rho": -0.49004537638233225,
+      "ci_low": -0.7627223082164502,
+      "ci_high": 0.16624499935477038,
+      "p": 0.02827759643140344
+     },
+     {
+      "feature": "underwater_inspection",
+      "n": 20,
+      "rho": 0.432242256901787,
+      "ci_low": 0.22700272096254162,
+      "ci_high": 0.6423321112986095,
+      "p": 0.05700010430530741
+     },
+     {
+      "feature": "human_fields_filled",
+      "n": 20,
+      "rho": 0.4314287501624513,
+      "ci_low": -0.041765217230819836,
+      "ci_high": 0.9279194381530481,
+      "p": 0.05752111539128275
+     },
+     {
+      "feature": "defect_steel",
+      "n": 18,
+      "rho": 0.391362436830651,
+      "ci_low": -0.9200006643973093,
+      "ci_high": 0.8026880413502242,
+      "p": 0.10826653002468388
+     },
+     {
+      "feature": "defect_timber",
+      "n": 18,
+      "rho": 0.3892353940875895,
+      "ci_low": 0.04569450324426331,
+      "ci_high": 0.677227958682876,
+      "p": 0.11036823833067493
+     },
+     {
+      "feature": "defect_concrete",
+      "n": 18,
+      "rho": 0.3699341371417144,
+      "ci_low": -0.5573842299975488,
+      "ci_high": 0.6683427315768454,
+      "p": 0.13078244584565166
+     },
+     {
+      "feature": "zone_submerged",
+      "n": 15,
+      "rho": 0.34757542850579387,
+      "ci_low": -0.6753800002965771,
+      "ci_high": 0.7986891184610725,
+      "p": 0.20429784050059635
+     },
+     {
+      "feature": "multi_chunk",
+      "n": 20,
+      "rho": -0.3403887889300021,
+      "ci_low": -0.8089190489153232,
+      "ci_high": 0.3516637284610131,
+      "p": 0.14196351087010933
+     },
+     {
+      "feature": "defect_connection",
+      "n": 18,
+      "rho": 0.3270504935273079,
+      "ci_low": -0.16512672507367723,
+      "ci_high": 0.6457464030007577,
+      "p": 0.18526218371651307
+     },
+     {
+      "feature": "material_concrete",
+      "n": 19,
+      "rho": 0.3210632293213008,
+      "ci_low": -0.3742583676921485,
+      "ci_high": 0.6904104900167469,
+      "p": 0.18015366201998323
+     },
+     {
+      "feature": "urgency",
+      "n": 15,
+      "rho": 0.29268470350248177,
+      "ci_low": -0.43271756779012543,
+      "ci_high": 0.7120399897264618,
+      "p": 0.28976893903487483
+     },
+     {
+      "feature": "material_stone_masonry",
+      "n": 19,
+      "rho": 0.28253564180274476,
+      "ci_low": -0.0130184109002972,
+      "ci_high": 0.9415544714433867,
+      "p": 0.24119432615047837
+     },
+     {
+      "feature": "log_n_defects",
+      "n": 9,
+      "rho": 0.27132443085485597,
+      "ci_low": -0.14649159495920294,
+      "ci_high": 1.0,
+      "p": 0.4800580435376394
+     },
+     {
+      "feature": "defect_soil_water_loss",
+      "n": 18,
+      "rho": 0.25157730271331374,
+      "ci_low": 0.0,
+      "ci_high": 0.8542421961772492,
+      "p": 0.3139138790232209
+     },
+     {
+      "feature": "saltwater",
+      "n": 18,
+      "rho": 0.19166296949998196,
+      "ci_low": -0.4077205720325592,
+      "ci_high": 0.6035079903099327,
+      "p": 0.44612867947017426
+     },
+     {
+      "feature": "inspection_year",
+      "n": 19,
+      "rho": 0.10368905203460688,
+      "ci_low": -0.33168115152611166,
+      "ci_high": 0.6839707571767952,
+      "p": 0.6727125367596228
+     },
+     {
+      "feature": "zone_above_water",
+      "n": 15,
+      "rho": -0.10149974286764375,
+      "ci_low": -0.9797958971132713,
+      "ci_high": 0.22655754412953238,
+      "p": 0.7188958989049921
+     },
+     {
+      "feature": "material_rubber",
+      "n": 19,
+      "rho": 0.07597742720337697,
+      "ci_low": -0.5477225575051661,
+      "ci_high": 0.3315149027199011,
+      "p": 0.7572138117183799
+     },
+     {
+      "feature": "defect_movement",
+      "n": 18,
+      "rho": 0.03773659540699707,
+      "ci_low": -0.29334728989259423,
+      "ci_high": 0.5905689737449376,
+      "p": 0.8818212071237594
+     },
+     {
+      "feature": "material_steel",
+      "n": 19,
+      "rho": -0.014358384116760648,
+      "ci_low": -0.6813690625275028,
+      "ci_high": 0.5231144786294947,
+      "p": 0.9534774761085238
+     },
+     {
+      "feature": "log_pages",
+      "n": 20,
+      "rho": 0.0016220136062403473,
+      "ci_low": -0.613272914352298,
+      "ci_high": 0.5169589011480108,
+      "p": 0.9945849934822005
+     },
+     {
+      "feature": "repaired",
+      "n": 14,
+      "rho": 0.0,
+      "ci_low": -0.31225530230752413,
+      "ci_high": 0.9855890078087003,
+      "p": 1.0
+     }
+    ],
+    "disagreement": [
+     {
+      "feature": "material_rubber",
+      "n": 16,
+      "rho": 0.5265763289626744,
+      "ci_low": 0.3584594971987905,
+      "ci_high": 0.9469183853381643,
+      "p": 0.03612230610636148
+     },
+     {
+      "feature": "urgency",
+      "n": 14,
+      "rho": -0.47273972712711765,
+      "ci_low": -0.7938041320124253,
+      "ci_high": 0.4472135954999579,
+      "p": 0.08780509931746965
+     },
+     {
+      "feature": "human_fields_filled",
+      "n": 16,
+      "rho": 0.46988339023354836,
+      "ci_low": 0.220303288627699,
+      "ci_high": 0.8901981971385245,
+      "p": 0.06628096734285152
+     },
+     {
+      "feature": "defect_timber",
+      "n": 16,
+      "rho": 0.40255222070004326,
+      "ci_low": 0.018581675833537807,
+      "ci_high": 0.9999999999999999,
+      "p": 0.12214020437580284
+     },
+     {
+      "feature": "zone_splash_tidal",
+      "n": 13,
+      "rho": -0.371062737503085,
+      "ci_low": -1.0,
+      "ci_high": -0.265218836339544,
+      "p": 0.21194223739534612
+     },
+     {
+      "feature": "material_concrete",
+      "n": 16,
+      "rho": -0.361080911288691,
+      "ci_low": -0.8819171036881969,
+      "ci_high": -0.24451655364481856,
+      "p": 0.16942462661821997
+     },
+     {
+      "feature": "underwater_inspection",
+      "n": 16,
+      "rho": 0.3460358733183288,
+      "ci_low": 0.053375289569408776,
+      "ci_high": 0.6539687592367479,
+      "p": 0.18922669338441528
+     },
+     {
+      "feature": "material_timber",
+      "n": 16,
+      "rho": 0.32748887033017876,
+      "ci_low": -0.23360384962411915,
+      "ci_high": 0.725571220864853,
+      "p": 0.2156442620647523
+     },
+     {
+      "feature": "defect_concrete",
+      "n": 16,
+      "rho": -0.3083315267085868,
+      "ci_low": -0.7506881307912987,
+      "ci_high": 0.30000000000000004,
+      "p": 0.2452902498170546
+     },
+     {
+      "feature": "log_pages",
+      "n": 16,
+      "rho": -0.26390749075823056,
+      "ci_low": -0.5938532146896431,
+      "ci_high": 0.8317239361004065,
+      "p": 0.32332063170352693
+     },
+     {
+      "feature": "defect_soil_water_loss",
+      "n": 16,
+      "rho": -0.2576334212480277,
+      "ci_low": -1.0,
+      "ci_high": 0.5342437766783998,
+      "p": 0.33537915855851275
+     },
+     {
+      "feature": "saltwater",
+      "n": 16,
+      "rho": 0.24858482402510254,
+      "ci_low": -0.4847601772160051,
+      "ci_high": 0.7765196626998901,
+      "p": 0.35321554686777745
+     },
+     {
+      "feature": "not_an_inspection",
+      "n": 16,
+      "rho": -0.24858482402510254,
+      "ci_low": -0.7637626158259735,
+      "ci_high": 0.5477225575051662,
+      "p": 0.35321554686777745
+     },
+     {
+      "feature": "multi_chunk",
+      "n": 16,
+      "rho": 0.24666522136686947,
+      "ci_low": 0.13623566634561812,
+      "ci_high": 0.9354143466934853,
+      "p": 0.35706657721504265
+     },
+     {
+      "feature": "log_n_defects",
+      "n": 9,
+      "rho": -0.20583232685540795,
+      "ci_low": -1.0,
+      "ci_high": 0.009205746178983234,
+      "p": 0.5952053684345853
+     },
+     {
+      "feature": "zone_submerged",
+      "n": 13,
+      "rho": 0.1855313687515425,
+      "ci_low": -1.0,
+      "ci_high": 1.0,
+      "p": 0.5439527442981347
+     },
+     {
+      "feature": "defect_movement",
+      "n": 16,
+      "rho": -0.18499891602515212,
+      "ci_low": -0.5416865615351855,
+      "ci_high": 0.25277920795452624,
+      "p": 0.4927592869127317
+     },
+     {
+      "feature": "defect_connection",
+      "n": 16,
+      "rho": 0.17236256333167305,
+      "ci_low": -0.8528389961022282,
+      "ci_high": 0.6454972243679028,
+      "p": 0.5232594580547663
+     },
+     {
+      "feature": "material_stone_masonry",
+      "n": 16,
+      "rho": -0.07648763816157,
+      "ci_low": -0.4289826838446487,
+      "ci_high": 0.7530965885608439,
+      "p": 0.778292709342305
+     },
+     {
+      "feature": "repaired",
+      "n": 13,
+      "rho": -0.06879687281219884,
+      "ci_low": -0.9147732311438902,
+      "ci_high": 0.23930754176897834,
+      "p": 0.8232866547787978
+     },
+     {
+      "feature": "zone_above_water",
+      "n": 13,
+      "rho": 0.06713887319605581,
+      "ci_low": -0.22932353938112354,
+      "ci_high": 1.0,
+      "p": 0.8274872839949191
+     },
+     {
+      "feature": "material_steel",
+      "n": 16,
+      "rho": -0.04513511391108638,
+      "ci_low": -0.724568837309472,
+      "ci_high": 0.3014415027256579,
+      "p": 0.8681736426440293
+     },
+     {
+      "feature": "n_defect_types",
+      "n": 16,
+      "rho": -0.031624624698032844,
+      "ci_low": -0.5740161822860952,
+      "ci_high": 0.2549603812763483,
+      "p": 0.9074423115502419
+     },
+     {
+      "feature": "defect_steel",
+      "n": 16,
+      "rho": 0.014927035850663304,
+      "ci_low": -0.37352282009000837,
+      "ci_high": 0.25147278052595695,
+      "p": 0.9562442192887246
+     },
+     {
+      "feature": "inspection_year",
+      "n": 16,
+      "rho": -0.0016214506025419423,
+      "ci_low": -0.9702282523112268,
+      "ci_high": 0.31633587462302964,
+      "p": 0.995244931097459
+     }
+    ]
+   },
+   "models": {
+    "with_human_rating": {
+     "cv_mae": 1.0666866402116404,
+     "baseline_mae": 1.25,
+     "n_structures": 11,
+     "bootstraps_used": 188,
+     "importance": [
+      {
+       "group": "Defect types",
+       "features": [
+        "defect_steel",
+        "defect_concrete",
+        "defect_timber",
+        "defect_connection",
+        "defect_soil_water_loss",
+        "defect_movement",
+        "n_defect_types"
+       ],
+       "mae_increase": 0.014101190476190423,
+       "median_rank": 7.0,
+       "rank_p10": 1.0,
+       "rank_p90": 11.0,
+       "top3_share": 0.35106382978723405
+      },
+      {
+       "group": "Human condition rating",
+       "features": [
+        "human_rating"
+       ],
+       "mae_increase": 0.00498388888888886,
+       "median_rank": 3.0,
+       "rank_p10": 1.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.5531914893617021
+      },
+      {
+       "group": "Materials",
+       "features": [
+        "material_steel",
+        "material_concrete",
+        "material_timber",
+        "material_stone_masonry",
+        "material_rubber"
+       ],
+       "mae_increase": 0.0005599999999999827,
+       "median_rank": 4.0,
+       "rank_p10": 1.0,
+       "rank_p90": 11.0,
+       "top3_share": 0.43617021276595747
+      },
+      {
+       "group": "Urgency",
+       "features": [
+        "urgency"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 6.0,
+       "rank_p10": 3.0,
+       "rank_p90": 9.0,
+       "top3_share": 0.10638297872340426
+      },
+      {
+       "group": "Exposure",
+       "features": [
+        "saltwater"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 6.0,
+       "rank_p10": 4.0,
+       "rank_p90": 9.0,
+       "top3_share": 0.06914893617021277
+      },
+      {
+       "group": "Inspection type",
+       "features": [
+        "underwater_inspection",
+        "not_an_inspection"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 6.0,
+       "rank_p10": 2.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.24468085106382978
+      },
+      {
+       "group": "Defect count",
+       "features": [
+        "log_n_defects"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 7.0,
+       "rank_p10": 4.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.0797872340425532
+      },
+      {
+       "group": "Repairs",
+       "features": [
+        "repaired"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 7.0,
+       "rank_p10": 4.0,
+       "rank_p90": 9.0,
+       "top3_share": 0.05851063829787234
+      },
+      {
+       "group": "Document",
+       "features": [
+        "human_fields_filled",
+        "log_pages",
+        "multi_chunk"
+       ],
+       "mae_increase": -0.0019873809523810017,
+       "median_rank": 2.0,
+       "rank_p10": 1.0,
+       "rank_p90": 11.0,
+       "top3_share": 0.5904255319148937
+      },
+      {
+       "group": "Exposure zone",
+       "features": [
+        "zone_submerged",
+        "zone_splash_tidal",
+        "zone_above_water"
+       ],
+       "mae_increase": -0.002831388888888925,
+       "median_rank": 5.0,
+       "rank_p10": 2.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.3404255319148936
+      },
+      {
+       "group": "Report age",
+       "features": [
+        "inspection_year"
+       ],
+       "mae_increase": -0.006216944444444497,
+       "median_rank": 9.0,
+       "rank_p10": 3.0,
+       "rank_p90": 11.0,
+       "top3_share": 0.1702127659574468
+      }
+     ],
+     "predictions": [
+      {
+       "filename": "2001-em-1110-2-6054.pdf",
+       "score": 1.0,
+       "predicted": 2.9770462962962965
+      },
+      {
+       "filename": "2009-windmill-hill-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 3.018873015873016
+      },
+      {
+       "filename": "2013-us-59-grand-lake-bridge-inspection.pdf",
+       "score": 2.0,
+       "predicted": 3.2734126984126983
+      },
+      {
+       "filename": "2015-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.6078412698412703
+      },
+      {
+       "filename": "2016-seawall-earthquake-vulnerability-executive-summary.pdf",
+       "score": 2.0,
+       "predicted": 2.3845886243386247
+      },
+      {
+       "filename": "2016-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.8726944444444444
+      },
+      {
+       "filename": "2017-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.6083968253968255
+      },
+      {
+       "filename": "2018-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.671809523809524
+      },
+      {
+       "filename": "2019-long-wharf-seawall-stabilization.pdf",
+       "score": 3.0,
+       "predicted": 1.9715277777777767
+      },
+      {
+       "filename": "2019-shoreline-inventory-assessment.pdf",
+       "score": 4.0,
+       "predicted": 2.961392857142858
+      },
+      {
+       "filename": "2020-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 2.0,
+       "predicted": 2.6686428571428578
+      },
+      {
+       "filename": "2021-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 2.0,
+       "predicted": 2.7810873015873017
+      },
+      {
+       "filename": "2022-electrification-warehouse-a-modernization.pdf",
+       "score": 3.0,
+       "predicted": 2.973742063492063
+      },
+      {
+       "filename": "2022-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.7909206349206346
+      },
+      {
+       "filename": "2023-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.8474761904761903
+      },
+      {
+       "filename": "2024-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 3.0,
+       "predicted": 2.6886666666666668
+      },
+      {
+       "filename": "2025-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.9136309523809523
+      },
+      {
+       "filename": "asr-diagnosis-prognosis-mitigation-transportation-structures.pdf",
+       "score": 1.0,
+       "predicted": 2.5853253968253975
+      },
+      {
+       "filename": "seawall-be-memo.pdf",
+       "score": 3.0,
+       "predicted": 2.334291005291005
+      },
+      {
+       "filename": "sesuit-harbor-use-and-capacity-study.pdf",
+       "score": 4.0,
+       "predicted": 2.0751071428571426
+      }
+     ]
+    },
+    "without_human_rating": {
+     "cv_mae": 1.0951868386243386,
+     "baseline_mae": 1.25,
+     "n_structures": 11,
+     "bootstraps_used": 187,
+     "importance": [
+      {
+       "group": "Defect types",
+       "features": [
+        "defect_steel",
+        "defect_concrete",
+        "defect_timber",
+        "defect_connection",
+        "defect_soil_water_loss",
+        "defect_movement",
+        "n_defect_types"
+       ],
+       "mae_increase": 0.017595496031746084,
+       "median_rank": 5.0,
+       "rank_p10": 1.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.42780748663101603
+      },
+      {
+       "group": "Exposure zone",
+       "features": [
+        "zone_submerged",
+        "zone_splash_tidal",
+        "zone_above_water"
+       ],
+       "mae_increase": 0.0009040277777778605,
+       "median_rank": 4.0,
+       "rank_p10": 1.0,
+       "rank_p90": 9.0,
+       "top3_share": 0.4117647058823529
+      },
+      {
+       "group": "Urgency",
+       "features": [
+        "urgency"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 5.0,
+       "rank_p10": 3.0,
+       "rank_p90": 7.0,
+       "top3_share": 0.2192513368983957
+      },
+      {
+       "group": "Materials",
+       "features": [
+        "material_steel",
+        "material_concrete",
+        "material_timber",
+        "material_stone_masonry",
+        "material_rubber"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 4.0,
+       "rank_p10": 1.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.4919786096256685
+      },
+      {
+       "group": "Exposure",
+       "features": [
+        "saltwater"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 5.0,
+       "rank_p10": 3.0,
+       "rank_p90": 8.0,
+       "top3_share": 0.11229946524064172
+      },
+      {
+       "group": "Inspection type",
+       "features": [
+        "underwater_inspection",
+        "not_an_inspection"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 6.0,
+       "rank_p10": 2.6000000000000014,
+       "rank_p90": 9.0,
+       "top3_share": 0.19786096256684493
+      },
+      {
+       "group": "Defect count",
+       "features": [
+        "log_n_defects"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 6.0,
+       "rank_p10": 3.0,
+       "rank_p90": 9.0,
+       "top3_share": 0.15508021390374332
+      },
+      {
+       "group": "Repairs",
+       "features": [
+        "repaired"
+       ],
+       "mae_increase": 0.0,
+       "median_rank": 6.0,
+       "rank_p10": 3.0,
+       "rank_p90": 8.0,
+       "top3_share": 0.16042780748663102
+      },
+      {
+       "group": "Document",
+       "features": [
+        "human_fields_filled",
+        "log_pages",
+        "multi_chunk"
+       ],
+       "mae_increase": -0.004392499999999961,
+       "median_rank": 2.0,
+       "rank_p10": 1.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.5668449197860963
+      },
+      {
+       "group": "Report age",
+       "features": [
+        "inspection_year"
+       ],
+       "mae_increase": -0.013803571428571337,
+       "median_rank": 8.0,
+       "rank_p10": 2.0,
+       "rank_p90": 10.0,
+       "top3_share": 0.25668449197860965
+      }
+     ],
+     "predictions": [
+      {
+       "filename": "2001-em-1110-2-6054.pdf",
+       "score": 1.0,
+       "predicted": 2.9588201058201062
+      },
+      {
+       "filename": "2009-windmill-hill-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.898468253968254
+      },
+      {
+       "filename": "2013-us-59-grand-lake-bridge-inspection.pdf",
+       "score": 2.0,
+       "predicted": 3.425047619047619
+      },
+      {
+       "filename": "2015-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.525722222222223
+      },
+      {
+       "filename": "2016-seawall-earthquake-vulnerability-executive-summary.pdf",
+       "score": 2.0,
+       "predicted": 2.407874338624339
+      },
+      {
+       "filename": "2016-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.8110753968253976
+      },
+      {
+       "filename": "2017-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.5190555555555565
+      },
+      {
+       "filename": "2018-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.6491904761904768
+      },
+      {
+       "filename": "2019-long-wharf-seawall-stabilization.pdf",
+       "score": 3.0,
+       "predicted": 2.1128690476190464
+      },
+      {
+       "filename": "2019-shoreline-inventory-assessment.pdf",
+       "score": 4.0,
+       "predicted": 2.850218253968254
+      },
+      {
+       "filename": "2020-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 2.0,
+       "predicted": 2.6698015873015875
+      },
+      {
+       "filename": "2021-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 2.0,
+       "predicted": 2.7832460317460317
+      },
+      {
+       "filename": "2022-electrification-warehouse-a-modernization.pdf",
+       "score": 3.0,
+       "predicted": 2.7496190476190474
+      },
+      {
+       "filename": "2022-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.8008571428571427
+      },
+      {
+       "filename": "2023-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.790857142857143
+      },
+      {
+       "filename": "2024-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 3.0,
+       "predicted": 2.683690476190476
+      },
+      {
+       "filename": "2025-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+       "score": 4.0,
+       "predicted": 2.965821428571429
+      },
+      {
+       "filename": "asr-diagnosis-prognosis-mitigation-transportation-structures.pdf",
+       "score": 1.0,
+       "predicted": 2.601031746031747
+      },
+      {
+       "filename": "seawall-be-memo.pdf",
+       "score": 3.0,
+       "predicted": 2.4314259259259248
+      },
+      {
+       "filename": "sesuit-harbor-use-and-capacity-study.pdf",
+       "score": 4.0,
+       "predicted": 2.1532142857142857
+      }
+     ]
+    }
+   },
+   "notes": [
+    "20 reports analyzed from 25 scored; 11 distinct structures.",
+    "Grouped by structure: the 10 Southwest Brooklyn reports, 3 Ocean Beach Pier reports and the Windmill Hill, Long Wharf and Berkeley pairs are resampled and held out together, so repeat inspections cannot inflate results.",
+    "Multi-chunk reports use the worst chunk score; the rubric defines no rule for merging chunks.",
+    "These are associations with the LLM score, not evidence of what the model reads or why."
+   ]
+  }
+ ]
+}

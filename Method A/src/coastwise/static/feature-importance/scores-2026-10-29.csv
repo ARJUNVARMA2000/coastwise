@@ -1,0 +1,26 @@
+filename,score,score_source,chunk_scores,confidence,model
+2001-em-1110-2-6054.pdf,1,worst_chunk,"[1, 1]",low,anthropic/claude-sonnet-5.5
+2009-windmill-hill-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2012-windmill-hill-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2013-us-59-grand-lake-bridge-inspection.pdf,2,report,[2],low,anthropic/claude-sonnet-5.5
+2015-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2016-seawall-earthquake-vulnerability-executive-summary.pdf,2,report,[2],low,anthropic/claude-sonnet-5.5
+2016-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2017-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2018-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2019-berkeley-pier-bird-habitat-field-evaluation.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2019-long-wharf-seawall-stabilization.pdf,3,report,[3],low,anthropic/claude-sonnet-5.5
+2019-shoreline-inventory-assessment.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2020-southwest-brooklyn-mts-bulkhead-inspection.pdf,2,report,[2],low,anthropic/claude-sonnet-5.5
+2021-southwest-brooklyn-mts-bulkhead-inspection.pdf,2,report,[2],low,anthropic/claude-sonnet-5.5
+2022-electrification-warehouse-a-modernization.pdf,3,report,[3],low,anthropic/claude-sonnet-5.5
+2022-midyear-capital-improvements-report.pdf,4,worst_chunk,"[4, 1]",low,anthropic/claude-sonnet-5.5
+2022-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2023-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2024-long-wharf-north-seawall-rehabilitation-rfp.pdf,2,report,[2],low,anthropic/claude-sonnet-5.5
+2024-ocean-beach-pier-stabilization-concepts.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+2024-southwest-brooklyn-mts-bulkhead-inspection.pdf,3,report,[3],low,anthropic/claude-sonnet-5.5
+2025-southwest-brooklyn-mts-bulkhead-inspection.pdf,4,report,[4],low,anthropic/claude-sonnet-5.5
+asr-diagnosis-prognosis-mitigation-transportation-structures.pdf,1,worst_chunk,"[1, 1]",low,anthropic/claude-sonnet-5.5
+seawall-be-memo.pdf,3,report,[3],low,anthropic/claude-sonnet-5.5
+sesuit-harbor-use-and-capacity-study.pdf,4,worst_chunk,"[4, 4]",low,anthropic/claude-sonnet-5.5

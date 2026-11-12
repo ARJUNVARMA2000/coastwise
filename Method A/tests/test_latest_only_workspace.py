@@ -88,7 +88,8 @@ def test_superseded_routes_and_processing_modes_are_unavailable(tmp_path, monkey
                  "/api/structure-workspace/defects/old", "/api/structure-workspace/inspections/old/report"):
         assert client.get(path).status_code == 410
     assert client.get("/structure-workspace.html", follow_redirects=False).headers["location"] == "/extraction"
-    assert client.get("/feature-importance/", follow_redirects=False).headers["location"] == "/extraction"
+    assert client.get("/feature-importance/").status_code == 200
+    assert client.get("/feature-importance/feature_importance.json").json()["runs"]
     for config in ({"workflow": "extraction", "method": "b"},
                    {"workflow": "scoring", "extraction_mode": "four_table_v2"},
                    {"workflow": "scoring", "extraction_mode": "report_v1"}):

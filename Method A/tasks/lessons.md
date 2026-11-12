@@ -4,6 +4,10 @@
 
 When the user asks to remove superseded data everywhere, clarify whether “latest” means one current run per report and whether Git history should remain. Here the user confirmed the newest Method A output and source PDF for all ten Brooklyn reports, deletion from working files/current repository branches/hosted storage, and preservation of Git history. Remove old datasets rather than retaining hidden replay bundles. Push both the personal Coastwise repo and the shared repo's Method_A folder when requested. The user explicitly chose deployment of the latest outputs despite the quality gate, so keep the confirmed limitations visible rather than silently repairing or relabeling results.
 
+Protect schema definitions by exact role/path, not by the substring `schema`: saved `new_schema.json` and `new_schema.csv` are extracted datasets and must follow the data deletion scope. Finish with a bounded residual audit, including duplicate intake uploads and stale batch indexes. Validate the kept source hashes and current terminal run IDs before deletion.
+
+When concurrent work restores a separate feature, leave it untouched until scope is clear. The user explicitly requested including the existing Feature importance page. Retain its latest saved snapshot and label its original date/model and population so readers do not mistake its historical report-level scores for the latest one-shot defect grades. Do not recompute it or expand the extraction architecture.
+
 ## 2026-11-11 — Implement the simplified path without reopening old work
 
 When the user says “Implement and forget about existing work,” proceed with the authorized offline implementation. Leave historical cohort processing, outputs and spending records untouched; do not make another preservation audit, completion of an old batch or paid evaluation a prerequisite. Keep Method A to native text, bounded concurrent chunks, one extraction-and-grade call per chunk, local checks and the existing UI/exports.
@@ -106,3 +110,8 @@ A failed independent source becomes regression material, including the whole rep
 ## 2026-11-11 — Finish Method A with practical acceptance and a fixed endpoint
 
 The user explicitly stops expansion and repeated edge-case repair/validation. Keep a4abad3 frozen, use eligible fresh sources already identified, and propose only one small final pass before paid approval. Success means evidence-supported numeric grades, retained major findings/component/location, clearly flagged uncertainty and working tables/UI/exports. Minor documented omissions are acceptable; every legacy assertion need not pass. After that pass, issue go/no-go and, if usable, seek cohort-plan approval, review the Brooklyn outputs and deploy. Do not begin another cycle unless a major correctness issue would make the outputs misleading.
+
+
+## 2026-11-12 — Preserve the original feature importance page
+
+The user explicitly keeps the original feature importance analysis as an exception to the latest-only cleanup, and wants a main-page navigation tab without an added date label. Preserve its chart JSON and CSV along with its UI when preparing future releases.

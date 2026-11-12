@@ -60,6 +60,7 @@ jobs:
           node --check src/coastwise/static/scoring.js
           node --check src/coastwise/static/extraction.js
           node --check src/coastwise/static/bulk.js
+          node --check src/coastwise/static/feature-importance/app.js
 
       - name: Build the Railway source package
         run: |
@@ -75,6 +76,9 @@ jobs:
             --retry 20 --retry-delay 1 --retry-all-errors "$url/health"
           curl --fail --silent --show-error "$url/api/extraction?scope=method_a_one_shot" | \
             uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["reports"]) == 10; assert len(d["manifest"]) == 10'
+          curl --fail --silent --show-error "$url/feature-importance/" | grep --quiet 'Saved Claude analysis'
+          curl --fail --silent --show-error "$url/feature-importance/feature_importance.json" | \
+            uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["runs"]) == 1; r=d["runs"][0]; assert r["n_scored"] == 25; assert len(r["table"]) == 20; assert len(r["excluded"]) == 5'
           page="$RUNNER_TEMP/coastwise-method-a.html"
           timeout 30s google-chrome --headless --no-sandbox --disable-dev-shm-usage \
             --virtual-time-budget=10000 --dump-dom "$url/extraction" > "$page"
