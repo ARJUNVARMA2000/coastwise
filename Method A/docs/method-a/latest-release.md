@@ -25,8 +25,16 @@ The direct Method A processing architecture, prompts, rubric, grade rules, UI an
 
 Dataset release ID: `18625a8c56a524da872dd8a3a0f973ad338285bf90abce69c521c98764da792e`. Four reports, 108 packaged files. The installer verifies checksums and saved-run identities before replacing the runtime dataset and rebuilding its index. The same release remains idempotent.
 
-Targets: personal `ARJUNVARMA2000/coastwise` under `Method A/`, shared `prksyng54/msds-capstone` under `Method_A/`, and the existing Coastwise Railway website. Unrelated shared-repository folders are preserved. Final commit/deployment and verification records will be appended after publication.
+Targets: personal `ARJUNVARMA2000/coastwise` under `Method A/`, shared `prksyng54/msds-capstone` under `Method_A/`, and the existing Coastwise Railway website. Unrelated shared-repository folders are preserved. Publication and verification completed successfully.
 
 ## Feature importance
 
 The previously approved saved October 29 Claude analysis remains available: 25 scored / 20 analyzed reports. It is a separate existing analysis, not regenerated from these four defect outputs.
+
+## Completed publication and verification
+
+[Personal application commit 7bcf618](https://github.com/ARJUNVARMA2000/coastwise/commit/7bcf61827d21b5ca8833c726904afdd64237d876) and [shared application commit 4b742e8](https://github.com/prksyng54/msds-capstone/commit/4b742e8f5fcffb1c98d86037262869f5b2340915) are published. [Personal CI](https://github.com/ARJUNVARMA2000/coastwise/actions/runs/43167071266) passed after one Chrome-startup-timeout retry; [shared CI](https://github.com/prksyng54/msds-capstone/actions/runs/43167071006) passed first attempt. Python tests, JavaScript checks, container build, API checks and browser smoke checks pass.
+
+Railway deployment `87b6ad6b-e15f-4bed-af1c-49dd61095736` succeeded at [Coastwise](https://coastwise-production.up.railway.app). All 70 deployed files match the committed application. Authenticated live verification confirmed exactly four reports and 162 records, all four PDF hashes, quotation highlights/rendered pages, per-report exports and combined CSV/JSON/Excel/ZIP parity. All 10 former result URLs and source-PDF download URLs return 404. Authentication remains enforced. Feature importance and its saved JSON/CSV are intact.
+
+The local cleanup manifest records 381 removed files / 137,813,116 bytes, excluding the separately verified runtime dataset replacement. Git history, spending ledgers and raw latest structured outputs are preserved. No model calls were made for packaging, cleanup or deployment. Detailed records: `output/coastwise/method-a-four-report-release-2026-11-12/`.

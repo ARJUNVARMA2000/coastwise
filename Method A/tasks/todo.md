@@ -62,15 +62,19 @@ Restored the original 20-report chart JSON and 25-report score CSV byte-for-byte
 
 ## Publish four high-reasoning Brooklyn outputs — authorized 2026-11-12
 
-User requested replacement of four prior outputs, pushes to both existing repositories, and deployment after disclosed limitations. Keep the other six latest reports and existing Feature importance. Preserve Git history, spending records and unrelated work. No model calls or grader fixes.
+Final scope: ONLY the four saved 2015–2018 high-reasoning outputs and source PDFs. Remove prior versions and the other six Brooklyn reports from current data/repository branches/hosted storage. Keep Feature importance, spending records and Git history. Publication follows the user's explicit instruction after disclosed quality limitations; no model or grading changes.
 
-- [ ] Verify remote heads, isolate published application from concurrent work, and check hosted active jobs.
-- [ ] Package saved 2015–2018 results/PDFs in the existing run format; preserve six other outputs and display actual timing/limitations.
-- [ ] Replace superseded four-report data in working files/current repo trees; preserve spending records and Git history.
-- [ ] Run bounded release, evidence/export and dataset checks.
-- [ ] Push both repositories, deploy exact verified package and check hosted results, evidence, exports and Feature importance.
-- [ ] Record final commits, deployment, cleanup and verification.
+- [x] Verify both remote heads and existing hosted jobs; logs show no recent scoring/upload requests.
+- [x] Package the four saved results in the existing format with exact raw structured outputs, actual elapsed times and limitations.
+- [x] Remove superseded ten-report data, old benchmark copies and the six removed source PDFs; preserve spending records and Git history.
+- [x] Pass 36offline tests, Ruff, local four-report/evidence/export checks and both repository CI runs.
+- [x] Push both repositories and deploy the exact verified 70-file package to the existing Railway service.
+- [x] Verify four reports / 162 records, all PDFs/evidence/export formats, authentication, Feature importance, and 404 for all 10 old result/source-download URLs.
 
-Plan check-in: proceeding under the explicit push/remove/deploy request; no additional approval required.
+### Review
 
-Scope correction: user explicitly requests ONLY the four new 2015–2018 reports. Remove the other six from current working/repository/hosted datasets. Keep Feature importance, spending records and Git history. The release invariant and checks must now require exactly four reports.
+Application commits: personal 7bcf61827d21b5ca8833c726904afdd64237d876; shared 4b742e8f5fcffb1c98d86037262869f5b2340915. Railway deployment 87b6ad6b-e15f-4bed-af1c-49dd61095736 succeeded. Release 18625a8c56a524da872dd8a3a0f973ad338285bf90abce69c521c98764da792e contains only 2015–2018, 162 records, all grades uncertain. Feature importance remains available.
+
+Personal CI 43167071266 passed on the single retry after Chrome startup timed out; the initial tests/build/API checks had passed. Shared CI 43167071006 passed first attempt. No release-code changes or additional inference were needed. All 70 deployed files match the committed application. A proposed temporary SSH key was rejected by automatic approval review; no account credential was registered, local key files were removed, and checks/deployment completed using existing access.
+
+Working-file cleanup explicitly recorded 381 files / 137,813,116bytes, in addition to the runtime installer's replacement of the old ten-run dataset. Raw final structured outputs are byte-identical to the four paid results. Runtime/index/bundle contain four runs. Git history and both prior/current spending ledgers remain. Full verification/cleanup/provenance records are in output/coastwise/method-a-four-report-release-2026-11-12/.
