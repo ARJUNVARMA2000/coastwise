@@ -4,7 +4,9 @@ Extract concise, source-linked defects from native-text PDF inspection reports.
 
 **PDF native text → bounded chunks → one DeepSeek extraction-and-grade call per chunk → local validation → defect table, PDF evidence and exports.**
 
-The current dataset contains the newest Method A output for each of the ten available Brooklyn reports: 2015–2018 and 2020–2025. Only those outputs and their source PDFs are packaged. Superseded working/current-branch datasets are removed; Git history is preserved.
+The current Brooklyn dataset contains the newest Method A output for each of the ten available reports: 2015–2018 and 2020–2025. Its release bundle includes only those outputs and source PDFs. Superseded working/current-branch datasets are removed; Git history is preserved.
+
+The existing [Feature importance page](https://coastwise-production.up.railway.app/feature-importance/) is also included by request, with its latest saved October 29 Claude analysis (25 scored / 20 analyzed reports). The page labels its provenance separately from the new Brooklyn defect grades. See [release details](docs/method-a/latest-release.md) for measured time, cost and limitations.
 
 ## Current result limitations
 

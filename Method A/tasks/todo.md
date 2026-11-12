@@ -33,8 +33,18 @@ The user explicitly approved including the concurrently restored Feature importa
 
 - [x] Check the restored navigation, static page/data and provenance offline; distinguish the saved Claude analysis from the newest Brooklyn defect outputs.
 - [x] Run current offline tests, Feature importance JavaScript/data consistency checks and current source-package checks.
-- [ ] Sync only the approved page/navigation/route/data changes and release records into both repository app folders; push and verify CI.
-- [ ] Redeploy the updated package, preserving the same ten-report release data; verify Feature importance, current report/evidence/export APIs and authentication without inference. Record final commits/deployment and cleanup totals.
+- [x] Sync only the approved page/navigation/route/data changes and release records into both repository app folders; push and verify CI.
+- [x] Redeploy the updated package, preserving the same ten-report release data; verify Feature importance, current report/evidence/export APIs and authentication without inference. Record final commits/deployment and cleanup totals.
+
+### Final review — Feature importance and current Method A
+
+Included the one saved Feature importance analysis requested by the user: October 29 Claude results, 25 scored / 20 analyzed reports. The page clearly separates its report-level scores from the latest Brooklyn defect grades. CSV/JSON populations, features, chart references, saved error arithmetic and source/model fields were checked; the browser rendered its charts/table and updated the model-variant control. All 36 current offline tests, relevant Ruff and JavaScript/shell syntax checks passed. No analysis or inference was repeated.
+
+Application commits: personal `6f5aac038d2b3c39379ecdd6c8f3e9f2fba79425` and shared `3f91e5ac597d8998529b7680d5e55beb618821e2`. Both updated CI runs passed (`43159482061` and `43159476463`). Unrelated shared-repo folders were unchanged. Final Railway deployment `0cc028d0-ab28-454e-b0b9-3c0835e8c39c` succeeded at https://coastwise-production.up.railway.app, retaining the same ten-report release ID.
+
+Final authenticated hosted checks verified the Feature importance page, navigation, provenance, matching saved JSON/CSV and script/style assets; all ten Brooklyn report aggregates and source PDF hashes; all 524 defect records; one quotation highlight/rendered source page per report; and per-report/combined exports in CSV, JSON, Excel and ZIP. Authentication remained enforced, while superseded data endpoints and the known old run stayed unavailable. Local preview processes were stopped. `hosted-verification.json` records zero new inference calls for release checks.
+
+Cleanup totals after exact residual audits: 20,403 superseded or duplicate working files / 3,493,974,332 bytes removed. The ten newest Brooklyn outputs/PDFs, current spending ledger, requested latest Feature importance snapshot, code/definitions, credentials and Git history remain. Raw findings/grades and their known limitations are unchanged; the two-minute complete-report target remains unestablished.
 
 
 ## Restore feature importance navigation — 2026-11-12
