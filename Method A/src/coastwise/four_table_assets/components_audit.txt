@@ -1,0 +1,56 @@
+
+Additional audited contract (takes precedence):
+- Review every paragraph in <pages> before reading the context. Return page_review with the
+  absolute body page number, status observations or no_observations, and a concise reason.
+  Include page_review even when components is empty.
+  A page with documented condition observations or repaired damage still has observations.
+  A page of recommendations without observed findings may have no_observations.
+- Copy an explicit defect-specific number, code or label into severity as written. Preserve case.
+  A severity range stays one raw value. Leave severity NR for an unrated defect even when a
+  component or section has a condition such as Fair or Typical. Repair/Renew marks are actions.
+- Use rating_scope section only for a named area-wide condition and component for a physical item.
+  Give severity_scale the cited verbatim scale name only when the report connects that scale to
+  that rating. Similar wording by itself is insufficient. Keep unknown scales NR.
+- Copy source-supported material, material_grade and structural_role with tags on the applicable
+  component or defect. A shape or size such as HP12x84 is not an ASTM grade. Do not infer grades
+  or load-bearing importance. Use NR for an unstated property.
+- Each findings_text must be one contiguous exact passage. Cite every block of a passage that
+  wraps across adjacent source lines belonging to the same paragraph or row. Use context_quotes
+  for independent snippets such as headers, units, scoped notes or a second mention. Never
+  join unrelated cells into a sentence. Cite both the item label and the damage cell.
+- Table blocks may arrive out of visual order. When present, x and vertical y ranges identify
+  left/right columns and alignment. A vertically merged rating applies to its enclosed row
+  group only. A heading can apply to multiple rows; disambiguate repeated row labels using their
+  parent (e.g. which bay's connection) in identifier. Keep each distinct location.
+  Cite the actual row remarks for findings, the physical item or group heading for its name,
+  and the shared unit header for its unit. Never use a note about one row to fill a neighboring
+  row. A typical-condition paragraph remains group context unless the report ties it to the item.
+  Group all dimensions and readings of a single physical defect/location into one finding.
+  Report a shared group rating once with its own scope. Attach the relevant readings as
+  separate measurements. A measurement subrow is not another defect.
+  At the top of a continued table, check the prior page's last group before assigning rows
+  to the first group named on the body page. A merged label can be centered below its first
+  row. In narrative, cite the active face or area heading, including a heading on the previous
+  page. Preserve a shared condition at the original scope.
+- Each measurement has measurement_kind: coating_loss, thickness_loss, section_loss,
+  remaining_thickness or other. Distinguish steel substrate thickness from coating or cross-section
+  area. unit_src can cite a different tag for a shared unit header. Keep property specific
+  (e.g. outer flange remaining thickness). Retain raw numbers, inequality and range text.
+  For a compound dimension such as 3”x9”, retain the full raw value and cite the inch symbol
+  in unit and unit_src. Do not emit separate confirmed defects for alternatives in one statement.
+  Cite the confirmed finding and keep the alternative wording as context.
+- Historical or repaired findings are allowed when the earlier damage itself is stated. Keep
+  their status and time context. Do not invent damage from a repair or replacement alone.
+- <source_context> is supplemental text to interpret <pages>. It can support scoped facts and
+  definitions but cannot create a component observation or defect on its own. Keep the primary
+  findings_text and rating/measurement values anchored to the rows you extract in <pages>.
+- Check every observed condition acknowledged in page_review against the returned rows. Explicit
+  irregular levels/alignment and historical condition statements must not disappear. Keep a
+  historical finding historical, including its year, whether members were actually inspected,
+  exceptions, original rating ranges and stated basis. A present observation followed by a
+  conditional rehabilitation recommendation remains a present observation.
+- Cite the governing physical-element heading for material, and supplemental construction text
+  only when its subject unambiguously matches this component/section. Preserve reinforcement,
+  slab thickness and running-surface role as context; slab thickness is not damage depth. Retain
+  an explicit affected-member total when it refers to the same finding. Geometry words such as
+  shallow, wide or deep are not severity ratings without an explicitly applicable rating scale.

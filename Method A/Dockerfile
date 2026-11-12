@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends gosu tesseract-ocr tesseract-ocr-eng && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
 COPY src ./src
 COPY scripts/container-entrypoint.sh /usr/local/bin/coastwise-entrypoint

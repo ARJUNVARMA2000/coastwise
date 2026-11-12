@@ -19,7 +19,14 @@ function updateQueue(){
 function updateBulkButton(){
   if(!settings)return;
   const count=bulkUploads.length;
-  $('extract').innerHTML=count>1?`Score ${count} reports <span>↗</span>`:selectedWorkflow==='scoring'?'Score report <span>↗</span>':'Extract report <span>↗</span>';
+  const defectMode=selectedWorkflow==='scoring'&&selectedExtractionMode==='defect_v1';
+  if(selectedWorkflow==='scoring'&&fourTableMode(selectedExtractionMode)){
+    const action=['method_a_one_shot','four_table_v2'].includes(selectedExtractionMode)?'Extract and grade defects':'Extract four tables';
+    $('extract').innerHTML=`${action}${count>1?' · '+count+' reports':''} <span>↗</span>`;
+    $('preview').textContent=count>1?'Preview all · no API cost':'Preview source · no API cost';
+    return;
+  }
+  $('extract').innerHTML=count>1?`${defectMode?'Extract defects from':'Score'} ${count} reports <span>↗</span>`:defectMode?'Extract defects <span>↗</span>':selectedWorkflow==='scoring'?'Score report <span>↗</span>':'Extract report <span>↗</span>';
   $('preview').textContent=count>1?'Preview all · no API cost':'Preview source · no API cost';
 }
 async function uploadFiles(files){
@@ -85,7 +92,7 @@ async function refreshLibrary(){
     $('batchFilter').value=libraryBatch;
     const t=data.totals,groups=groupReports(libraryRows),selected=groups.map(g=>g.row);
     $('libraryTotals').innerHTML=[['Reports',groups.length],['Model outputs ready',selected.filter(r=>r.status==='complete'&&!r.preview_only&&!r.has_failures).length],['Extracted fields',selected.reduce((n,r)=>n+Object.keys(r.new_schema_values||{}).length,0)]].map(([name,value])=>`<div><strong>${value}</strong><span>${name}</span></div>`).join('');
-    $('libraryNote').textContent=`One current assessment per PDF. Open a report for its overview, model output and source evidence.${t.active?' '+t.active+' jobs in progress.':''}`;
+    $('libraryNote').textContent=`One current assessment per PDF. Open a report for its model output, justifications and source evidence.${t.active?' '+t.active+' jobs in progress.':''}`;
     const query=libraryBatch?'?batch_id='+encodeURIComponent(libraryBatch):'';
     [['summaryCsv','summary.csv'],['comparisonCsv','comparison.csv'],['newSchemaCsv','new_schema.csv'],['judgeCsv','judge.csv'],['summaryJson','summary.json'],['allOutputs','outputs.zip']].forEach(([id,file])=>$(id).href=`/api/library/download/${file}${query}`);
     renderLibrary();
@@ -95,10 +102,10 @@ async function refreshLibrary(){
 function renderLibrary(){
   const query=$('librarySearch').value.toLowerCase();
   const allGroups=groupReports(libraryRows);
-  const groups=allGroups.filter(g=>(libraryFilter==='all'||(libraryFilter==='attention'?reportHasAttention(g.row):!g.row.human_comparison?.reference_id))&&g.versions.map(r=>[r.filename,reportTitle(r),r.new_schema_values?.['Inspection date'],r.new_schema_values?.['Structure ID/name'],assessmentName(r)].join(' ')).join(' ').toLowerCase().includes(query));
+  const groups=allGroups.filter(g=>libraryMatchesFilter(g.row,libraryFilter)&&g.versions.map(r=>[r.filename,reportTitle(r),r.new_schema_values?.['Inspection date'],r.new_schema_values?.['Structure ID/name'],assessmentName(r)].join(' ')).join(' ').toLowerCase().includes(query));
   $('libraryResultCount').textContent=`Showing ${groups.length} of ${allGroups.length} reports.`;
   $('libraryFilters').querySelectorAll('button').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.libraryFilter===libraryFilter)));
-  $('libraryFilterSummary').textContent=libraryFilter==='all'?'':libraryFilter==='attention'?'Review checks':'No human labels';
+  $('libraryFilterSummary').textContent=({all:'',attention:'Review checks',unmatched:'No human labels',inspection:'Inspection findings',reference:'Reference material'})[libraryFilter]||'';
   $('libraryTable').innerHTML=groups.length?`<table class="report-table"><caption class="sr-only">Saved reports, available model outputs, and provisional model severity</caption><thead><tr><th scope="col">Report</th><th scope="col">Saved output</th><th scope="col">Model severity</th><th scope="col"><span class="sr-only">Open report</span></th></tr></thead><tbody>${groups.map(({row:r})=>`<tr><td data-column="Report"><a class="report-name" href="${reportUrl(r.id)}" data-open-run="${escapeHtml(r.id)}">${escapeHtml(reportTitle(r))}</a><small>${escapeHtml(assessmentName(r))}</small>${r.status!=='complete'?`<span class="run-status">${escapeHtml(r.status)}</span>`:''}</td><td data-column="Saved output"><span class="output-caption">${escapeHtml(savedOutputLabel(r))}</span><small>${r.preview_only?'Source pages available':r.human_comparison?.reference_id?'Source evidence · Human labels available':'Source evidence'}</small></td><td data-column="Model severity">${severityBadge(r.score)}<small>${r.preview_only?'Source preview':'Provisional assessment'}</small></td><td class="report-open-cell"><a class="report-open" href="${reportUrl(r.id)}" data-open-run="${escapeHtml(r.id)}" aria-label="Open ${escapeHtml(reportTitle(r))}">Open report <span aria-hidden="true">→</span></a></td></tr>`).join('')}</tbody></table><p class="library-scale">Model severity: <b>1 Good → 4 Serious / critical</b> · Higher means worse. Assessments are provisional; source evidence and human comparisons are available within each report.</p>`:'<div class="comparison-empty"><h3>No reports match this view.</h3><p>Try another collection, search or filter. New assessment lets you upload a PDF.</p><button id="resetLibraryFilters" class="secondary-button">Clear search and filters</button></div>';
   $('libraryTable').querySelectorAll('[data-open-run]').forEach(el=>el.onclick=e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();openSavedRun(el.dataset.openRun);});
   if($('resetLibraryFilters'))$('resetLibraryFilters').onclick=()=>{libraryFilter='all';$('librarySearch').value='';renderLibrary();$('librarySearch').focus();};

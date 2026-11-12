@@ -21,6 +21,7 @@ select{font:inherit;width:100%;border:1px solid #d6e1e6;border-radius:5px;paddin
 .topbar { position:sticky; top:0; z-index:20; }
 .topbar-actions { gap:12px; }
 .topbar .local-status { display:none; }
+@media (max-width: 900px) { .topbar .register-link { display:none; } }
 .library-button { font-size:13px; padding:10px 16px; }
 .library-button[aria-current="page"] { background:var(--mist); border-color:#a8c3cc; }
 .nav-primary { padding:10px 15px; color:var(--navy); background:white; border:1px solid var(--line); border-radius:5px; font-size:13px; }
@@ -330,3 +331,9 @@ body[data-view="assessment"] .workspace-heading h1 { font-size:29px; }
 .report-navigation>.text-button { display:block; font-size:12px; }
 body[data-view="assessment"] .report-navigation { display:none; }
 @media(max-width:900px) { body[data-view="assessment"] .report-navigation { display:flex; } }
+.four-table-summary { display: grid; gap: .9rem; }
+.four-table-summary dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: .6rem; margin: 0; }
+.four-table-summary dl div { background: #eef4f6; padding: .6rem .75rem; }
+.four-table-summary dt { font-size: .78rem; color: #4f6672; }
+.four-table-summary dd { margin: 0; font-size: 1.4rem; font-weight: 650; }
+.four-table-summary .primary-link { justify-self: start; font-weight: 650; }

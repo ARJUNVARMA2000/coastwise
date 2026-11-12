@@ -1,4 +1,4 @@
-"""Build an allowlisted deployment tree; exclude credentials, reports and outputs."""
+"""Build an allowlisted deployment tree, including the verified current release bundle."""
 import json
 import shutil
 from pathlib import Path

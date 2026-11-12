@@ -17,7 +17,9 @@ BATCH = 'dbd9f07b-05f0-48f7-b5df-9f98e277b4d1'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capture-before', action='store_true')
+    parser.add_argument('--output', type=Path, default=OUTPUT)
     args = parser.parse_args()
+    output = args.output
     with httpx.Client(base_url=URL, timeout=180) as client:
         assert client.get('/api/library').status_code == 401
         assert client.post('/login', data={
@@ -32,7 +34,7 @@ def main():
         assert data['totals']['active'] == 0
         hashes = {r['id']: hashlib.sha256(get('/api/runs/' + r['id'] + '/result').content).hexdigest()
                   for r in data['rows'] if r['status'] == 'complete'}
-        snapshot = OUTPUT / 'hosted-before.json'
+        snapshot = output / 'hosted-before.json'
         if args.capture_before:
             assert not snapshot.exists(), 'Do not overwrite the pre-deployment snapshot'
             snapshot.write_text(json.dumps({'ids': [r['id'] for r in data['rows']],
@@ -59,14 +61,14 @@ def main():
                 with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
                     assert archive.testzip() is None
             downloads[name] = len(response.content)
-        record = json.loads((OUTPUT / 'verification.json').read_text())
+        record = json.loads((output / 'verification.json').read_text())
         record.update(published=True, hosted_url=URL + '/?batch=' + BATCH,
                       hosted_library_entries_preserved=len(before['ids']),
                       hosted_saved_results_unchanged=len(hashes), hosted_reports=24,
                       hosted_factual_comparisons=432, hosted_source_images=24,
                       hosted_downloads=downloads, hosted_static_assets_match=True,
                       hosted_active_jobs=0, hosted_model_calls=0)
-        (OUTPUT / 'verification.json').write_text(json.dumps(record, indent=2) + '\n')
+        (output / 'verification.json').write_text(json.dumps(record, indent=2) + '\n')
         print('Live progress-first assets, saved results, 24 sources, 432 comparisons and six exports verified.')
 
 

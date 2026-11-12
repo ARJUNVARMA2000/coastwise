@@ -209,7 +209,14 @@ async def run_report(pdf: Path, report_id: str, output: Path, config: BaselineCo
                      reference: dict | None = None, client=None, system_prompt: str | None = None,
                      pages: list[int] | None = None, preview: bool = False, progress=None,
                      max_requests: int = 100, max_runtime_seconds: int = 1200,
-                     full_schema: bool = False) -> dict:
+                     full_schema: bool = False, extraction_mode: str = "report_v1") -> dict:
+    if extraction_mode == "defect_v1":
+        from .defects import run_report as extract_defects
+        return await extract_defects(pdf, report_id, output, config, client=client,
+            system_prompt=system_prompt, pages=pages, preview=preview, progress=progress,
+            max_requests=max_requests, max_runtime_seconds=max_runtime_seconds)
+    if extraction_mode != "report_v1":
+        raise ValueError("Unknown extraction mode")
     from . import full_schema as full
     if output.exists() and any(output.iterdir()):
         raise ValueError("Output must be empty; saved runs are never silently rerun")
@@ -397,6 +404,9 @@ def review_flags(assessment, valid, issues, failures, partial, chunk_count, prev
 
 
 def write_exports(output: Path, result: dict):
+    if result.get("extraction_mode") == "defect_v1":
+        from .defects import write_exports as write_defect_exports
+        return write_defect_exports(output, result)
     from . import full_schema as full
     assessments = [a["assessment"] for a in result["chunks"] if a.get("validation", {}).get("schema_valid")]
     fields = list(json.loads((ASSETS / "assessment.schema.json").read_text())["properties"])

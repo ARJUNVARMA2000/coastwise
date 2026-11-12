@@ -1,7 +1,7 @@
 [project]
 name = "coastwise"
 version = "0.1.0"
-description = "Evidence-based inspection report extraction with comparable A and B methods"
+description = "Native-text Method A defect extraction with source evidence and provisional grades"
 requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115,<1",
@@ -11,6 +11,7 @@ dependencies = [
   "pdfplumber>=0.11,<1",
   "httpx>=0.28,<1",
   "jsonschema>=4.23,<5",
+  "openpyxl>=3.1.5",
   "python-dotenv>=1.2.4",
   "itsdangerous>=2.2.0",
   "google-cloud-storage>=3.17.1",
@@ -28,10 +29,14 @@ build-backend = "hatchling.build"
 packages = ["src/coastwise"]
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+dev = [
+    "pytest>=8,<10",
+    "ruff>=0.11,<1",
+]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests/test_method_a_one_shot.py", "tests/test_method_a_one_shot_web.py",
+             "tests/test_latest_only_workspace.py", "tests/test_method_a_release.py"]
 
 [tool.ruff]
 line-length = 100

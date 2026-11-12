@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import time
 
@@ -11,13 +12,17 @@ class ModelError(RuntimeError):
     pass
 
 
+class RateLimited(ModelError):
+    """HTTP 429: rejected before generation, so nothing was billed."""
+
+
 class OpenRouter:
     """Small HTTP adapter. Credentials never enter run metadata or request logs."""
 
     def __init__(self, api_key: str, model: str, provider: str = "", max_usd: float = 1.0,
                  max_tokens: int = 4000, max_total_tokens: int = 150000,
                  transport=None, max_attempts: int = 3, timeout_seconds: int = 120,
-                 capture_responses: bool = False):
+                 capture_responses: bool = False, ledger=None):
         self.api_key, self.model, self.provider = api_key, model, provider
         self.max_usd, self.max_tokens = max_usd, max_tokens
         self.max_total_tokens = max_total_tokens
@@ -29,6 +34,7 @@ class OpenRouter:
         if not 1 <= max_attempts <= 3:
             raise ValueError("max_attempts must be between 1 and 3")
         self.max_attempts = max_attempts
+        self.ledger = ledger
         self.capture_responses = capture_responses
         self.responses: list[dict] = []
         self.http = httpx.AsyncClient(base_url="https://openrouter.ai/api/v1/", timeout=timeout_seconds,
@@ -61,10 +67,27 @@ class OpenRouter:
         # Explicit temperature only when supported; unsupported parameters must not be ignored.
         self.temperature_supported = "temperature" in supported
         self.reasoning_supported = "reasoning" in supported or "reasoning_effort" in supported
+        if self.ledger is not None:
+            await self.preflight_budget_endpoint()
         overrides = self.pricing.get("overrides", [])
         self.budget_pricing = {name: max(float(self.pricing.get(name, 0)),
             *(float(p.get(name, self.pricing.get(name, 0))) for p in overrides)) if overrides else float(self.pricing.get(name, 0))
             for name in ("prompt", "completion", "request")}
+
+    async def preflight_budget_endpoint(self):
+        """Pin a verified route and reserve for its entire possible input context."""
+        response = await self.http.get(f"models/{self.model}/endpoints")
+        response.raise_for_status()
+        candidates = [e for e in response.json()["data"]["endpoints"] if e.get("tag") == self.provider]
+        if len(candidates) != 1:
+            raise ModelError("A unique OpenRouter endpoint tag is required for the durable budget")
+        endpoint = candidates[0]
+        if "structured_outputs" not in endpoint.get("supported_parameters", []):
+            raise ModelError("The pinned OpenRouter endpoint does not advertise JSON Schema support")
+        self.pricing = endpoint["pricing"]
+        self.context_length = int(endpoint["context_length"])
+        if self.context_length < self.max_tokens or not all(k in self.pricing for k in ("prompt", "completion")):
+            raise ModelError("The pinned endpoint lacks a usable context or pricing bound")
 
     async def call(self, messages: list[dict], schema: dict | None = None,
                    tools: list[dict] | None = None) -> dict:
@@ -87,13 +110,23 @@ class OpenRouter:
         # UTF-8 byte length is a conservative token allowance, including schema/tool payload.
         allowance = len(json.dumps(body).encode()) + self.max_tokens
         prices = getattr(self, "budget_pricing", self.pricing)
-        estimate = ((allowance - self.max_tokens) * float(prices["prompt"]) +
-                    self.max_tokens * float(prices["completion"]) + float(prices.get("request", 0)))
+        if self.ledger is not None:
+            # OpenRouter's routing limits are in dollars per million tokens, except per request.
+            body["provider"]["max_price"] = {
+                "prompt": prices["prompt"] * 1_000_000,
+                "completion": prices["completion"] * 1_000_000,
+                "request": prices.get("request", 0),
+            }
+            # Cached input can also be billed. Use the higher published per-token rate.
+            prompt_rate = max(float(tier.get(key, 0)) for tier in (self.pricing, *self.pricing.get("overrides", []))
+                              for key in ("prompt", "input_cache_read", "input_cache_write"))
+            estimate = self.context_length * prompt_rate + self.max_tokens * prices["completion"] + prices["request"]
+        else:
+            estimate = ((allowance - self.max_tokens) * float(prices["prompt"]) +
+                        self.max_tokens * float(prices["completion"]) + float(prices.get("request", 0)))
         for attempt in range(self.max_attempts):
             if self.reserved + estimate > self.max_usd or self.tokens + allowance > self.max_total_tokens:
                 raise ModelError("Run budget reached. Raise the cap or use fewer pages/output tokens.")
-            self.reserved += estimate
-            self.tokens += allowance
             started = time.monotonic()
             entry = {"model_requested": self.model, "provider_requested": self.provider or None,
                      "attempt": attempt + 1, "reserved_usd": estimate}
@@ -101,6 +134,13 @@ class OpenRouter:
                 entry["stage"] = self.stage
             if "reasoning" in body:
                 entry["reasoning"] = body["reasoning"]
+            reservation = None
+            if self.ledger is not None:
+                fingerprint = hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
+                reservation = self.ledger.reserve(estimate, entry, fingerprint)
+                entry["ledger_attempt_id"] = reservation
+            self.reserved += estimate
+            self.tokens += allowance
             try:
                 resp = await self.http.post("chat/completions", json=body, headers={
                     "Authorization": f"Bearer {self.api_key}",
@@ -110,6 +150,12 @@ class OpenRouter:
                     entry["error"] = "Transient provider error; request reservation retained"
                     await asyncio.sleep(0.5 * (2 ** attempt))
                     continue
+                if resp.status_code == 429:
+                    # No generation happened, so this attempt's reservation is released.
+                    self.reserved -= estimate
+                    self.tokens -= allowance
+                    entry["reserved_usd"] = 0.0
+                    raise RateLimited("OpenRouter returned HTTP 429. The request was rate limited and not processed.")
                 if resp.is_error:
                     raise ModelError(f"OpenRouter returned HTTP {resp.status_code}. Check model/provider, credits, and key.")
                 data = resp.json()
@@ -139,6 +185,8 @@ class OpenRouter:
             finally:
                 entry["seconds"] = round(time.monotonic() - started, 3)
                 self.logs.append(entry)
+                if reservation is not None:
+                    self.ledger.settle(reservation, entry)
         raise ModelError("OpenRouter request failed")
 
 

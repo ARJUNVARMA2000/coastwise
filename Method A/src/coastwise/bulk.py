@@ -21,6 +21,7 @@ from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 from starlette.background import BackgroundTask
 
+from . import defects
 from .baseline import review_flags, save_json, write_exports
 from .comparison import active_reference, comparison_csv, comparison_summary, enrich, save_reference
 from .full_schema import FULL_FILES, combined_csv
@@ -157,7 +158,8 @@ async def create_batch(upload_ids: str = Form(...), config: str = Form(...),
         save_json(directory / "request.json", {"config": asdict(run_config), "preview": preview})
         job = {"id": run_id, "batch_id": batch_id, "filename": info["filename"], "pages": info["pages"],
                "workflow": "scoring", "preview_only": preview, "status": "queued", "stage": "Queued",
-               "model": run_config.model, "full_schema": run_config.full_schema, "requested_max_usd": run_config.max_usd,
+               "model": run_config.model, "full_schema": run_config.full_schema,
+               "extraction_mode": run_config.extraction_mode, "requested_max_usd": run_config.max_usd,
                "source_sha256": info.get("sha256"), "created_at": time.time() + index / 10000}
         job.update({key: info.get(key) for key in ("source_url", "source_notes", "reference_id")})
         web.JOBS[run_id] = job
@@ -236,12 +238,24 @@ def archive_superseded(options: Annotated[dict, Body()]):
 
 @router.get("/api/library/download/{filename}")
 def download_library(filename: str, batch_id: str | None = None):
-    if filename not in {"summary.csv", "summary.json", "comparison.csv", "new_schema.csv", "judge.csv", "outputs.zip"}:
+    inventory_csvs = {f"{table}.csv" for table in ("sections", "defects", "measurements", "observations")}
+    if filename not in {"summary.csv", "summary.json", "comparison.csv", "new_schema.csv", "judge.csv", "outputs.zip", *inventory_csvs}:
         raise HTTPException(404, "File not found")
     web = workspace()
     rows = enrich(ledger().rows(batch_id), web.ROOT)
     snapshot = {"rows": rows, "totals": totals(rows), "comparison": comparison_summary(rows),
                 "batch": ledger().batch(batch_id) if batch_id else None}
+    def inventory_csv(table):
+        records = []
+        for row in rows:
+            result_path = web.ROOT / row["id"] / "result.json"
+            if row["status"] == "complete" and result_path.exists():
+                records.extend(defects.flat_rows(json.loads(result_path.read_text()), table))
+        return defects.export_csv(records)
+
+    if filename in inventory_csvs:
+        return Response(inventory_csv(filename.removesuffix(".csv")), media_type="text/csv; charset=utf-8",
+                        headers={"Content-Disposition": f'attachment; filename="{filename}"'})
     if filename != "outputs.zip":
         exports = {"summary.csv": summary_csv, "comparison.csv": comparison_csv, "new_schema.csv": combined_csv,
                    "judge.csv": lambda rows: comparison_csv([r for r in rows if r.get("full_schema")])}
@@ -257,6 +271,8 @@ def download_library(filename: str, batch_id: str | None = None):
             archive.writestr("human-comparison.csv", comparison_csv(rows))
             archive.writestr("new_schema.csv", combined_csv(rows))
             archive.writestr("judge.csv", comparison_csv([r for r in rows if r.get("full_schema")]))
+            for name in sorted(inventory_csvs):
+                archive.writestr(name, inventory_csv(name.removesuffix(".csv")))
             for row in rows:
                 prefix = f"reports/{row['id']}/"
                 archive.writestr(prefix + "summary.json", json.dumps(row, indent=2))
@@ -301,7 +317,7 @@ async def import_saved(source: Annotated[UploadFile, File()], outputs: Annotated
         trace.mkdir()
         names = {"input.json", "pricing.json", "requests.json", "raw_responses.json", "system_prompt.txt",
                  "assessment.schema.json", "original-result.json", "full-response.schema.json", "judge-request.json",
-                 "judge-result.json", *SCORING_FILES, *FULL_FILES} - {"outputs.zip"}
+                 "judge-result.json", "defect-response.schema.json", *SCORING_FILES, *FULL_FILES, *defects.FILES} - {"outputs.zip"}
         with zipfile.ZipFile(directory / "import.zip") as archive:
             entries = archive.infolist()
             if len(entries) > 500 or sum(i.file_size for i in entries) > 100 * 1024 * 1024:
@@ -336,7 +352,8 @@ async def import_saved(source: Annotated[UploadFile, File()], outputs: Annotated
         save_json(trace / "metrics.json", result["metrics"])
         save_json(trace / "review_flags.json", result["review_flags"])
         write_exports(trace, result)
-        for name in [*SCORING_FILES, *(FULL_FILES if result.get("full_schema") else [])]:
+        for name in [*SCORING_FILES, *(FULL_FILES if result.get("full_schema") else []),
+                     *(defects.FILES if result.get("extraction_mode") == "defect_v1" else [])]:
             shutil.copyfile(trace / name, directory / name)
         filename = Path(source.filename or "Saved report.pdf").name
         save_json(directory / "upload.json", {"filename": filename, "pages": pages, "sha256": pdf_hash})

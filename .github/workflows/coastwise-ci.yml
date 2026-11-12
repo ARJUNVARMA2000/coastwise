@@ -1,0 +1,82 @@
+name: Coastwise CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/coastwise-ci.yml'
+      - 'Method A/src/**'
+      - 'Method A/tests/**'
+      - 'Method A/deploy/**'
+      - 'Method A/scripts/container-entrypoint.sh'
+      - 'Method A/scripts/prepare_railway_source.py'
+      - 'Method A/.dockerignore'
+      - 'Method A/Dockerfile'
+      - 'Method A/pyproject.toml'
+      - 'Method A/uv.lock'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/coastwise-ci.yml'
+      - 'Method A/src/**'
+      - 'Method A/tests/**'
+      - 'Method A/deploy/**'
+      - 'Method A/scripts/container-entrypoint.sh'
+      - 'Method A/scripts/prepare_railway_source.py'
+      - 'Method A/.dockerignore'
+      - 'Method A/Dockerfile'
+      - 'Method A/pyproject.toml'
+      - 'Method A/uv.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-build:
+    name: Test and build Coastwise
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: Method A
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: '0.11.28'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Run Python tests
+        run: uv run --frozen --python 3.12 pytest -q
+
+      - name: Check JavaScript
+        run: |
+          node --check src/coastwise/static/app.js
+          node --check src/coastwise/static/scoring.js
+          node --check src/coastwise/static/extraction.js
+          node --check src/coastwise/static/bulk.js
+
+      - name: Build the Railway source package
+        run: |
+          uv run --frozen --python 3.12 python scripts/prepare_railway_source.py
+          docker build --tag coastwise-ci .local/railway-source
+
+      - name: Verify the latest-only site and saved data
+        run: |
+          container=$(docker run --detach --publish 127.0.0.1:8080:8080 coastwise-ci)
+          trap 'docker logs "$container"; docker rm --force "$container" >/dev/null' EXIT
+          url=http://127.0.0.1:8080
+          curl --fail --silent --show-error --max-time 3 \
+            --retry 20 --retry-delay 1 --retry-all-errors "$url/health"
+          curl --fail --silent --show-error "$url/api/extraction?scope=method_a_one_shot" | \
+            uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["reports"]) == 10; assert len(d["manifest"]) == 10'
+          page="$RUNNER_TEMP/coastwise-method-a.html"
+          timeout 30s google-chrome --headless --no-sandbox --disable-dev-shm-usage \
+            --virtual-time-budget=10000 --dump-dom "$url/extraction" > "$page"
+          grep --quiet 'Method A defects' "$page"
+          grep --quiet '2015-southwest-brooklyn' "$page"

@@ -258,6 +258,12 @@ def summarize(job: dict, result: dict | None = None):
     for key in ("source_url", "source_notes", "reference_id"):
         row[key] = row.get(key) or result.get("source_metadata", {}).get(key)
     row.update(report_id=result.get("report_id", job["id"]), model=metrics.get("model", job.get("model")),
+               extraction_mode=result.get("extraction_mode", job.get("extraction_mode", "report_v1")),
+               inventory_status=(result.get("defect_inventory") or {}).get("status"),
+               document_type=(result.get("defect_inventory") or {}).get("document_type"),
+               section_count=len((result.get("defect_inventory") or {}).get("sections", [])),
+               defect_count=len((result.get("defect_inventory") or {}).get("defects", [])),
+               measurement_count=len((result.get("defect_inventory") or {}).get("measurements", [])),
                full_schema=bool(result.get("full_schema", job.get("full_schema", False))),
                reasoning_effort=result.get("reasoning_effort"),
                new_schema_values={name: fact["value"] for name, fact in (result.get("new_schema") or {}).items()},
@@ -269,11 +275,17 @@ def summarize(job: dict, result: dict | None = None):
                **{k: metrics.get(k) for k in ("prompt_tokens", "completion_tokens", "total_tokens", "billed_usd",
                    "runtime_seconds", "model_runtime_seconds", "requests", "schema_valid_chunks",
                    "citations_total", "citations_verified")})
+    if four_tables := result.get("four_table"):
+        row.update(document_type=result.get("document_kind"), defect_count=four_tables.get("defects", 0),
+                   measurement_count=four_tables.get("measurements", 0), grading_status=result.get("grading_status"),
+                   extraction_status=result.get("extraction_status"))
     row.update({k: metrics.get(k) for k in ("new_schema_fields", "extraction_total_tokens", "extraction_billed_usd",
                 "extraction_runtime_seconds", "judge_total_tokens", "judge_billed_usd", "judge_runtime_seconds", "judge_requests")})
     if job["status"] in {"skipped", "unavailable"}:
         row.update(prompt_tokens=0, completion_tokens=0, total_tokens=0, billed_usd=0, requests=0)
     row["assessment_status"] = ("preview" if job.get("preview_only") else "failed" if row["has_failures"] else
+                                "extracted" if result.get("defect_inventory", {}).get("status") == "complete" else
+                                "scoped" if result.get("defect_inventory", {}).get("status") == "partial" else
                                 "scored" if assessment else "needs_review") if job["status"] == "complete" else job["status"]
     return row
 
@@ -299,6 +311,7 @@ def totals(rows):
 
 
 SUMMARY_COLUMNS = ["filename", "status", "assessment_status", "score", "confidence", "review_flag_count", "review_flags",
+    "extraction_mode", "inventory_status", "document_type", "section_count", "defect_count", "measurement_count",
     "full_schema", "new_schema_fields", "judge_status", "judge_model", "extraction_total_tokens", "extraction_billed_usd",
     "extraction_runtime_seconds", "judge_total_tokens", "judge_billed_usd", "judge_runtime_seconds", "judge_requests",
     "prompt_tokens", "completion_tokens", "total_tokens", "billed_usd", "runtime_seconds",

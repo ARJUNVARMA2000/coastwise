@@ -2,6 +2,16 @@
 
 Coastwise runs at **https://coastwise-production.up.railway.app** in the dedicated **Coastwise** project, `production` environment, `coastwise` service. The existing workspace password is configured in Railway; keep secret values out of this document.
 
+## Current dataset and startup replacement
+
+The current release contains only the latest Method A output and source PDF for each of ten Brooklyn reports (2015–2018 and 2020–2025). Superseded current data is deleted; Git history remains intact. The package is `src/coastwise/method_a_assets/latest.zip`, verified by `latest.json`.
+
+The entrypoint validates all current files and source hashes, stages the ten runs, removes superseded content from the configured `/data/runs` directory, and rebuilds its index with only current records before starting the server. Credentials/environment settings remain outside this data replacement. A release marker makes repeated startup idempotent and preserves later uploads. No inference is performed during installation.
+
+This publication was explicitly authorized despite confirmed extraction limitations. All 524 project grades remain uncertain, four dense-report chunks were rejected for truncation, and source reviews identify omissions and member/repair/measurement scope errors. The website displays these limitations; deployment does not certify correctness.
+
+Set `COASTWISE_ENABLE_LEGACY_QUEUE=0`. New uploads use native text, bounded chunks and one extraction-and-grade request per chunk; no OCR, retry or separate judge/grading pass is added.
+
 ## Resources and storage
 
 - Project: `4d64a6a4-d4ea-4162-a038-761b3e3fa1b7`
@@ -13,7 +23,7 @@ Coastwise runs at **https://coastwise-production.up.railway.app** in the dedicat
 
 The service uses the filesystem job runner with a persistent Railway volume. It requires no GCP services. Completed reports, source images, saved assessments and downloads survive service restarts. Interrupted in-flight jobs are marked failed after restart; they never automatically repeat a paid model request. Starting another run is an explicit action.
 
-The saved-report/batch index is `/data/runs/workspace.sqlite3`. Bulk jobs that have never started resume from their saved request snapshots; interrupted running jobs fail without replay. Keep the database and per-run directories together in any backup. Human-reference snapshots live below `/data/runs/_reference`. See `docs/bulk-scoring.md` for budget accounting, imports and comparison semantics.
+The saved-report/batch index is `/data/runs/workspace.sqlite3`. Historical bulk dispatch is disabled. The current server accepts only direct Method A one-shot extraction. Interrupted work is not automatically repeated. Keep the database and per-run directories together in any backup. Human-reference snapshots live below `/data/runs/_reference`. See `docs/bulk-scoring.md` for budget accounting, imports and comparison semantics.
 
 The container starts as root only to initialize ownership of the mounted directory, then `gosu` starts the application as `appuser` (UID 10001). Railway supplies HTTPS; Uvicorn trusts the platform's forwarded protocol so origin checks and Secure session cookies work correctly. Hosted startup refuses to serve without password protection and a strong signing secret.
 
@@ -24,7 +34,7 @@ Set these on the Coastwise production service, never in a Docker layer or upload
 | Variable | Value |
 | --- | --- |
 | `OPENROUTER_API_KEY` | Existing key from the ignored local `.env` |
-| `OPENROUTER_MODEL` | `anthropic/claude-sonnet-5.5` |
+| `OPENROUTER_MODEL` | `deepseek/deepseek-v4.1-flash-1017` |
 | `COASTWISE_ACCESS_PASSWORD` | Existing requested workspace password |
 | `COASTWISE_SESSION_SECRET` | Existing random signing secret, at least 32 characters |
 | `COASTWISE_AUTH_REQUIRED` | `1` |
@@ -46,7 +56,7 @@ Prepare an allowlisted staging tree:
 uv run python scripts/prepare_railway_source.py
 ```
 
-The generated `.local/railway-source` includes application code, package lockfile, rubric/schema assets and container files only. It excludes `.env`, uploaded PDFs, experiment outputs, developer files and credentials. Inspect `.local/railway-upload-manifest.json` before deploying.
+The generated `.local/railway-source` includes application code, the lockfile, rubric/schema assets, container files and the verified latest-only release ZIP. Source PDFs are inside that verified current release; `.env`, loose historical reports, experiment outputs, developer state and credentials are excluded. Inspect `.local/railway-upload-manifest.json` before deploying.
 
 Service settings are saved directly in Railway using its current API. The reproducible nonsecret settings are in `deploy/railway-service.json`. With the CLI already authenticated for Coastwise, apply them when creating or changing the service:
 
@@ -106,3 +116,10 @@ Library(Path("/data/runs")).restore_archive("<archive_id>")
 
 This restores visibility without overwriting current or subsequently imported results. Keep the
 archive manifests and SQLite snapshots as recovery records; a full database restore is unnecessary.
+
+
+## Defect-mode deployment — October 27, 2026
+
+The production application includes `defect_v1` extraction mode, `defect-inventory-1` saved data and `defect-prompts-v3` generation instructions. Defect mode uses compact, source-linked inventory output and does not run the human judge. The existing report mode retains its separate historical comparisons. Cross-report trends remain deferred.
+
+Latest verified deployment: `2cad85e9-a4a2-4cbd-8953-47a449b6e5fc` (SUCCESS). Evidence and a bounded synthetic smoke test are in `output/coastwise/defect-deployment-2026-10-27/`. The temporary deployment token used for this update was revoked after verification. Preserve active-job checks and exact source-manifest matching for future deployments; do not infer extraction accuracy from a successful schema/quote check.

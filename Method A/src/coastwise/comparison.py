@@ -102,6 +102,8 @@ def field(name, human, predicted, kind="text"):
 
 
 def compare(row, result, reference):
+    if result.get("extraction_mode") == "defect_v1":
+        return {"status": "Human labeling is a separate workflow", "fields": [], "mode": "separate"}
     if not reference:
         return {"status": "No reference loaded", "fields": []}
     reference_id = row.get("reference_id") or reference.get("matches", {}).get(row.get("source_sha256") or result.get("input_sha256"))

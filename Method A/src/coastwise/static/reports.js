@@ -8,11 +8,20 @@ const displayValue=value=>Array.isArray(value)?value.join(', '):value==null||val
 const reportTime=r=>Date.parse(r.started_utc)||Number(r.created_at||0)*1000;
 const reportKey=r=>r.source_sha256||r.id;
 function reportTitle(r){return String(r.filename||'Untitled report').replace(/\.pdf$/i,'').replace(/[_-]+/g,' ').replace(/\bmts\b/gi,'MTS').replace(/\bdsny\b/gi,'DSNY').replace(/\b[a-z]/g,c=>c.toUpperCase());}
-function assessmentName(r){return r.preview_only?'Source preview':r.full_schema?'LLM assessment':'Rubric assessment';}
+function assessmentName(r){
+  if(r.preview_only)return 'Source preview';
+  return ({four_table_v2:'Method A defect grading',four_table_v1:'Four tables · Legacy extraction',
+    defect_v1:'Defects and sections'})[r.extraction_mode]||(r.full_schema?'LLM assessment':'Rubric assessment');
+}
 function savedOutputLabel(r){
   if(r.preview_only)return 'Source preview';
   if(r.status!=='complete')return ({running:'Processing',queued:'Queued',failed:'Processing incomplete',skipped:'Not processed'})[r.status]||'Saved report';
+  if(['four_table_v1','four_table_v2'].includes(r.extraction_mode)){
+    const grading={failed:' · Grading failed',partial:' · Some grades unavailable',legacy_ungraded:' · Ungraded'}[r.grading_status]||'';
+    return `${r.defect_count||0} defects${r.extraction_status==='partial'?' · Partial extraction':''}${grading}`;
+  }
   if(r.has_failures)return 'Partial model output';
+  if(r.extraction_mode==='defect_v1')return r.inventory_status==='complete'?`${r.section_count||0} sections · ${r.defect_count||0} defects · ${r.measurement_count||0} measurements`:r.inventory_status==='partial'?'Scoped defect output':'Defect extraction unavailable';
   const count=Object.keys(r.new_schema_values||{}).length;
   return count?`${count} extracted fields`:'Rubric findings';
 }
@@ -21,11 +30,21 @@ function uniqueVersions(rows){
   return [...rows].sort((a,b)=>reportTime(b)-reportTime(a)).filter(r=>{const key=r.report_id||r.id;if(seen.has(key))return false;seen.add(key);return true;});
 }
 function reportVersions(row){return uniqueVersions([row,...allLibraryRows.filter(r=>reportKey(r)===reportKey(row)&&r.id!==row.id)]);}
+function savedDefectRun(sourceHash){
+  if(!sourceHash)return null;
+  return uniqueVersions(allLibraryRows.filter(r=>r.source_sha256===sourceHash&&r.extraction_mode==='defect_v1'&&
+    r.status==='complete'&&!r.preview_only&&['complete','partial'].includes(r.inventory_status)))[0]||null;
+}
 function previousAssessment(row){const versions=reportVersions(row).filter(r=>r.score!=null&&!r.preview_only);return versions[versions.findIndex(r=>r.id===row.id)+1]||null;}
 function groupReports(rows){
   const grouped=new Map();
   for(const r of rows){const key=reportKey(r);if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(r);}
-  return [...grouped.values()].map(items=>{const versions=uniqueVersions(items);return {row:versions.find(r=>r.score!=null&&!r.preview_only)||versions[0],versions};}).sort((a,b)=>reportTitle(a.row).localeCompare(reportTitle(b.row),undefined,{numeric:true}));
+  return [...grouped.values()].map(items=>{
+    const versions=uniqueVersions(items);
+    const ready=r=>!r.preview_only&&(r.score!=null||['complete','partial'].includes(r.inventory_status)||
+      ['complete','sample_complete','partial'].includes(r.extraction_status));
+    return {row:versions.find(ready)||versions[0],versions};
+  }).sort((a,b)=>reportTitle(a.row).localeCompare(reportTitle(b.row),undefined,{numeric:true}));
 }
 async function ensureReportIndex(force=false){
   if(!settings.bulk_available)return null;
@@ -58,10 +77,22 @@ function comparisonCounts(c){
 }
 function needsAttention(f){return ['difference','uncertain'].includes(verdictKind(f))||f.evidence_verified===false;}
 function reportHasAttention(row){return Boolean(row.human_comparison?.reference_id&&factualFields(row.human_comparison).some(needsAttention));}
+function libraryMatchesFilter(row,filter){
+  if(filter==='inspection')return ['inspection_report','mixed'].includes(row.document_type);
+  if(filter==='reference')return row.document_type==='reference_only';
+  if(filter==='attention')return reportHasAttention(row);
+  if(filter==='unmatched')return !row.human_comparison?.reference_id;
+  return true;
+}
 function reportUrl(id,tab){
   const p=new URLSearchParams({run:id});
   if(tab)p.set('tab',tab);
   if(libraryBatch)p.set('batch',libraryBatch);
+  if(typeof currentResult!=='undefined'&&currentResult&&(tab==='defects'||currentResult.extraction_mode==='defect_v1')&&typeof runId!=='undefined'&&id===runId){
+    if(defectSection)p.set('section',defectSection);if(defectGrade)p.set('grade',defectGrade);if(defectType)p.set('type',defectType);
+    if(defectCheck)p.set('check','1');if(selectedDefectId)p.set('defect',selectedDefectId);
+    if($('search').value)p.set('q',$('search').value);
+  }
   return '?'+p.toString();
 }
 function returnToReports(){

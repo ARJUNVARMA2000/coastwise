@@ -3,11 +3,13 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'
 const label = value => value.replaceAll('_', ' ').replace(/^./, c => c.toUpperCase());
 let settings, uploadId, runId, currentResult, activeTab = 'observations', busy = false, modelCatalog = [], expandedModels = false;
 let selectedWorkflow = 'scoring';
+let selectedExtractionMode = 'method_a_one_shot';
 const workflowDrafts = {};
+const fourTableMode = mode => ['method_a_one_shot', 'four_table_v1', 'four_table_v2'].includes(mode);
+const METHOD_A_MODEL = 'deepseek/deepseek-v4.1-flash-1017';
+let uploadStartedAt = null, processingStartedAt = null;
 const methodDescriptions = {
-  a: 'One extraction per native-text chunk. A clear baseline.',
-  b0: 'Tables, form fields, and optional OCR. One extraction per chunk.',
-  b: 'The same layout input, with bounded source checks and revisions.'
+  a: 'One extraction and provisional grading request per native-text chunk.'
 };
 async function api(url, options = {}) {
   const response = await fetch(url, {...options, headers: {...options.headers, 'X-Coastwise-Request':'1'}});
@@ -23,6 +25,7 @@ function clearResults() { currentResult = null; $('results').hidden = true; $('r
 async function upload(file) {
   if (!file || busy) return;
   if (!file.name.toLowerCase().endsWith('.pdf')) return error('Choose a PDF file.');
+  clearBulkSelection(); uploadStartedAt = Date.now(); processingStartedAt = null;
   error(''); setBusy(true); $('fileMeta').textContent = 'Uploading…';
   try {
     const form = new FormData(); form.append('file', file);
@@ -34,14 +37,11 @@ async function upload(file) {
   } catch (e) { error(e.message); } finally { setBusy(false); }
 }
 function config() {
-  if(selectedWorkflow==='scoring') return {workflow:'scoring', full_schema:$('fullSchema').checked, model:$('model').value,
+  return {workflow:'scoring', extraction_mode:'method_a_one_shot',
+    full_schema:false, model:METHOD_A_MODEL,
     provider:$('provider').value.trim(),system_prompt:$('systemPrompt').value,pages:$('pages').value,
     chunk_chars:Number($('chunkChars').value),max_usd:Number($('maxUsd').value),
-    max_output_tokens:Number($('maxTokens').value),max_requests:Number($('maxRequests').value)};
-  return {method: document.querySelector('input[name=method]:checked').value, model:$('model').value.trim(),
-    provider:$('provider').value.trim(), system_prompt:$('systemPrompt').value, pages:$('pages').value,
-    max_usd:Number($('maxUsd').value), max_output_tokens:Number($('maxTokens').value),
-    max_requests:Number($('maxRequests').value), max_rounds:Number($('maxRounds').value), ocr:$('ocr').checked};
+    max_output_tokens:Number($('maxTokens').value),max_requests:Number($('maxRequests').value),max_runtime_seconds:600};
 }
 async function start(preview) {
   if(bulkUploads.length>1)return startBatch(preview);
@@ -55,11 +55,16 @@ async function start(preview) {
   if (!preview && !$('model').value.trim()) return error('Select or enter an OpenRouter model ID.');
   const form = new FormData(); form.append('config',JSON.stringify(config())); form.append('preview',preview);
   form.append('api_key',$('apiKey').value);
+  processingStartedAt = Date.now();
+  sessionStorage.setItem('coastwise-method-a-pending', JSON.stringify({uploadStartedAt, processingStartedAt, preview}));
   setBusy(true); clearResults(); $('emptyState').hidden = true; $('progressPanel').hidden = false;
-  $('progressText').textContent = preview ? 'Preparing source preview…' : selectedWorkflow==='scoring' ? 'Preparing rubric assessment…' : 'Preparing extraction…';
+  $('progressText').textContent = preview ? 'Preparing source preview…' : 'Extracting findings and provisional grades…';
   $('progressCount').textContent = '';
   try {
     const job = await api(`/api/runs/${uploadId}`,{method:'POST',body:form}); runId = job.id;
+    const timing=JSON.parse(sessionStorage.getItem('coastwise-method-a-pending')||'{}');
+    sessionStorage.setItem('coastwise-method-a-'+runId,JSON.stringify({...timing,runId}));
+    sessionStorage.removeItem('coastwise-method-a-pending');
     history.replaceState(null,'',`?run=${encodeURIComponent(runId)}`);
     await poll();
   } catch (e) { error(e.message); $('progressPanel').hidden = true; $('emptyState').hidden = false; setBusy(false); }
@@ -78,9 +83,16 @@ async function poll(expectedId=runId) {
     const loaded = await api(`/api/runs/${expectedId}/result`);
     if(expectedId!==runId)return;
     currentResult=loaded;
-    if(settings.bulk_available&&!allLibraryRows.some(r=>r.id===expectedId))await ensureReportIndex(true);
-    currentReportRow=allLibraryRows.find(r=>r.id===expectedId)||null;
-    if(libraryVisible)await refreshLibrary();else renderResult(job);
+    if(loaded.extraction_mode==='method_a_one_shot'&&!loaded.preview_only){
+      if(loaded.four_table){ location.assign('/extraction?'+new URLSearchParams({inspection:'report:'+expectedId,run:expectedId})); return; }
+    }
+    if(loaded.extraction_mode==='method_a_one_shot'){
+      currentReportRow=null;renderResult(job);
+    }else{
+      if(settings.bulk_available&&!allLibraryRows.some(r=>r.id===expectedId))await ensureReportIndex(true);
+      currentReportRow=allLibraryRows.find(r=>r.id===expectedId)||null;
+      if(libraryVisible)await refreshLibrary();else renderResult(job);
+    }
   } catch(e) { error(e.message); setBusy(false); $('progressPanel').hidden = true; }
 }
 function renderResult(job) {
@@ -99,7 +111,7 @@ function renderResult(job) {
     'Extraction finished. Source checks passed; review the records for completeness and meaning.';
   const costs = r.requests.filter(x => x.usage?.cost != null).map(x => Number(x.usage.cost));
   const cost = r.requests.length && costs.length === r.requests.length ? `$${costs.reduce((a,b)=>a+b,0).toFixed(4)}` : preview ? '$0.00' : 'Cost unavailable';
-  const methodName = {a:'A · Raw text',b0:'B · Layout',b:'B+ · Verify'}[r.config.method];
+  const methodName = 'Method A · Native text';
   $('metrics').innerHTML = `<span>${escapeHtml(methodName)}</span><span>${r.inventory.length} pages</span><span>${r.runtime_seconds}s</span><span>${cost}</span>`;
   $('assessmentSummary').hidden=true; $('usageSummary').hidden=true;
   $('contractBadge').textContent='Provisional extraction schema';
@@ -107,6 +119,7 @@ function renderResult(job) {
   setResultTabs([['observations','Observations',r.tables.observations.length],['structures','Structures',r.tables.structures.length],['reports','Reports',r.tables.reports.length],['evidence','Source evidence'],['diagnostics','Review notes',notes]]);
   const path = `/api/runs/${runId}/download/`;
   $('downloadZip').href = path+'outputs.zip'; $('downloadJson').href = path+'result.json';
+  $('downloadJson').textContent='Full evidence & run settings · JSON ↗';
   $('runId').textContent = `RUN ${runId.slice(0,8)} · ${r.schema_version}`;
   $('search').value = ''; $('evidencePanel').classList.remove('open');
   activeTab = preview ? 'evidence' : 'observations'; renderTab();
@@ -166,39 +179,33 @@ function showRecord(row) {
   revealSourceEvidence();
 }
 async function refreshModels() {
-  $('refreshModels').disabled = true;
-  try {
-    const previous = $('model').value || settings.default_model;
-    modelCatalog = await api(`/api/models?expanded=${expandedModels}`);
-    $('model').innerHTML = modelCatalog.map(m=>`<option value="${escapeHtml(m.id)}">${escapeHtml(m.vendor)} · ${escapeHtml(m.name)}${m.supports_tools?'':' (A/B only)'}</option>`).join('');
-    if(modelCatalog.some(m=>m.id===previous)) $('model').value=previous;
-    $('modelHint').textContent = expandedModels ? `${modelCatalog.length} supported models. The same output checks apply.` : 'Five featured models across OpenAI, Anthropic, Google, and DeepSeek.';
-    $('moreModels').textContent=expandedModels?'Show featured models':'More models…';
-  }
-  catch(e){$('modelHint').textContent=e.message;}
-  finally{$('refreshModels').disabled=false;}
+  $('model').value=METHOD_A_MODEL;
+  $('modelHint').textContent='One DeepSeek request per chunk. Grades and evidence are checked locally.';
 }
-$('fileInput').onchange = e=>uploadFiles(e.target.files);
+$('fileInput').onchange = e=>upload(e.target.files?.[0]);
 ['dragenter','dragover'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.add('dragging');}));
-['dragleave','drop'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.remove('dragging');if(event==='drop')uploadFiles(e.dataTransfer.files);}));
+['dragleave','drop'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.remove('dragging');if(event==='drop'){if(e.dataTransfer.files.length!==1)return error('Choose one PDF report.');upload(e.dataTransfer.files[0]);}}));
 function clear(){if(busy)return;savedOpenSequence++;clearBulkSelection();hideLibrary();uploadId=null;runId=null;currentReportRow=null;history.replaceState(null,'','?new=1');$('fileInput').value='';$('fileCard').hidden=true;$('dropzone').hidden=false;clearResults();setWorkspaceView('new');setBusy(false);updateBulkButton();error('');$('workspaceTitle').textContent='New assessment';}
 $('newRun').onclick=clear; $('removeFile').onclick=clear;
 $('newAssessment').onclick=clear;
 $('preview').onclick=()=>start(true); $('extract').onclick=()=>start(false);
 $('refreshModels').onclick=refreshModels;
 $('moreModels').onclick=()=>{expandedModels=!expandedModels;refreshModels();};
-$('resetPrompt').onclick=()=>{$('systemPrompt').value=selectedWorkflow==='scoring'?settings.scoring_prompt:settings.default_prompt;$('promptBadge').textContent='Default';};
-$('systemPrompt').oninput=()=>{$('promptBadge').textContent=$('systemPrompt').value===(selectedWorkflow==='scoring'?settings.scoring_prompt:settings.default_prompt)?'Default':'Edited';};
-$('fullSchema').onchange=()=>{delete workflowDrafts.scoring;updateWorkflow(false);};
+$('resetPrompt').onclick=()=>{$('systemPrompt').value=selectedWorkflow==='scoring'?(selectedExtractionMode==='defect_v1'?settings.defect_prompt:settings.scoring_prompt):settings.default_prompt;$('promptBadge').textContent='Default';};
+$('systemPrompt').oninput=()=>{$('promptBadge').textContent=$('systemPrompt').value===(selectedWorkflow==='scoring'?(selectedExtractionMode==='defect_v1'?settings.defect_prompt:settings.scoring_prompt):settings.default_prompt)?'Default':'Edited';};
+$('fullSchema').onchange=()=>{delete workflowDrafts['scoring:report_v1'];updateWorkflow(false);};
+$('extractionMode').onchange=()=>{updateWorkflow();updateBulkButton();};
 $('workflow').onchange=()=>{updateWorkflow();updateBulkButton();};
 document.querySelectorAll('input[name=method]').forEach(el=>el.onchange=()=>{$('methodDescription').textContent=methodDescriptions[el.value];});
 document.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{activeTab=el.dataset.tab;renderTab();});
 $('search').oninput=renderTab; $('closeEvidence').onclick=closeSourceEvidence;
-(async()=>{try{settings=await api('/api/settings');$('provider').value=settings.default_provider;$('rubricText').textContent=settings.scoring_rubric;updateWorkflow(false);if(settings.has_server_key)$('keyHint').textContent='A server API key is configured.';if(settings.hosted){$('browserKey').hidden=true;$('workspaceLocation').textContent='Hosted workspace';$('privacyNote').textContent='Files and outputs are saved in this password-protected workspace. Processing sends selected report text through OpenRouter.';$('dropzone').querySelector('span:last-of-type').textContent=`or drop PDFs here · up to ${settings.max_upload_mb} MB each`;}const catalogReady=refreshModels();const params=new URLSearchParams(location.search),saved=params.get('run');libraryBatch=params.get('batch')||'';if(saved)await openSavedRun(saved,params.get('tab'));else{setBusy(false);if(params.has('new'))setWorkspaceView('new');}await initializeLibrary();await catalogReady;}catch(e){setWorkspaceView('new');error(e.message);}})();
+(async()=>{try{settings=await api('/api/settings');$('provider').value=settings.default_provider;$('rubricText').textContent=settings.scoring_rubric;updateWorkflow(false);$('openLibrary').onclick=()=>location.assign('/extraction');if(settings.has_server_key)$('keyHint').textContent='A server API key is configured.';if(settings.hosted){$('browserKey').hidden=true;$('workspaceLocation').textContent='Hosted workspace';$('privacyNote').textContent='Files and outputs are saved in this password-protected workspace. Processing sends native report text to DeepSeek through OpenRouter. Missing or uncertain grades do not imply sound condition.';$('dropzone').querySelector('span:last-of-type').textContent=`or drop a PDF here · up to ${settings.max_upload_mb} MB`;}await refreshModels();const params=new URLSearchParams(location.search),saved=params.get('run');if(saved)await openSavedRun(saved,params.get('tab'));else{setBusy(false);setWorkspaceView('new');}}catch(e){setWorkspaceView('new');error(e.message);}})();
 
 let savedOpenSequence=0;
 async function openSavedRun(saved,tab=null){
   const sequence=++savedOpenSequence;
+  const incoming=new URLSearchParams(location.search);
+  pendingDefectState=incoming.get('run')===saved?{run:saved,params:incoming}:null;
   hideLibrary();clearBulkSelection();clearResults();error('');
   runId=saved;currentReportRow=null;
   setWorkspaceView('assessment');
@@ -208,7 +215,7 @@ async function openSavedRun(saved,tab=null){
   const job=await api(`/api/runs/${encodeURIComponent(saved)}`);
   if(sequence!==savedOpenSequence)return;
   if(job.id&&job.id!==saved)return openSavedRun(job.id,tab);
-  await ensureReportIndex();
+  if(job.extraction_mode!=='method_a_one_shot')await ensureReportIndex();
   if(libraryBatch&&!libraryRows.length){const data=await api('/api/library?batch_id='+encodeURIComponent(libraryBatch));libraryRows=data.rows;}
   if(sequence!==savedOpenSequence)return;
   currentReportRow=allLibraryRows.find(r=>r.id===saved)||libraryRows.find(r=>r.id===saved)||null;

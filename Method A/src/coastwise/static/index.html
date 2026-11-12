@@ -2,68 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Coastwise — Report review</title>
+  <title>Coastwise — Method A</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/defects.css">
+  <script src="/defects.js" defer></script>
   <script src="/scoring.js" defer></script>
   <script src="/bulk.js" defer></script>
   <script src="/reports.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
-<body data-view="reports">
+<body data-view="new">
 <a class="skip-link" href="#mainContent">Skip to report workspace</a>
 <header class="topbar">
-  <a class="brand" href="/" aria-label="Coastwise home"><span class="brand-mark" aria-hidden="true">≋</span>coastwise<span class="brand-divider"></span><span class="brand-sub">Report review</span></a>
-  <nav class="topbar-actions" aria-label="Workspace"><button id="openLibrary" class="library-button">Reports <span id="libraryCount">0</span></button><button id="newAssessment" class="nav-primary">+ New assessment</button><span class="local-status"><i></i><span id="workspaceLocation">Local workspace</span></span></nav>
+  <a class="brand" href="/extraction" aria-label="Coastwise home"><span class="brand-mark" aria-hidden="true">≋</span>coastwise<span class="brand-divider"></span><span class="brand-sub">Method A</span></a>
+  <nav class="topbar-actions" aria-label="Workspace">
+    <a class="library-button register-link" href="/extraction">Method A extraction</a>
+    <button id="openLibrary" class="library-button">Saved reports <span id="libraryCount" hidden>0</span></button>
+    <button id="newAssessment" class="nav-primary">+ Upload report</button>
+    <span class="local-status"><i></i><span id="workspaceLocation">Local workspace</span></span>
+  </nav>
 </header>
 <div class="app-layout">
   <aside class="controls">
     <div class="section-heading"><span class="eyebrow">SOURCE & SETTINGS</span><button id="newRun" class="text-button">Clear</button></div>
-    <h1>Assess a report.</h1>
-    <p class="intro">Upload PDFs to extract findings, assess deterioration, and compare with a saved human review.</p>
-    <label class="field-label" for="workflow">Report workflow</label>
-    <select id="workflow"><option value="scoring">Method A · Rubric scoring</option><option value="extraction">Source extraction · A / B / B+</option></select>
-    <p id="workflowHint" class="hint">One model response per native-text chunk, using the team's scoring rubric.</p>
+    <h1>Extract and grade defects.</h1>
+    <p class="intro">Method A reads native PDF text and returns concise findings with source evidence and provisional project grades.</p>
+    <select id="workflow" hidden aria-label="Report workflow"><option value="scoring">Method A</option></select>
+    <p id="workflowHint" class="hint">One DeepSeek call per text chunk extracts findings and provisional grades together.</p>
+    <p class="hint">Target: about two minutes for a typical 20–50-page native-text report, including the complete graded table. This target is unmeasured. Larger or dense reports may take longer. Scans, image-only findings and unreliable layouts are limitations.</p>
     <label class="upload-zone" id="dropzone" for="fileInput">
-      <span class="upload-symbol" aria-hidden="true">↥</span><strong>Choose PDF reports</strong>
-      <span>or drop PDFs here · up to 50 MB each</span>
-      <input id="fileInput" type="file" accept="application/pdf,.pdf" multiple>
+      <span class="upload-symbol" aria-hidden="true">↥</span><strong>Choose a PDF report</strong>
+      <span>or drop a PDF here · up to 50 MB</span>
+      <input id="fileInput" type="file" accept="application/pdf,.pdf">
     </label>
     <div class="file-card" id="fileCard" hidden><span class="file-icon">PDF</span><div><strong id="filename"></strong><span id="fileMeta"></span></div><button id="removeFile" class="icon-button" aria-label="Remove selected file">×</button></div>
     <section id="uploadQueue" class="upload-queue" hidden aria-label="Selected reports"><div class="queue-heading"><strong id="queueHeading">Reports to score</strong><span id="queueCount"></span></div><div id="queueFiles"></div><p id="queueProgress" class="hint" aria-live="polite"></p></section>
     <div id="batchSettings" hidden><label class="field-label" for="batchName">Batch name</label><input id="batchName" value="Report batch" maxlength="150"><label class="field-label" for="batchMaxUsd">Total batch cost cap, USD</label><input id="batchMaxUsd" type="number" min="0.01" max="1000" step="1" value="10"><p class="hint">Reports queue together with the same model and prompt. Two run at a time. Reports stop when the batch cost cap is reached.</p></div>
-    <div id="fullSchemaControl"><label class="check-label"><input id="fullSchema" type="checkbox" checked> Assess all New_Schema fields</label><p class="hint">Includes the rubric assessment and a separate LLM judge when this PDF matches the saved human table. Both calls share the cost cap.</p></div>
+    <div id="extractionModeControl" hidden><select id="extractionMode" aria-label="Assessment output"><option value="method_a_one_shot">Method A · One-shot defects</option></select><p class="hint" id="extractionModeHint">Findings, measurements, original ratings and evidence.</p></div>
+    <div id="fullSchemaControl" hidden><input id="fullSchema" type="checkbox" aria-label="Full schema"></div>
     <label class="field-label" for="pages">PDF pages <span>Optional</span></label>
     <input id="pages" placeholder="All pages, or 1-8, 12, 20-24" autocomplete="off">
-    <fieldset id="methodControls" class="method-fieldset" hidden><legend>Extraction method</legend>
+    <fieldset id="methodControls" class="method-fieldset" hidden><legend>Method A</legend>
       <div class="methods">
         <label><input type="radio" name="method" value="a" checked><span><b>A</b> Raw text</span></label>
-        <label><input type="radio" name="method" value="b0"><span><b>B</b> Layout</span></label>
-        <label><input type="radio" name="method" value="b"><span><b>B+</b> Verify</span></label>
       </div>
       <p id="methodDescription" class="hint">One extraction per text chunk. A clear baseline.</p>
     </fieldset>
-    <label class="field-label" for="model">OpenRouter model <button id="refreshModels" type="button" class="text-button">Refresh</button></label>
-    <select id="model" aria-label="OpenRouter model"><option value="">Loading featured models…</option></select>
-    <button id="moreModels" type="button" class="text-button more-models">More models…</button>
-    <p class="hint" id="modelHint">Choose a model with structured output support.</p>
+    <label class="field-label" for="model">Model <button id="refreshModels" type="button" class="text-button" hidden>Refresh</button></label>
+    <select id="model" aria-label="Model" disabled><option value="deepseek/deepseek-v4.1-flash-1017">DeepSeek V4.1 Flash</option></select>
+    <button id="moreModels" type="button" class="text-button more-models" hidden>More models</button>
+    <p class="hint" id="modelHint">Findings and provisional grades in the same request. Local evidence and rule checks follow.</p>
     <details class="settings-details"><summary>Connection & run limits</summary>
       <div id="browserKey"><label class="field-label" for="apiKey">OpenRouter API key</label><input id="apiKey" type="password" placeholder="sk-or-…" autocomplete="off" spellcheck="false"></div>
       <p class="hint" id="keyHint">Used for this session. Never saved in run files.</p>
       <label class="field-label" for="provider">Provider <span>Optional</span></label><input id="provider" placeholder="Exact provider slug, or automatic">
-      <div class="two-fields"><div><label class="field-label" for="maxUsd">Cost cap, USD</label><input id="maxUsd" type="number" min="0.01" max="100" step="0.25" value="1"></div><div><label class="field-label" for="maxTokens">Output tokens / call</label><input id="maxTokens" type="number" min="256" max="16000" value="4000"></div></div>
-      <div class="two-fields"><div><label class="field-label" for="maxRequests">Max requests</label><input id="maxRequests" type="number" min="1" max="100" value="8"></div><div id="repairControl" hidden><label class="field-label" for="maxRounds">Repair rounds</label><input id="maxRounds" type="number" min="0" max="5" value="2"></div></div>
-      <div id="scoringChunkControl"><label class="field-label" for="chunkChars">Text characters / chunk</label><input id="chunkChars" type="number" min="2000" max="1000000" step="1000" value="250000"><p class="hint">Match this limit to your model’s context window. Scoring never retries or merges chunk scores.</p></div>
-      <label class="check-label" id="ocrControl" hidden><input id="ocr" type="checkbox" checked> OCR difficult pages in B methods</label>
+      <div class="two-fields"><div><label class="field-label" for="maxUsd">Cost cap, USD</label><input id="maxUsd" type="number" min="0.01" max="100" step="0.25" value="1"></div><div><label class="field-label" for="maxTokens">Output tokens / call</label><input id="maxTokens" type="number" min="256" max="64000" value="12000"></div></div>
+      <div class="two-fields" id="requestControls" hidden><div><label class="field-label" for="maxRequests">Max requests</label><input id="maxRequests" type="number" min="1" max="100" value="100"></div><div id="repairControl" hidden><label class="field-label" for="maxRounds">Repair rounds</label><input id="maxRounds" type="number" min="0" max="5" value="0"></div></div>
+      <div id="scoringChunkControl"><label class="field-label" for="chunkChars">Text characters / chunk</label><input id="chunkChars" type="number" min="2000" max="100000" step="1000" value="24000"><p class="hint">Bounded adjacent context is included. Up to four independent chunks run concurrently, with one request each.</p></div>
+      <label class="check-label" id="ocrControl" hidden><input id="ocr" type="checkbox">Native text only</label>
     </details>
-    <details class="settings-details prompt-details"><summary>System prompt <span id="promptBadge">Default</span></summary>
+    <details class="settings-details prompt-details" hidden><summary>System prompt <span id="promptBadge">Default</span></summary>
       <div class="prompt-actions"><span class="hint">Saved with each run for comparison.</span><button id="resetPrompt" class="text-button">Reset</button></div>
       <textarea id="systemPrompt" rows="14" spellcheck="false" aria-label="System prompt"></textarea>
       <p class="hint">The output schema still applies when you change the prompt.</p>
     </details>
-    <details id="rubricDetails" class="settings-details"><summary>Agreed scoring rubric <span>1–4 scale</span></summary><p class="hint">The full rubric is included with every scoring call, including when you edit the instructions.</p><pre id="rubricText" class="rubric-text"></pre></details>
-    <div class="run-actions"><button id="extract" class="primary-button" disabled>Score report <span>↗</span></button><button id="preview" class="secondary-button" disabled>Preview source · no API cost</button></div>
+    <details id="rubricDetails" class="settings-details"><summary>Agreed scoring rubric <span>1–4 scale</span></summary><p class="hint">The rubric is included in every extraction request. Numeric grades require an applicable registered rule and supporting evidence.</p><pre id="rubricText" class="rubric-text"></pre></details>
+    <div class="run-actions"><button id="extract" class="primary-button" disabled>Extract and grade defects <span>↗</span></button><button id="preview" class="secondary-button" disabled>Preview source · no API cost</button></div>
     <p class="error" id="formError" role="alert" hidden></p>
-    <p class="privacy-note" id="privacyNote">Files stay in this local workspace. Processing sends selected report text to your chosen model through OpenRouter.</p>
+    <p class="privacy-note" id="privacyNote">Files stay in this local workspace. Processing sends report text to DeepSeek through OpenRouter. Missing or uncertain grades do not imply sound condition.</p>
   </aside>
   <aside id="reportRail" class="report-rail" hidden aria-label="Reports in this collection">
     <button id="railBack" class="text-button">← All reports</button>
@@ -73,7 +79,7 @@
     <nav id="reportRailList" aria-label="Choose a saved report"></nav>
   </aside>
   <main id="mainContent" class="workspace" tabindex="-1">
-    <div class="workspace-heading"><div><span id="workspaceEyebrow" class="eyebrow">SAVED REPORTS</span><h1 id="workspaceTitle">Explore processed reports</h1><p id="reportMetadata" class="report-metadata" hidden></p></div><span id="contractBadge" class="contract-badge">Saved assessments</span></div>
+    <div class="workspace-heading"><div><span id="workspaceEyebrow" class="eyebrow">METHOD A</span><h1 id="workspaceTitle">Extract defects from a report</h1><p id="reportMetadata" class="report-metadata" hidden></p></div><span id="contractBadge" class="contract-badge">Method A · One-shot defects</span></div>
     <section id="libraryPanel" class="library-panel" hidden aria-label="Saved report results">
       <p class="library-intro">Explore LLM assessments and extracted report information. Read the findings, follow the model's reasoning, and open the supporting source evidence.</p>
       <div id="libraryTotals" class="library-totals" aria-live="polite"></div>
@@ -83,8 +89,8 @@
         <details class="export-menu"><summary>Export collection ↓</summary><div><a id="summaryCsv">Summary CSV</a><a id="comparisonCsv">Human comparison CSV</a><a id="newSchemaCsv">Extracted information CSV</a><a id="judgeCsv">Judge CSV</a><a id="summaryJson">Summary JSON</a><a id="allOutputs">All outputs ZIP</a></div></details>
         <button id="refreshLibrary" class="text-button">Refresh</button><button id="backToReport" class="text-button" hidden>Back to report</button>
       </div>
-      <details class="library-refine"><summary>Filter reports <span id="libraryFilterSummary"></span></summary><div id="libraryFilters" class="filter-buttons library-filters" role="group" aria-label="Filter reports"><button data-library-filter="all" aria-pressed="true">All reports</button><button data-library-filter="attention" aria-pressed="false">Review checks</button><button data-library-filter="unmatched" aria-pressed="false">No human labels</button></div></details>
-      <p id="libraryNote" class="hint">Open a report for its overview, model output and source evidence.</p>
+      <details class="library-refine"><summary>Filter reports <span id="libraryFilterSummary"></span></summary><div id="libraryFilters" class="filter-buttons library-filters" role="group" aria-label="Filter reports"><button data-library-filter="all" aria-pressed="true">All reports</button><button data-library-filter="inspection" aria-pressed="false">Inspection findings</button><button data-library-filter="reference" aria-pressed="false">Reference material</button><button data-library-filter="attention" aria-pressed="false">Review checks</button><button data-library-filter="unmatched" aria-pressed="false">No human labels</button></div></details>
+      <p id="libraryNote" class="hint">Open a report for its model output, justifications and source evidence.</p>
       <p id="libraryResultCount" class="sr-only" role="status"></p><div id="libraryTable" class="library-table-wrap"></div>
       <div id="comparisonPanel" class="comparison-detail" hidden aria-live="polite"></div>
       <p id="libraryError" class="error" role="alert" hidden></p>
@@ -105,7 +111,7 @@
       <div class="results-body"><div class="data-panel"><div class="table-actions"><label class="search-label"><span aria-hidden="true">⌕</span><input id="search" placeholder="Search fields, answers or evidence" aria-label="Search results"></label><a id="downloadTable" class="text-button">CSV ↓</a></div><div id="tableContent" role="tabpanel" aria-label="Selected report section"></div></div><aside class="evidence-panel" id="evidencePanel" aria-label="Source evidence"><div class="evidence-header"><span class="eyebrow">SOURCE EVIDENCE</span><button id="closeEvidence" class="icon-button" aria-label="Close source detail">×</button></div><div id="evidenceContent"><p class="muted">Select a record or evidence item to inspect its source page.</p></div></aside></div>
       <div class="result-footer"><span id="runId"></span><a id="downloadJson">Full evidence & run settings · JSON ↗</a></div>
     </section>
-    <section class="failure-panel" id="failurePanel" hidden><h3>This run needs attention.</h3><p id="failureMessage"></p><p>Adjust the settings and start a new run. Your source PDF is still selected.</p></section>
+    <section class="failure-panel" id="failurePanel" hidden><h3>This run needs attention.</h3><p id="failureMessage"></p><p>Saved results and source evidence remain available. No request is automatically repeated.</p></section>
     <footer class="workspace-footer"><span>COASTAL INFRASTRUCTURE · CAPSTONE TEAM 13</span><span>Traceable by design.</span></footer>
   </main>
 </div>

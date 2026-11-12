@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coastwise · Method A defects</title>
+  <link rel="stylesheet" href="/structure-workspace.css">
+  <link rel="stylesheet" href="/extraction.css">
+  <script src="/extraction.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#extraction">Skip to the extraction</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="wordmark" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span> coastwise</a>
+    <nav aria-label="Workspace">
+      <a href="/extraction" aria-current="page">Method A extraction</a>
+      <a href="/?new=1" class="new-assessment">Upload a report <span aria-hidden="true">+</span></a>
+    </nav>
+  </div>
+</header>
+<main id="extraction" tabindex="-1">
+  <header class="register-header">
+    <div>
+      <p class="eyebrow">Coastwise inspection workspace</p>
+      <h1>Method A defects</h1>
+    </div>
+    <div class="snapshot">
+      <span id="x-totals"></span>
+      <a href="/api/extraction/download?scope=method_a_one_shot">Download tables <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+  <nav class="x-workflow" aria-label="Inspection workflow">
+    <ol>
+      <li><a href="/?new=1">Upload a report</a></li>
+      <li><a href="/extraction" data-route aria-current="step">Review extracted defects</a></li>
+      <li>Open source evidence or export</li>
+    </ol>
+  </nav>
+  <p class="x-note">Native PDF text → bounded chunks → one extraction-and-grade call per chunk → local checks. Scanned pages, image-only findings and unreliable layouts may be missed. Missing or uncertain grades never imply sound condition.</p>
+  <p class="x-note">Target: about two minutes for a typical 20–50-page native-text report, including the complete graded table. The target is unmeasured; larger or dense reports may take longer.</p>
+  <section id="x-release-warnings" class="x-publication-warning" aria-label="Known release limitations" hidden></section>
+  <p class="message" id="x-loading" role="status">Loading the extraction…</p>
+  <p class="message" id="x-error" role="alert" hidden></p>
+  <div class="x-layout" id="x-content" hidden>
+    <aside class="x-side" aria-label="Latest report versions">
+      <label class="search-field">Find a report <input id="x-search" type="search" autocomplete="off"></label>
+      <nav id="x-structures"></nav>
+    </aside>
+    <section class="x-main" id="x-main" aria-label="Inspection results"></section>
+  </div>
+  <dialog id="x-panel" aria-labelledby="x-detail-title">
+    <div class="x-panel-top">
+      <span>Inspection review</span>
+      <button type="button" id="x-panel-close">Close</button>
+    </div>
+    <div class="x-panel-content">
+      <section id="x-detail" class="x-detail" hidden>
+        <h2 id="x-detail-title" tabindex="-1">Defect details</h2>
+        <div id="x-detail-body"></div>
+      </section>
+      <section class="x-source" id="x-source" aria-labelledby="x-source-title" hidden>
+        <button type="button" id="x-source-back">← Defect details</button>
+        <h2 id="x-source-title" tabindex="-1">Source PDF</h2>
+        <p id="x-source-file" class="x-file"></p>
+        <nav class="x-page-controls" aria-label="PDF pages">
+          <button type="button" id="x-previous-page">← Previous page</button>
+          <button type="button" id="x-next-page">Next page →</button>
+        </nav>
+        <div id="x-source-body"></div>
+      </section>
+    </div>
+  </dialog>
+</main>
+<footer><span>Coastwise · Method A native-text extraction</span><a href="/?new=1">Upload a report</a></footer>
+</body>
+</html>

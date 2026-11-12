@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coastwise · Inspection register</title>
+  <link rel="stylesheet" href="/structure-workspace.css">
+  <script src="/structure-workspace.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#register">Skip to the register</a>
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="wordmark" href="/" aria-label="Coastwise home"><span aria-hidden="true">≋</span> coastwise</a>
+    <nav aria-label="Workspace">
+      <a href="/extraction">Method A extraction</a>
+      <a href="/" data-route data-view-link="register">Reviewed register</a>
+      <a href="/?view=sources" data-route data-view-link="sources">Sources &amp; review</a>
+      <a href="/feature-importance/" class="analysis-link">Feature importance</a>
+      <a href="/?new=1" class="new-assessment">New assessment <span aria-hidden="true">+</span></a>
+    </nav>
+  </div>
+</header>
+<main id="register" tabindex="-1">
+  <header class="register-header">
+    <div>
+      <p class="eyebrow" id="register-label">Coastal infrastructure · Reviewed cohort</p>
+      <h1 id="register-title">Inspection register</h1>
+      <p id="register-intro">Follow an asset from its inspection history to individual findings.</p>
+    </div>
+    <div class="snapshot">
+      <span id="snapshot-version">Reviewed data</span>
+      <a href="/api/structure-workspace/download">Download four tables <span aria-hidden="true">↓</span></a>
+    </div>
+  </header>
+  <p class="message" id="loading" role="status">Loading the inspection register…</p>
+  <div class="message" id="load-error" role="alert" hidden>
+    <p>The inspection register could not load.</p>
+    <button id="retry" type="button">Try again</button>
+  </div>
+  <div id="register-content" hidden>
+    <nav id="scope-path" class="scope-path" aria-label="Inspection scope"></nav>
+    <nav id="source-views" class="source-views" aria-label="Sources and review views" hidden></nav>
+    <nav id="breadcrumbs" class="breadcrumbs" aria-label="You are here"></nav>
+    <nav id="inspection-actions" class="inspection-actions" aria-label="Selected inspection views" hidden></nav>
+    <div class="work-area" id="work-area">
+      <section class="table-area" aria-labelledby="table-title">
+        <div class="table-heading">
+          <div>
+            <h2 id="table-title" tabindex="-1"></h2>
+            <p id="table-description"></p>
+          </div>
+          <p id="row-count" class="row-count" role="status"></p>
+        </div>
+        <div class="toolbar">
+          <label class="search-field">Search this table <input id="table-search" type="search"></label>
+          <div id="filters" class="filters"></div>
+        </div>
+        <div id="table-result"></div>
+        <nav id="pagination" class="pagination" aria-label="Table pages"></nav>
+      </section>
+      <aside class="detail" id="record-detail" aria-labelledby="detail-title" hidden></aside>
+    </div>
+  </div>
+</main>
+<footer><span>Coastwise · Coastal infrastructure</span><a href="/?library=1">Saved report library</a></footer>
+</body>
+</html>

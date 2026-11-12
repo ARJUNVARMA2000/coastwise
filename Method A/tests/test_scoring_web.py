@@ -55,7 +55,8 @@ def upload(client, pdf):
 
 def start(client, upload_id, options=None, preview=False):
     response = client.post(f"/api/runs/{upload_id}", headers=HEADERS,
-                           data={"config": json.dumps({"workflow": "scoring", "model": "test/model", **(options or {})}),
+                           data={"config": json.dumps({"workflow": "scoring", "model": "test/model",
+                                                       "extraction_mode": "report_v1", **(options or {})}),
                                  "preview": str(preview).lower()})
     assert response.status_code == 200, response.text
     run_id = response.json()["id"]
@@ -160,7 +161,7 @@ def test_scoring_cloud_queue_survives_fresh_worker_and_web_filesystems(source_pd
     with TestClient(web.app) as client:
         upload_id = upload(client, source_pdf)
         response = client.post(f"/api/runs/{upload_id}", headers=HEADERS,
-                               data={"config": '{"workflow":"scoring","model":"test/model"}'})
+                               data={"config": '{"workflow":"scoring","model":"test/model","extraction_mode":"report_v1"}'})
         run_id = response.json()["id"]
         assert queued == [run_id]
         assert "never-persist-test-key" not in store.data[(run_id, "request.json")].decode()

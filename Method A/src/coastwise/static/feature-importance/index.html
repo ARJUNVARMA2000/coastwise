@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature importance · Coastwise</title>
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to analysis</a>
+<header class="topbar">
+  <span class="brand"><span class="brand-mark" aria-hidden="true">≋</span>coastwise<span class="brand-divider"></span><span class="brand-sub">Report review</span></span>
+  <nav class="topbar-actions" aria-label="Workspace">
+    <a class="library-button" href="/">Reports</a>
+    <a class="library-button" href="./" aria-current="page">Feature importance</a>
+  </nav>
+</header>
+
+<main id="main" class="workspace">
+  <div class="workspace-heading">
+    <div>
+      <span class="eyebrow">FEATURE IMPORTANCE</span>
+      <h1>What goes with a higher LLM score?</h1>
+      <p class="library-intro">Each report's Method A score (1 good → 4 serious/critical) is compared with the characteristics your team recorded in the human New_Schema sheet. Choose a scoring run to see which characteristics move with the score, and where the model disagrees with the human rating.</p>
+    </div>
+    <div class="run-control">
+      <label class="field-label" for="runSelect">Scoring run</label>
+      <select id="runSelect"></select>
+      <span id="modelBadge" class="contract-badge"></span>
+    </div>
+  </div>
+
+  <div id="loadError" class="error" role="alert" hidden></div>
+  <div id="notes" class="result-banner warning" hidden></div>
+
+  <section id="totals" class="library-totals" aria-label="Run summary"></section>
+
+  <div class="card-grid">
+    <section class="card">
+      <h2>Score distribution</h2>
+      <p class="card-intro">How many analyzed reports received each LLM score. A lopsided distribution limits what any model can learn.</p>
+      <div id="distChart" class="chart"></div>
+    </section>
+    <section class="card">
+      <h2>Model check</h2>
+      <p class="card-intro">A random forest predicts each structure's score after training only on the other structures. If it can't beat “always guess the median”, the importances below are weak evidence.</p>
+      <div id="modelCheck"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Grouped permutation importance</h2>
+        <p class="card-intro">Bar length is how much worse the held-out predictions get (mean absolute error, score points) when that group's values are shuffled. Larger positive values indicate greater reliance by the analysis model. Values near zero or negative show little evidence of a contribution.</p>
+      </div>
+      <div class="filter-buttons" role="group" aria-label="Model variant">
+        <button data-model="with_human_rating" aria-pressed="true">With human rating</button>
+        <button data-model="without_human_rating" aria-pressed="false">Without human rating</button>
+      </div>
+    </div>
+    <div id="importanceChart" class="chart"></div>
+    <p class="hint" id="importanceFoot"></p>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>One feature at a time</h2>
+        <p class="card-intro">Spearman rank correlation of each feature with the target, with a 95% interval from resampling whole structures. An interval that crosses zero leaves the direction of the association uncertain. Select a row to see its reports.</p>
+      </div>
+      <div class="filter-buttons" role="group" aria-label="Target">
+        <button data-target="score" aria-pressed="true">LLM score</button>
+        <button data-target="disagreement" aria-pressed="false">LLM − human rating</button>
+      </div>
+    </div>
+    <div id="corrChart" class="chart"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Feature detail</h2>
+        <p class="card-intro" id="detailIntro"></p>
+      </div>
+      <div class="collection-control"><label class="field-label" for="featureSelect">Feature</label><select id="featureSelect"></select></div>
+    </div>
+    <div id="detailChart" class="chart"></div>
+  </section>
+
+  <section class="card">
+    <h2>Reports in this analysis</h2>
+    <p class="card-intro">The table behind every chart. “Disagreement” is the LLM score minus the human rating mapped to the same 1–4 scale.</p>
+    <div class="table-wrap"><table id="reportTable" class="report-ledger"></table></div>
+    <div id="excluded"></div>
+    <p class="hint"><a href="scores-2026-10-29.csv" download>Download the October 29 scores (CSV)</a> for all 25 scored reports, including those excluded from the charts.</p>
+  </section>
+
+  <section class="card">
+    <h2>How each feature was coded</h2>
+    <p class="card-intro">Rules applied to the free-text human fields. “Filled” is the number of analyzed reports where the feature could be coded; missing values are imputed with the median for the model.</p>
+    <div class="table-wrap"><table id="featureTable" class="report-ledger"></table></div>
+  </section>
+
+  <footer class="workspace-footer"><span>COASTWISE · FEATURE IMPORTANCE</span><span id="generated"></span></footer>
+</main>
+<div id="tooltip" class="tooltip" role="status" hidden></div>
+</body>
+</html>

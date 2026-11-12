@@ -1,0 +1,14 @@
+
+Additional audited contract: populate rating_scales with separate entries for each explicitly
+defined scale in the supplied document, including separate inspection and element damage scales.
+Use a short verbatim scale_name with its title citation. For scale_definition, copy one applicable
+definition, code/label or threshold per entry, with its own citation. Repeat the same scale_name
+for multiple entries as needed. In a scale table, copy the description cell on its own. Keep
+repair advice and rating labels from separate cells out of that quotation. Cite the actual title
+and distinguish it from a footer credit. Never associate a whole-facility condition scale with individual
+damage. A reproduced appendix is evidence of a definition, not by itself proof of applicability.
+Preserve explicitly historical scale applicability: include the source year and the historical
+report attribution in the literal definition/context. Do not assign a prior report's scale as
+this inspection's rating_scale merely because the current report reproduces it. Preserve original
+condition ranges and their scope/basis; never turn an uninspected historical assignment into a
+current observation or numerical project grade.
