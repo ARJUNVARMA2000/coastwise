@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method B · Coastwise</title>
+<link rel="stylesheet" href="/coastwise.css">
+<link rel="stylesheet" href="/review-pages.css">
+<script src="app.js" defer></script>
+</head>
+<body class="cw-app cw-review">
+<a class="skip-link" href="#main">Skip to Method B results</a>
+<header class="cw-header">
+  <div class="cw-header-inner">
+    <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
+    <nav class="cw-nav" aria-label="Workspace">
+      <a href="/extraction">Method A</a>
+      <a href="/method-b/" aria-current="page">Method B</a>
+      <a href="/answer-key/">Answer key</a>
+      <a href="/feature-importance/">Feature importance</a>
+      <a href="/?new=1" class="cw-upload-link">Upload report</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <header class="cw-page-heading">
+    <div>
+      <h1>Method B</h1>
+      <p class="cw-context">Layout-aware extraction. Code reads tables, pile forms and checkbox marks straight from the PDF; Claude labels the narrative text. Every row keeps its PDF page and the exact words it came from.</p>
+    </div>
+  </header>
+
+  <ol class="cw-pipeline" aria-label="Pipeline">
+    <li class="here"><span class="step">Step 1</span><strong>Extract</strong><span class="sub">Method A and Method B pull defects from the PDF</span></li>
+    <li><a href="/answer-key/"><span class="step">Step 2</span><strong>Check</strong><span class="sub">People check a sample against the PDF</span></a></li>
+    <li><a href="/feature-importance/"><span class="step">Step 3</span><strong>Model</strong><span class="sub">Which factors predict deterioration</span></a></li>
+  </ol>
+
+  <p class="message" id="loading" role="status">Loading Method B results…</p>
+  <p class="error" id="load-error" role="alert" hidden></p>
+
+  <div id="content" hidden>
+    <div class="mb-reports" id="reports" role="group" aria-label="Choose a report"></div>
+
+    <section class="mb-detail panel" id="detail" aria-live="polite">
+      <div class="mb-detail-head">
+        <div>
+          <h2 id="d-title"></h2>
+          <p class="lede" id="d-scope"></p>
+        </div>
+        <span id="d-status"></span>
+      </div>
+      <div class="mb-stats" id="d-stats"></div>
+
+      <div id="d-years-wrap" hidden>
+        <h3 style="margin-top:24px">Inspections</h3>
+        <p class="lede" style="margin:4px 0 0">Choose a year to filter the rows. Rating words change between firms, so each year keeps its own scale.</p>
+        <div style="overflow-x:auto"><table class="mb-years" id="d-years"></table></div>
+      </div>
+
+      <div class="mb-grid">
+        <section class="mb-compare" aria-labelledby="cmp-title">
+          <h3 id="cmp-title">Compared with Method A</h3>
+          <div id="d-compare"></div>
+        </section>
+        <section aria-labelledby="types-title">
+          <h3 id="types-title">Defect types</h3>
+          <ul class="mb-bars" id="d-types"></ul>
+        </section>
+        <section aria-labelledby="sev-title">
+          <h3 id="sev-title">Severity as written</h3>
+          <ul class="mb-bars" id="d-sev"></ul>
+        </section>
+      </div>
+
+      <div class="mb-filters">
+        <label>Search <input type="search" id="f-q" placeholder="Element, defect or quote" autocomplete="off"></label>
+        <label>Defect type <select id="f-type"></select></label>
+        <label>Severity <select id="f-sev"></select></label>
+        <label id="f-year-wrap" hidden>Year <select id="f-year"></select></label>
+        <label id="f-src-wrap">Read from <select id="f-src"></select></label>
+        <button type="button" class="text-button" id="f-clear">Clear filters</button>
+        <span class="count" id="f-count" role="status"></span>
+        <button type="button" class="text-button" id="f-csv">Download CSV ↓</button>
+      </div>
+      <div class="mb-table-wrap">
+        <table class="mb-table">
+          <thead><tr><th scope="col">Element</th><th scope="col">Defect</th><th scope="col">Severity</th><th scope="col">Measure</th><th scope="col">Page</th><th scope="col">Exact words in the report</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="mb-more"><button type="button" id="more" hidden>Show 50 more</button></div>
+    </section>
+  </div>
+</main>
+
+<dialog class="cw-viewer" id="viewer" aria-labelledby="viewer-title">
+  <div class="bar"><strong id="viewer-title">PDF page</strong><button type="button" id="viewer-close">Close</button></div>
+  <div class="body"><blockquote id="viewer-quote"></blockquote><img id="viewer-img" alt=""></div>
+</dialog>
+</body>
+</html>
