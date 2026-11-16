@@ -42,6 +42,9 @@ function selectReport(key, focus) {
   try { localStorage.setItem("cw-method-b-report", report.key); } catch (e) { /* storage blocked */ }
   history.replaceState(null, "", "#" + report.key);
   renderTabs();
+  $("d-withheld").hidden = !report.withheld;
+  $("d-body").hidden = !!report.withheld;
+  if (report.withheld) { if (focus) $("d-withheld-title").focus({ preventScroll: true }); return; }
   renderSummary();
   options($("f-type"), counted(rowsOf(report.key), "t"), "All defects", nice);
   options($("f-sev"), counted(rowsOf(report.key), "s"), "Any severity", s => s);
@@ -79,7 +82,7 @@ function renderSummary() {
     ? `${fmt(r.from_tables)} of Method B's defects come from tables and pile forms, which Method A cannot read.`
     : `The same fenders and piles are inspected every year, so a defect can be followed over time.`;
   const status = r.status === "in review"
-    ? `<span class="tag wait">In review</span> Aayush is checking these rows now, so counts may change.`
+    ? `<span class="tag wait">In review</span>`
     : `<span class="tag ok">Spot-checked</span> 10 random rows were checked against the PDF on 15 November; fixes were applied to the whole report.`;
   $("d-sub").innerHTML = `${esc(where)}<br>${status}`;
 

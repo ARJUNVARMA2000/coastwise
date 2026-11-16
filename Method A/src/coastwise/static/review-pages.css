@@ -215,3 +215,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cw-review * { transition: none !important; }
 }
+
+/* A report that is not ready to show yet. */
+.mb-withheld { max-width: 64ch; padding: 40px 0 24px; }
+.mb-withheld h2 { font: 400 26px/1.3 Georgia, serif; outline: none; }
+.mb-withheld p { color: var(--muted); font-size: 15px; margin: 8px 0 0; }

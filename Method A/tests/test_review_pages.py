@@ -32,11 +32,15 @@ def test_method_b_data_is_consistent():
     assert keys == {"alameda", "berkeley", "dsny"}
     for report in data["reports"]:
         rows = [r for r in data["rows"] if r["r"] == report["key"]]
+        if report.get("withheld"):
+            # Reports still in review publish no rows or counts.
+            assert report["status"] == "in review" and not rows and "defects" not in report
+            continue
         assert len(rows) == report["defects"]
         assert all(r["q"] and r["p"] >= 0 for r in rows)
         a = report["method_a"]
         assert 0 <= a["pages_also_in_a"] <= a["pages_with_key_defects"]
-        if report["key"] == "dsny":
+        if report["groups"]:
             assert sum(g["defects"] for g in report["groups"]) == report["defects"]
         else:
             assert len(report["sha256"]) == 64
