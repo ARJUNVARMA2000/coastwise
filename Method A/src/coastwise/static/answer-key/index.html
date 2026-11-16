@@ -13,11 +13,10 @@
 <header class="cw-header">
   <div class="cw-header-inner">
     <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
-    <nav class="cw-nav" aria-label="Workspace">
-      <a href="/extraction">Method A</a>
-      <a href="/method-b/">Method B</a>
-      <a href="/answer-key/" aria-current="page">Answer key</a>
-      <a href="/feature-importance/">Feature importance</a>
+    <nav class="cw-nav cw-flow" aria-label="Pipeline: extract, check, model">
+      <span class="cw-stage"><span class="cw-stage-name">Extract</span><a href="/extraction">Method A</a><a href="/method-b/">Method B</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Check</span><a href="/answer-key/" aria-current="page">Answer key</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Model</span><a href="/feature-importance/">Feature importance</a></span>
       <a href="/?new=1" class="cw-upload-link">Upload report</a>
     </nav>
   </div>
@@ -30,12 +29,6 @@
       <p class="cw-context">The checked version of each report that both methods are scored against. Three labelling choices need your call.</p>
     </div>
   </header>
-
-  <ol class="cw-steps" aria-label="Where this page sits in the pipeline">
-    <li><a href="/method-b/">Extract</a></li>
-    <li aria-current="step">Check</li>
-    <li><a href="/feature-importance/">Model</a></li>
-  </ol>
 
   <p class="message" id="loading" role="status">Loading the answer key…</p>
   <p class="error" id="load-error" role="alert" hidden></p>
