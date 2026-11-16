@@ -116,8 +116,7 @@
 .cw-viewer img { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
 
 /* Answer key. */
-.ak-ask { font-size: 15px; margin: 0 0 20px; max-width: 72ch; }
-.ak-questions { display: grid; gap: 16px; }
+.ak-questions { display: grid; gap: 16px; margin-top: 16px; }
 .ak-q { background: white; border: 1px solid var(--line); border-radius: 6px; padding: 24px; }
 .cw-review .ak-q h3 { font-size: 18px; }
 .ak-q .qn { color: var(--teal); margin-right: 2px; }
