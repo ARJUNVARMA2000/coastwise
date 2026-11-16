@@ -45,6 +45,7 @@
 
     <section class="mb-detail" aria-live="polite">
       <h2 class="mb-lead" id="d-lead" tabindex="-1"></h2>
+      <div class="mb-compare" id="d-compare"></div>
       <p class="mb-sub" id="d-sub"></p>
 
       <div id="d-years-wrap" hidden>
@@ -54,8 +55,9 @@
       </div>
 
       <section class="mb-types" aria-labelledby="types-title">
-        <h3 id="types-title">Most common defects <span class="hint">Choose one to filter the list</span></h3>
-        <ul class="mb-bars" id="d-types"></ul>
+        <h3 id="types-title">Defects by type <span class="hint">Choose one to filter the list below</span></h3>
+        <ol class="mb-rank" id="d-types"></ol>
+        <button type="button" class="inline-link mb-rank-more" id="types-more" hidden></button>
       </section>
 
       <div class="mb-filters">
