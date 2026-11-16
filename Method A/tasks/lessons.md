@@ -123,3 +123,7 @@ When the user says to publish a new subset and remove older versions, distinguis
 ## 2026-11-16 — Select report editions from available sources
 
 When the user names Alameda, Berkeley and DSNY and directs “CHECK THE AVAILABLE reports and see,” inspect the available PDFs and saved source inventory, recover an identified missing source when needed, and choose a coherent three-report set. Record exact titles, dates, hashes and the selection rationale in the project plan. Do not ask the user to repeat edition choices that they have delegated to the available-source inspection.
+
+## 2026-11-16 — Publish the complete requested release
+
+When the user says to deploy everything, including the UI changes and updated reports, include the current approved UI, shared stylesheet, upload/review/analysis pages and saved dataset together. Sync and push both the personal `Method A/` and shared `Method_A/` application folders, preserve other team folders, verify both CI runs and deploy that same complete package. Reuse the saved results; publication does not authorize another model run.

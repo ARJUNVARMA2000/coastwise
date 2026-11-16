@@ -33,7 +33,7 @@ async function upload(file) {
     uploadId = data.id; runId=null; history.replaceState(null,'',location.pathname); clearResults();
     $('filename').textContent = data.filename; $('fileMeta').textContent = `${data.pages} PDF pages · ${(data.size/1024/1024).toFixed(1)} MB`;
     $('fileCard').hidden = false; $('dropzone').hidden = true;
-    $('workspaceTitle').textContent = 'A report worth a closer look.';
+    $('workspaceTitle').textContent = 'Upload report';
   } catch (e) { error(e.message); } finally { setBusy(false); }
 }
 function config() {
@@ -50,7 +50,7 @@ async function start(preview) {
   if (!preview && !settings.has_server_key && !$('apiKey').value.trim()) {
     if (settings.hosted) return error('The workspace API key has not been configured yet. Ask the workspace owner to add the OpenRouter key in the hosting settings.');
     document.querySelector('.settings-details').open = true; $('apiKey').focus();
-    return error('Add your OpenRouter API key in Connection & run limits, or use the free source preview.');
+    return error('Add your OpenRouter API key in Connection and run settings, or preview the source for free.');
   }
   if (!preview && !$('model').value.trim()) return error('Select or enter an OpenRouter model ID.');
   const form = new FormData(); form.append('config',JSON.stringify(config())); form.append('preview',preview);
@@ -97,6 +97,7 @@ async function poll(expectedId=runId) {
 }
 function renderResult(job) {
   setWorkspaceView('assessment');
+  document.querySelector('.results-body').hidden=false;
   if(currentResult.workflow==='scoring') return renderScoringResult(job);
   renderReportNavigation();
   $('results').hidden = false;
@@ -180,14 +181,13 @@ function showRecord(row) {
 }
 async function refreshModels() {
   $('model').value=METHOD_A_MODEL;
-  $('modelHint').textContent='One DeepSeek request per chunk. Grades and evidence are checked locally.';
 }
 $('fileInput').onchange = e=>upload(e.target.files?.[0]);
 ['dragenter','dragover'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.add('dragging');}));
 ['dragleave','drop'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.remove('dragging');if(event==='drop'){if(e.dataTransfer.files.length!==1)return error('Choose one PDF report.');upload(e.dataTransfer.files[0]);}}));
-function clear(){if(busy)return;savedOpenSequence++;clearBulkSelection();hideLibrary();uploadId=null;runId=null;currentReportRow=null;history.replaceState(null,'','?new=1');$('fileInput').value='';$('fileCard').hidden=true;$('dropzone').hidden=false;clearResults();setWorkspaceView('new');setBusy(false);updateBulkButton();error('');$('workspaceTitle').textContent='New assessment';}
+function clear(){if(busy)return;savedOpenSequence++;clearBulkSelection();hideLibrary();uploadId=null;runId=null;currentReportRow=null;history.replaceState(null,'','?new=1');$('fileInput').value='';$('fileCard').hidden=true;$('dropzone').hidden=false;clearResults();setWorkspaceView('new');setBusy(false);updateBulkButton();error('');$('workspaceTitle').textContent='Upload report';}
 $('newRun').onclick=clear; $('removeFile').onclick=clear;
-$('newAssessment').onclick=clear;
+$('newAssessment').onclick=e=>{e.preventDefault();clear();};
 $('preview').onclick=()=>start(true); $('extract').onclick=()=>start(false);
 $('refreshModels').onclick=refreshModels;
 $('moreModels').onclick=()=>{expandedModels=!expandedModels;refreshModels();};
@@ -199,7 +199,7 @@ $('workflow').onchange=()=>{updateWorkflow();updateBulkButton();};
 document.querySelectorAll('input[name=method]').forEach(el=>el.onchange=()=>{$('methodDescription').textContent=methodDescriptions[el.value];});
 document.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{activeTab=el.dataset.tab;renderTab();});
 $('search').oninput=renderTab; $('closeEvidence').onclick=closeSourceEvidence;
-(async()=>{try{settings=await api('/api/settings');$('provider').value=settings.default_provider;$('rubricText').textContent=settings.scoring_rubric;updateWorkflow(false);$('openLibrary').onclick=()=>location.assign('/extraction');if(settings.has_server_key)$('keyHint').textContent='A server API key is configured.';if(settings.hosted){$('browserKey').hidden=true;$('workspaceLocation').textContent='Hosted workspace';$('privacyNote').textContent='Files and outputs are saved in this password-protected workspace. Processing sends native report text to DeepSeek through OpenRouter. Missing or uncertain grades do not imply sound condition.';$('dropzone').querySelector('span:last-of-type').textContent=`or drop a PDF here · up to ${settings.max_upload_mb} MB`;}await refreshModels();const params=new URLSearchParams(location.search),saved=params.get('run');if(saved)await openSavedRun(saved,params.get('tab'));else{setBusy(false);setWorkspaceView('new');}}catch(e){setWorkspaceView('new');error(e.message);}})();
+(async()=>{try{settings=await api('/api/settings');$('provider').value=settings.default_provider;$('rubricText').textContent=settings.scoring_rubric;updateWorkflow(false);$('openLibrary').onclick=()=>location.assign('/extraction');if(settings.has_server_key)$('keyHint').textContent='A server API key is configured.';if(settings.hosted){$('browserKey').hidden=true;$('workspaceLocation').textContent='Hosted workspace';$('dropzone').querySelector('span:last-of-type').textContent=`Drop a PDF here · up to ${settings.max_upload_mb} MB`;}await refreshModels();const params=new URLSearchParams(location.search),saved=params.get('run');if(saved)await openSavedRun(saved,params.get('tab'));else{setBusy(false);setWorkspaceView('new');}}catch(e){setWorkspaceView('new');error(e.message);}})();
 
 let savedOpenSequence=0;
 async function openSavedRun(saved,tab=null){

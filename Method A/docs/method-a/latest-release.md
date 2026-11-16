@@ -1,6 +1,6 @@
 # Latest Method A release — three reports, 2026-11-16
 
-The approved showcase contains only Alameda Piers 1–3 (May 2017), Berkeley Municipal Pier DRAFT structural assessment (November 2017) and DSNY Southwest Brooklyn annual bulkhead inspection (December 2016). These replace the four former Brooklyn result entries in the active website dataset. Feature importance retains its separately saved October 29 analysis.
+The approved showcase contains only Alameda Piers 1–3 (May 2017), Berkeley Municipal Pier DRAFT structural assessment (November 2017) and DSNY Southwest Brooklyn annual bulkhead inspection (December 2016). These replace the four former Brooklyn result entries in the active website dataset. The full current UI is included: the shared Coastwise stylesheet, Method A report browser, upload page and Feature importance page. Feature importance retains its separately saved October 29 analysis.
 
 ## Saved outputs and measured processing
 
@@ -39,8 +39,8 @@ Alameda's report is dated May 2017, but its above-water inspection describes Jul
 
 ## Publication and verification
 
-Release ID: `3598c7737174d6496cb77bb2dcbcfc89ea96bef72d08b595569973f7a74a24a1`. The checksum manifest contains 146 packaged files. The installer checks exactly three report identities, allowing Alameda and Berkeley to share 2017, before replacing only the configured runtime dataset. Repeated installation is idempotent. Git history, credentials and unrelated local UI work are preserved.
+Release ID: `3598c7737174d6496cb77bb2dcbcfc89ea96bef72d08b595569973f7a74a24a1`. The checksum manifest contains 146 packaged files. The installer checks exactly three report identities, allowing Alameda and Berkeley to share 2017, before replacing only the configured runtime dataset. Repeated installation is idempotent. Git history, credentials and other shared-repository team folders are preserved.
 
-Forty offline checks pass, including same-year selection, rejection of invalid/duplicate release identities, safe replacement/idempotence and timeout reservation/no-resend behavior. A local three-report snapshot verified source PDFs, quotation highlights, per-report and combined CSV/JSON/Excel/ZIP parity, unavailable superseded URLs and unchanged Feature importance data. Final source-package and hosted verification are recorded below when complete.
+Forty offline checks pass, including same-year selection, rejection of invalid/duplicate release identities, safe replacement/idempotence and timeout reservation/no-resend behavior. A local three-report snapshot verified source PDFs, quotation highlights, per-report and combined CSV/JSON/Excel/ZIP parity, unavailable superseded URLs and unchanged Feature importance data. The complete UI was additionally checked with the real three-report data on desktop and at 390 px: shared navigation, report totals, source evidence/modal closing and all three page layouts passed without horizontal overflow. UI asset hashes and every export format passed local readback. Final repository/CI/deployment identities are recorded below when publication completes.
 
-Execution records: `output/coastwise/method-a-three-report-release-2026-11-16/`. The source-selection convention is committed locally as `ddd7958`.
+Execution records: `output/coastwise/method-a-three-report-release-2026-11-16/`. The source-selection and complete-release publication conventions are recorded in `tasks/lessons.md` and committed with this release.

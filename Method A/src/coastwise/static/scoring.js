@@ -22,11 +22,8 @@ function updateWorkflow(saveDraft=true) {
   $('maxRequests').value=100;$('chunkChars').value=d?.chars||24000;
   $('systemPrompt').value=settings.scoring_prompt;$('promptBadge').textContent='Default';
   $('extract').innerHTML='Extract and grade defects <span>↗</span>';
-  $('workflowHint').textContent='One DeepSeek call per native-text chunk extracts findings and provisional grades together. Evidence and grading rules are checked locally.';
+  $('workflowHint').textContent='Native-text PDFs only. Scanned and image-only findings may be missed.';
   if(!currentResult)$('contractBadge').textContent='Method A · One-shot defects';
-  $('emptyDescription').textContent='Upload a native-text PDF for concise findings, measurements, original ratings, project grades or uncertainty, and source evidence.';
-  const items=[['Findings','Distinct components and locations'],['Grades','Evidence-supported, or uncertain'],['Evidence','Original quotations and PDF pages']];
-  $('outputPreview').innerHTML=items.map(x=>`<div><span class="output-line"></span><b>${x[0]}</b><small>${x[1]}</small></div>`).join('');
 }
 function setResultTabs(tabs) {
   $('resultTabs').innerHTML=tabs.map(([key,name,count])=>`<button id="result-tab-${key}" role="tab" aria-controls="tableContent" aria-selected="false" tabindex="-1" data-tab="${key}">${escapeHtml(name)}${count==null?'':` <span>${count}</span>`}</button>`).join('');
@@ -82,7 +79,7 @@ function renderFourTableResult(job) {
   const first=t.workspace_inspection_ids?.[0] || (t.inspection_ids?.[0] && 'UP'+runId.slice(0,8)+'-'+t.inspection_ids[0]);
   const link=first?`/extraction?inspection=${encodeURIComponent(first)}`:'/extraction';
   const counts=[['Structures',t.structures],['Inspections',t.inspections],['Components',t.component_observations],['Defects',t.defects],['Measurements',t.measurements]];
-  $('assessmentSummary').hidden=false;$('assessmentSummary').classList.add('inventory-mode');
+  $('assessmentSummary').hidden=preview;$('assessmentSummary').classList.add('inventory-mode');
   $('assessmentSummary').innerHTML=`<div class="four-table-summary"><dl>${counts.map(([k,v])=>`<div><dt>${k}</dt><dd>${v??0}</dd></div>`).join('')}</dl>
     ${preview?'':`<a class="primary-link" href="${link}">Open extracted defects <span aria-hidden="true">→</span></a>`}
     <p class="hint">${metricCost(m.billed_usd)} · ${metricNumber(m.total_tokens)} tokens · ${m.runtime_seconds??'—'}s · ${m.chunks_valid??0} of ${m.chunks_total??0} chunks</p></div>`;
@@ -93,7 +90,11 @@ function renderFourTableResult(job) {
   $('downloadJson').textContent='Four tables and evidence · JSON ↗';
   $('downloadTable').href=path+'defects.csv';
   $('runId').textContent=`RUN ${runId.slice(0,8)} · ${r.schema_version}`;
-  setResultTabs([]);$('tableContent').innerHTML='';
+  setResultTabs([]);
+  document.querySelector('.table-actions').hidden=true;
+  document.querySelector('.results-body').hidden=!preview;
+  const previewPage=Number(selected[0]||1);
+  $('tableContent').innerHTML=preview?`<section class="cw-source-preview"><h2>PDF page ${previewPage} of ${r.coverage?.pdf_pages??'—'}</h2><img src="/api/runs/${encodeURIComponent(runId)}/page/${previewPage}" alt="Source PDF page ${previewPage}"></section>`:'';
 }
 function renderScoringResult(job) {
   if(fourTableMode(currentResult.extraction_mode))return renderFourTableResult(job);

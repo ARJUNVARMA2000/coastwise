@@ -16,4 +16,4 @@ uv run coastwise serve
 
 Copy `Method A/.env.example` to `Method A/.env` and supply your own OpenRouter key to run assessments. Source previews require no API key.
 
-Source PDFs, saved assessments, runtime state and credentials are excluded from this repository.
+The verified release bundle contains the Alameda 2017, Berkeley 2017 and DSNY 2016 source PDFs and saved Method A outputs. The full UI is included. Credentials, private provider reasoning and runtime state are excluded.

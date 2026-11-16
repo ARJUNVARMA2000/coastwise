@@ -59,6 +59,7 @@ function renderHeader() {
   $("modelBadge").textContent = `${r.model} · generated ${r.generated_utc.slice(0, 10)}`;
   $("generated").textContent = `${r.run} · ${r.generated_utc}`;
   $("notes").hidden = !r.notes.length;
+  $("analysis-notes").hidden = !r.notes.length;
   $("notes").innerHTML = `<ul>${r.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`;
   const structures = new Set(r.table.map((t) => t.structure_group)).size;
   $("totals").innerHTML = [
@@ -101,7 +102,7 @@ function renderModelCheck() {
     : "Neither variant improves on the median guess. The feature rankings are unreliable for this run.";
   $("modelCheck").innerHTML = `<div class="model-check">${cell("with_human_rating", "With human rating")}${cell("without_human_rating", "Without human rating")}</div>
     <p class="verdict">${verdict}</p>
-    <p class="hint">Error is mean absolute difference in score points across ${m.with_human_rating.n_structures} held-out structures.</p>`;
+    <details class="cw-details"><summary>How the model is checked</summary><p>A random forest predicts each structure's score using only the other structures for training. Error is mean absolute difference across ${m.with_human_rating.n_structures} held-out structures, compared with always predicting the median.</p></details>`;
 }
 
 function renderImportance() {

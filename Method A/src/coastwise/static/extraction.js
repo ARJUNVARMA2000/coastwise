@@ -54,7 +54,7 @@ function renderSide() {
     `<li><a href="?inspection=${encodeURIComponent(i.inspection_id)}" data-route
       ${i.inspection_id === selected || i.inspection_ids.includes(selected) ? 'aria-current="true"' : ''}>
       <b>${esc(i.report_year || 'Undated')}</b><span>${esc(i.report_name || i.source_file)}</span>
-      <small>${esc(i.n_defects)} defects · latest saved extraction</small></a></li>`).join('') + '</ul>';
+      <small>${esc(i.n_defects)} defects</small></a></li>`).join('') + '</ul>';
 }
 
 const TABS = [['defects', 'Defects'], ['components', 'Components'], ['notes', 'Review notes']];
@@ -92,12 +92,11 @@ function ranges(pages) {
 
 function renderBrowse() {
   const reports = reportEntries();
-  $('x-main').innerHTML = `<h2>Your Method A reports</h2>
-    <p class="x-lede">Open one report to see all its saved defect records, original ratings, uncertainty and PDF evidence. Coverage limitations remain explicit.</p>
+  $('x-main').innerHTML = `<h2>Saved reports</h2>
     <div class="x-pilots">${reports.map(i => {
       const manifest = data.manifest.find(m => m.source_sha256 === i.source_sha256 && m.origin === i.origin);
       return `<a class="x-pilot" href="?inspection=${encodeURIComponent(i.inspection_id)}" data-route>
-        <span class="eyebrow">${i.coverage === 'complete' ? 'Results ready' : 'Partial results'}</span><strong>${esc(i.report_name || i.source_file)} <span aria-hidden="true">→</span></strong>
+        <strong>${esc(i.report_name || i.source_file)} <span aria-hidden="true">→</span></strong>
         <span>${esc(i.n_defects)} defects · ${list(manifest?.selected_pdf_pages).length ? 'PDF pp. '+esc(ranges(list(manifest.selected_pdf_pages))) : esc(i.pdf_pages)+' PDF pages'}</span></a>`;
     }).join('') || '<p class="x-empty">No Method A reports yet. <a href="/?new=1">Upload a native-text PDF</a> to extract its defects.</p>'}</div>`;
 }
@@ -193,14 +192,11 @@ function renderInspection(tab) {
       ${chips(i.inspection_date_src, i.inspection_id, 'inspection_date')}</p></div>
     ${downloadLinks(i.inspection_id)}</div>
     <p class="message" id="x-route-error" role="alert" hidden></p>
-    ${coverageNotice(i, manifest)}
-    ${publicationNotice(list(manifest.publication_warnings), 'Known report limitations', true)}
-    <p class="x-timing" id="x-ready-time" role="status"></p>
-    <div class="x-inspection-meta">
-      <span>Method A · source-linked findings and provisional grades</span>
-      ${grading[i.grading_status] || (i.origin === 'dataset' ? grading.legacy_ungraded : '')}
-    </div>
     <details class="x-report-facts"><summary>Report details</summary>
+      ${coverageNotice(i, manifest)}
+      ${publicationNotice([...(data.release?.warnings || []), ...list(manifest.publication_warnings)], 'Processing notes', true)}
+      <div class="x-inspection-meta">${grading[i.grading_status] || (i.origin === 'dataset' ? grading.legacy_ungraded : '')}</div>
+      <p class="x-timing" id="x-ready-time" role="status"></p>
       <dl class="x-facts">${facts.map(([name, f]) => `<div><dt>${name}</dt><dd>${cell(i, f, i.inspection_id)}</dd></div>`).join('')}</dl>
       ${list(i.scoped_conditions).map(r => `<p>${esc(humanize(r.scope))} condition · ${esc(r.scope_name || r.name || r.section || '')} · ${esc(r.condition)}</p>`).join('')}
     </details>
@@ -555,10 +551,7 @@ $('x-search').oninput = renderSide;
 (async () => {
   try {
     data = await getJson('/api/extraction?scope=method_a_one_shot');
-    $('x-totals').textContent = `${reportEntries().length} latest report versions · ${data.inspections.reduce((n, i) => n + Number(i.n_defects || 0), 0)} defect records`;
-    const warnings = data.release?.warnings || [];
-    $('x-release-warnings').innerHTML = publicationNotice(warnings, 'Known limitations in this release');
-    $('x-release-warnings').hidden = !warnings.length;
+    $('x-totals').textContent = `${reportEntries().length} reports · ${data.inspections.reduce((n, i) => n + Number(i.n_defects || 0), 0)} defects`;
     $('x-loading').hidden = true;
     $('x-content').hidden = false;
     route();

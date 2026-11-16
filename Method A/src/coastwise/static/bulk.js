@@ -23,11 +23,11 @@ function updateBulkButton(){
   if(selectedWorkflow==='scoring'&&fourTableMode(selectedExtractionMode)){
     const action=['method_a_one_shot','four_table_v2'].includes(selectedExtractionMode)?'Extract and grade defects':'Extract four tables';
     $('extract').innerHTML=`${action}${count>1?' · '+count+' reports':''} <span>↗</span>`;
-    $('preview').textContent=count>1?'Preview all · no API cost':'Preview source · no API cost';
+    $('preview').textContent=count>1?'Preview all · free':'Preview source · free';
     return;
   }
   $('extract').innerHTML=count>1?`${defectMode?'Extract defects from':'Score'} ${count} reports <span>↗</span>`:defectMode?'Extract defects <span>↗</span>':selectedWorkflow==='scoring'?'Score report <span>↗</span>':'Extract report <span>↗</span>';
-  $('preview').textContent=count>1?'Preview all · no API cost':'Preview source · no API cost';
+  $('preview').textContent=count>1?'Preview all · free':'Preview source · free';
 }
 async function uploadFiles(files){
   const selected=Array.from(files||[]);

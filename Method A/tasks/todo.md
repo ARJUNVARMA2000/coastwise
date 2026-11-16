@@ -119,3 +119,18 @@ Preparation only: verified 703 source pages and 37 native-text chunks, retrieved
 ### Execution checkpoint — bounded appendix interruption
 
 The Berkeley first-pass appendix request (chunk 14, absolute PDF pages 231–253) was interrupted after 1,013.716 seconds without a final response. Its complete worst-case reservation remains held in the shared $1 ledger; it is not eligible for the rate-limit retry exception. All received chunk results were preserved and assembled offline, retaining 170 initial Berkeley records from three valid chunks and explicit gaps. Original interrupted files are retained under `audit/interrupted-first-pass/`. Recover the two reports in separate serial streams, at most two requests in flight globally, each rejected chunk attempted once. Enforce a true 600-second total timeout on the later Berkeley retry stream, retain any unknown charge in the ledger and continue only other approved chunks when their full reservations fit. Never repeat a timed-out or already-retried chunk.
+
+## Publish the full UI and three-report release to both repositories — approved 2026-11-16
+
+The user explicitly instructs: “Deploy everything - the ui CHANGES and the updated 3 reports - to both the repos.” This authorizes the existing local UI changes, both repository pushes and the full website redeployment; no further plan approval is needed. Reuse release `3598c7737174d6496cb77bb2dcbcfc89ea96bef72d08b595569973f7a74a24a1` and its 1,205 saved records. Do not make new model calls.
+
+- [x] Verify the existing UI changes and both GitHub destinations/access: personal `ARJUNVARMA2000/coastwise` under `Method A/`, shared `prksyng54/msds-capstone` under `Method_A/`.
+- [x] Sync the complete current UI plus the verified three-report implementation/data into both checkouts, preserving unrelated shared-repository folders and repository history.
+- [x] Check the full UI locally with the real three-report data, current Python/JavaScript checks, desktop/mobile views and the matching CI expectations.
+- [ ] Commit and push both scoped application folders and required CI changes; verify remote heads and both CI runs.
+- [ ] Redeploy the exact full UI/data package to the existing Coastwise service, retaining its authentication, volume and unchanged dataset release ID; verify live UI assets, exactly three reports / 1,205 records, PDF evidence and all exports.
+- [ ] Record both commits, checks, final deployment/URL and unchanged model spending; commit the UI-publication lesson.
+
+### Review
+
+Pending full-UI synchronization and publication. The first data deployment succeeded as `3d6f7165-dd33-45a9-9315-336abd18f908`; authenticated checks already verified the three-report outputs, source hashes, quotation highlights, exports, preserved Feature importance data and 404 responses for the four superseded run/result URLs. The full UI is the next publication scope.

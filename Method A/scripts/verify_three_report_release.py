@@ -24,6 +24,7 @@ def main():
     parser.add_argument("url")
     parser.add_argument("--record", type=Path, required=True)
     parser.add_argument("--local", action="store_true")
+    parser.add_argument("--ui", action="store_true", help="Verify the complete current UI assets")
     parser.add_argument("--release-metadata", type=Path,
                         default=ROOT / "src/coastwise/method_a_assets/latest.json")
     args = parser.parse_args()
@@ -113,10 +114,22 @@ def main():
         assert "Feature" in feature.text or "feature" in feature.text
         for name in ("feature_importance.json", "scores-2026-10-29.csv"):
             assert get("/feature-importance/" + name).content == (ROOT / "src/coastwise/static/feature-importance" / name).read_bytes()
+        ui_hashes = {}
+        if args.ui:
+            assets = {"/extraction": "extraction.html", "/?new=1": "index.html",
+                      "/feature-importance/": "feature-importance/index.html",
+                      "/coastwise.css": "coastwise.css", "/extraction.js": "extraction.js",
+                      "/app.js": "app.js", "/bulk.js": "bulk.js", "/scoring.js": "scoring.js",
+                      "/feature-importance/app.js": "feature-importance/app.js"}
+            for path, filename in assets.items():
+                content = get(path).content
+                assert content == (ROOT / "src/coastwise/static" / filename).read_bytes(), path
+                ui_hashes[path] = hashlib.sha256(content).hexdigest()
         record = {"url": base, "release_id": release["release_id"], "reports": reports,
                   "report_count": 3, "defect_count": total, "table_counts": {k: len(v) for k, v in tables.items()},
                   "authentication_verified": not args.local, "feature_importance_preserved": True,
                   "exports_verified": ["csv", "json", "xlsx", "zip"], "superseded_urls": removed,
+                  "full_ui_verified": args.ui, "ui_files_sha256": ui_hashes,
                   "new_inference_calls": 0}
         args.record.parent.mkdir(parents=True, exist_ok=True)
         args.record.write_text(json.dumps(record, indent=2) + "\n")
