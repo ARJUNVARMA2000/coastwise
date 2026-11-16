@@ -79,7 +79,7 @@ function renderSummary() {
       <span class="track wide" role="img" aria-label="${pct} percent"><span class="fill a" style="width:${pct}%"></span></span>
     </section>`;
   const where = r.from_tables != null
-    ? `${fmt(r.from_tables)} of Method B's defects come from tables and pile forms, which Method A cannot read.`
+    ? `${fmt(r.from_tables)} of Method B's defects come from tables and pile forms. Method A uses embedded PDF text; table reading order can limit extraction.`
     : `The same fenders and piles are inspected every year, so a defect can be followed over time.`;
   const status = r.status === "in review"
     ? `<span class="tag wait">In review</span>`
