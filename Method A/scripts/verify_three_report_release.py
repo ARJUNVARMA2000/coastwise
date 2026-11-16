@@ -43,7 +43,7 @@ def main():
             assert all(v in cookie for v in ("Secure", "HttpOnly", "SameSite=lax"))
 
         def get(path, **params):
-            response = client.get(path, params=params)
+            response = client.get(path, **({"params": params} if params else {}))
             response.raise_for_status()
             return response
 
