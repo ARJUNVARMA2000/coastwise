@@ -119,3 +119,7 @@ The user explicitly keeps the original feature importance analysis as an excepti
 
 ### Latest-only scope must identify the retained report set — 2026-11-12
 When the user says to publish a new subset and remove older versions, distinguish replacing versions from reducing the report collection. The explicit correction here is to retain ONLY the four high-reasoning 2015–2018 Brooklyn reports, removing the other six from active data and current repository branches while preserving Git history and spending records. Do not keep the earlier ten-report invariant after that correction.
+
+## 2026-11-16 — Select report editions from available sources
+
+When the user names Alameda, Berkeley and DSNY and directs “CHECK THE AVAILABLE reports and see,” inspect the available PDFs and saved source inventory, recover an identified missing source when needed, and choose a coherent three-report set. Record exact titles, dates, hashes and the selection rationale in the project plan. Do not ask the user to repeat edition choices that they have delegated to the available-source inspection.
