@@ -81,7 +81,7 @@ Working-file cleanup explicitly recorded 381 files / 137,813,116bytes, in additi
 
 ## Replace the four-report website dataset with Alameda, Berkeley and DSNY — 2026-11-16
 
-Status: approved and executing. The user approved the plan with “yes”; source processing and the bounded recovery exception are recorded below. The user requests removal of the current four website reports and fresh Method A outputs for three reports only. When asked about editions, the user directed: “CHECK THE AVAILABLE reports and see.” Choose from available sources without another edition question.
+Status: completed and published. The user approved the plan with “yes”; source processing and the bounded recovery exception are recorded below. The user requests removal of the current four website reports and fresh Method A outputs for three reports only. When asked about editions, the user directed: “CHECK THE AVAILABLE reports and see.” Choose from available sources without another edition question.
 
 ### Selected inputs
 
@@ -108,12 +108,14 @@ Operational adjustment: one Berkeley native appendix request is unusually slow. 
 - [x] Review major findings, source/component ownership, measurements and any published numeric grades against the PDFs; disclose material errors and native-text gaps in the saved results. Keep original model outputs and distinguish review annotations from model findings.
 - [x] Generalize the release packager/installer from the hard-coded Brooklyn year set to three explicit report identities, allowing Alameda and Berkeley to share a year; preserve checksum, run/source validation and safe replacement protections. Package exactly these three new results and update dataset labels/documentation.
 - [x] Run appropriate offline regression checks and verify all three report views, highlighted PDF evidence, coverage/uncertainty and matching per-report/combined exports in the website. Prepare the complete release before replacing the hosted dataset.
-- [ ] Publish the scoped release to the existing password-protected Coastwise Railway website; remove the four previous result entries from the active dataset and verify exactly the three selected reports, correct source hashes, working evidence/downloads and unavailable superseded result URLs. Retain the existing Feature importance page, credentials and Git history. Do not expand this into deletion of unrelated historical working files.
-- [ ] Commit the source-selection lesson with the scoped release and record final report/run counts, measured times, actual billed/held costs, checks, deployment identity and URL.
+- [x] Publish the scoped release to the existing password-protected Coastwise Railway website; remove the four previous result entries from the active dataset and verify exactly the three selected reports, correct source hashes, working evidence/downloads and unavailable superseded result URLs. Retain the existing Feature importance page, credentials and Git history. Do not expand this into deletion of unrelated historical working files.
+- [x] Commit the source-selection lesson with the scoped release and record final report/run counts, measured times, actual billed/held costs, checks, deployment identity and URL.
 
 ### Review
 
-Preparation only: verified 703 source pages and 37 native-text chunks, retrieved the missing Berkeley PDF and recorded exact source identities. No model calls, result replacement, application-code changes, push or deployment have occurred. Implementation/deployment review remains pending the plan check-in and execution.
+Published the full current UI and the three saved Method A outputs to both repositories and the existing protected website. Alameda has 376 records, Berkeley 778 and DSNY 51: 1,205 total across 703 PDF pages, with 35/37 valid chunks. All project grades remain uncertain. Failed extraction pages 121–131 in Alameda and 231–253 in Berkeley, additional native-text gaps and source-review limitations are retained in report details and exports. Measured processing times are 2,480.1 s, 3,581.5 s and 239.7 s respectively; the two-minute target was not met.
+
+Known billed cost is $0.271416901, with $0.245705502 retained for two unknown charges, totaling $0.517122403 committed against the $1 cap. There were 37 initial attempts and 20 approved one-time HTTP-429 recoveries. No successful or interrupted request was repeated, and publication/verification made zero new inference calls. Source-selection and complete-release lessons are committed in both application folders. The final publication review below records commits, CI and live verification.
 
 
 ### Execution checkpoint — bounded appendix interruption
@@ -127,10 +129,14 @@ The user explicitly instructs: “Deploy everything - the ui CHANGES and the upd
 - [x] Verify the existing UI changes and both GitHub destinations/access: personal `ARJUNVARMA2000/coastwise` under `Method A/`, shared `prksyng54/msds-capstone` under `Method_A/`.
 - [x] Sync the complete current UI plus the verified three-report implementation/data into both checkouts, preserving unrelated shared-repository folders and repository history.
 - [x] Check the full UI locally with the real three-report data, current Python/JavaScript checks, desktop/mobile views and the matching CI expectations.
-- [ ] Commit and push both scoped application folders and required CI changes; verify remote heads and both CI runs.
-- [ ] Redeploy the exact full UI/data package to the existing Coastwise service, retaining its authentication, volume and unchanged dataset release ID; verify live UI assets, exactly three reports / 1,205 records, PDF evidence and all exports.
-- [ ] Record both commits, checks, final deployment/URL and unchanged model spending; commit the UI-publication lesson.
+- [x] Commit and push both scoped application folders and required CI changes; verify remote heads and both CI runs.
+- [x] Redeploy the exact full UI/data package to the existing Coastwise service, retaining its authentication, volume and unchanged dataset release ID; verify live UI assets, exactly three reports / 1,205 records, PDF evidence and all exports.
+- [x] Record both commits, checks, final deployment/URL and unchanged model spending; commit the UI-publication lesson.
 
 ### Review
 
-Pending full-UI synchronization and publication. The first data deployment succeeded as `3d6f7165-dd33-45a9-9315-336abd18f908`; authenticated checks already verified the three-report outputs, source hashes, quotation highlights, exports, preserved Feature importance data and 404 responses for the four superseded run/result URLs. The full UI is the next publication scope.
+Personal application commit `ddd0c34d7454de308c59f4283e50484209e9d543` and shared application commit `2bc358ef73830ee9ee78c9af29d08b30b2bae701` are pushed and remote heads were verified. [Personal CI](https://github.com/ARJUNVARMA2000/coastwise/actions/runs/43930404446) and [shared CI](https://github.com/prksyng54/msds-capstone/actions/runs/43930398438) both passed, including 40 offline tests, JavaScript checks, container build and three-report browser smoke checks. Changes in the shared repository are confined to `Method_A/` and the scoped CI workflow.
+
+Railway deployment `4205278e-ef3c-4003-9959-66d7240a626a` succeeded at [Coastwise](https://coastwise-production.up.railway.app/extraction). All 71 packaged application/container files match the committed application, including the shared stylesheet and complete Method A, upload and Feature importance UI. Authenticated readback verified all nine updated UI assets, exactly three reports / 1,205 records, all source PDF hashes, a quotation highlight/rendered page for each report, and per-report/combined CSV, JSON, Excel and ZIP exports. All eight former result/source URLs return 404. Feature importance JSON/CSV bytes, authentication and credentials are preserved. The live browser visibly shows the new UI and all three report titles with correct counts, without horizontal overflow.
+
+Release ID remains `3598c7737174d6496cb77bb2dcbcfc89ea96bef72d08b595569973f7a74a24a1`; the full UI redeployment reused the verified saved bundle and made no model calls. Billed/held/maximum costs are unchanged. The owned local preview process was stopped. Detailed source, hosted verification, publication and spending receipts remain in `output/coastwise/method-a-three-report-release-2026-11-16/`.
