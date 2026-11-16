@@ -190,8 +190,10 @@ def report_summary(tables: dict, run_id: str, manifest: dict) -> dict:
     """A report selection groups output tables without changing physical source records."""
     inspections = [r for r in tables["inspections"] if r["run_id"] == run_id]
     first = inspections[0]
+    published = next((r for r in release_metadata().get("reports", {}).values()
+                      if r.get("run_id") == run_id and r.get("source_sha256") == first["source_sha256"]), {})
     return {**first, "inspection_id": "report:" + run_id, "report_scope": True,
-            "report_name": first["source_file"],
+            "report_name": published.get("title") or first["source_file"],
             "inspection_ids": [r["inspection_id"] for r in inspections],
             "structure_group_count": len(inspections),
             "n_component_obs": sum(r["n_component_obs"] for r in inspections),

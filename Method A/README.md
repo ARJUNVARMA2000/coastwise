@@ -1,18 +1,18 @@
 # Coastwise · Method A
 
-Extract concise, source-linked defects from native-text PDF inspection reports.
+Extract concise, source-linked findings from native-text PDF inspection reports.
 
-**PDF native text → bounded chunks → one DeepSeek extraction-and-grade call per chunk → local validation → defect table, PDF evidence and exports.**
+**PDF native text → bounded chunks → one extraction-and-grade call per chunk → local validation → defect tables, PDF evidence and exports.**
 
-The current Brooklyn dataset contains the four saved high-reasoning Method A outputs for 2015–2018 only. Its release bundle includes only those outputs and source PDFs. Superseded working/current-branch datasets are removed; Git history is preserved.
+The current showcase contains three reports:
 
-The existing [Feature importance page](https://coastwise-production.up.railway.app/feature-importance/) is also included by request, with its latest saved October 29 Claude analysis (25 scored / 20 analyzed reports). The page labels its provenance separately from the new Brooklyn defect grades. See [release details](docs/method-a/latest-release.md) for measured time, cost and limitations.
+| Report | Edition | PDF pages |
+| --- | --- | ---: |
+| Alameda Piers 1, 2 and 3 — SGH | May 2017 | 381 |
+| Berkeley Municipal Pier — GHD DRAFT structural assessment | November 2017 | 278 |
+| DSNY Southwest Brooklyn annual bulkhead inspection | December 2016 | 44 |
 
-## Current result limitations
-
-The dataset has 162 provisional defect records. All project grades remain uncertain. Measurement typing, repeated mentions and original-rating scope errors remain. Local material matching rejects some legitimate evidence, and the 2018 merge omitted a distinct pop-out spall. Final structured outputs and request/usage provenance are retained; private reasoning traces stay in the local audit. The website shows the limitations; deployment does not certify extraction or grading accuracy.
-
-No OCR, vision, agent-selected PDF tools, specialized table pipeline, separate header/grading/judge pass or repair/retry loop is used. Scanned/image-only evidence and unreliable native reading order remain limitations. Missing findings or grades never imply sound condition.
+These replace the previous four-report Brooklyn collection in the active website dataset. The existing Feature importance page retains its separate saved October 29 analysis and provenance. See [release details](docs/method-a/latest-release.md) for output counts, measured processing times, usage, recovery and coverage.
 
 ## Run locally
 
@@ -22,17 +22,17 @@ COASTWISE_DATA_DIR=.local/runs uv run python -m coastwise.method_a_release --dat
 uv run coastwise serve --host 127.0.0.1 --port 8765
 ```
 
-Use the configured OpenRouter key for an explicitly requested new extraction. The saved dataset opens without model calls. Each chunk returns findings and provisional grades together. Numeric grades require a registered applicable rule and supporting evidence for the correct material/component; unsupported results remain uncertain.
+The saved showcase opens without model calls. Its high-reasoning runs use DeepSeek V4.1 Flash 1017 through DeepInfra, 24,000 native characters per chunk, up to 1,500 adjacent-context characters per side and at most four concurrent requests. Rate-limit recovery is separately authorized and recorded; accepted chunks are reused. The new-upload defaults are unchanged.
 
-The published four reports used high reasoning and the native 393,216-token output allowance: eight successful calls, $0.0592 total, and 232–446 seconds per report through saved exports. The two-minute target was not met. These are saved results; this data release does not change new-upload defaults.
+## Findings and limitations
 
-Default extraction settings: DeepSeek V4.1 Flash 1017, 24,000 native characters/chunk, up to 1,500 adjacent-context characters per side, four concurrent calls, 12,000 output tokens/call, one provider attempt. Approximately two minutes for a typical 20–50-page native-text report remains a target, not a general measured claim; larger/dense reports may take longer.
+Each report opens as one report, retaining its physical sections/components, measurements, source-stated ratings, provisional project grades or uncertainty, and exact PDF quotations. CSV, JSON, Excel and ZIP use the same saved records.
 
-## Data and exports
+Native text cannot interpret image-only pages, photographs or unreliable table reading order. Some appendix text is garbled. Repeated mentions, measurement-kind errors and rating/repair scope errors remain; inspect the source before quantitative use. Unsupported project grades remain uncertain. Missing or ungraded findings never imply sound condition.
 
-The current release is packaged in `src/coastwise/method_a_assets/latest.zip` with checksums and limitations in `latest.json`. The existing defect table, per-report PDF viewer, CSV/JSON/Excel and ZIP exports are reused. Selecting a report shows all its findings, including physical sections/components.
+Long pile schedules and laboratory appendices can combine multiple member IDs or include material-test and repair observations. Record counts are not counts of unique damaged members. Publication does not certify extraction or engineering accuracy. No OCR, vision, separate grader/judge or model repair stage is added.
 
-The deployment installer validates the entire package before replacing superseded hosted data. It installs only the four current run folders, rebuilds the report index, and records an idempotent release marker. Credentials and Git history are outside the data replacement scope. Repeated startup with the same release does not delete later user uploads.
+The verified release is packaged in `src/coastwise/method_a_assets/latest.zip`, with exact report identities, checksums and limitations in `latest.json`. Startup validates the complete bundle before replacing the active runtime dataset and rebuilding its report index. Repeated startup with the same release preserves later uploads. Credentials and Git history are outside the replacement scope.
 
 ## Checks and deployment
 
@@ -41,4 +41,4 @@ uv run pytest -q
 uv run python scripts/prepare_railway_source.py
 ```
 
-The default tests cover the current one-shot runner, upload/evidence/exports, latest-only workspace and release installation. See `docs/railway.md` for the existing Coastwise service and persistent storage. Hosted access remains password protected. No live inference is required to verify the saved release.
+See [Railway deployment](docs/railway.md) for the existing password-protected Coastwise service and persistent storage. Release verification does not require live inference.

@@ -78,3 +78,44 @@ Application commits: personal 7bcf61827d21b5ca8833c726904afdd64237d876; shared 4
 Personal CI 43167071266 passed on the single retry after Chrome startup timed out; the initial tests/build/API checks had passed. Shared CI 43167071006 passed first attempt. No release-code changes or additional inference were needed. All 70 deployed files match the committed application. A proposed temporary SSH key was rejected by automatic approval review; no account credential was registered, local key files were removed, and checks/deployment completed using existing access.
 
 Working-file cleanup explicitly recorded 381 files / 137,813,116bytes, in addition to the runtime installer's replacement of the old ten-run dataset. Raw final structured outputs are byte-identical to the four paid results. Runtime/index/bundle contain four runs. Git history and both prior/current spending ledgers remain. Full verification/cleanup/provenance records are in output/coastwise/method-a-four-report-release-2026-11-12/.
+
+## Replace the four-report website dataset with Alameda, Berkeley and DSNY — 2026-11-16
+
+Status: approved and executing. The user approved the plan with “yes”; source processing and the bounded recovery exception are recorded below. The user requests removal of the current four website reports and fresh Method A outputs for three reports only. When asked about editions, the user directed: “CHECK THE AVAILABLE reports and see.” Choose from available sources without another edition question.
+
+### Selected inputs
+
+| Report key | Selected source | PDF pages | Method A chunks |
+| --- | --- | ---: | ---: |
+| `alameda_2017` | Alameda Piers 1, 2 and 3, SGH summary report, 26 May 2017 | 381 | 20 |
+| `berkeley_2017` | Berkeley Municipal Pier, GHD DRAFT Structural Assessment Report, November 2017 | 278 | 15 |
+| `dsny_2016` | Southwest Brooklyn Marine Terminal Station Annual Bulkhead Inspection, December 2016 | 44 | 2 |
+
+Alameda is available at `/Users/varma/Scratch/2026-10-17-capstone-human-review/alameda/report-legistar.pdf`, SHA-256 `df565f3438daee56864eac6daaeed276fb2fff9147c22275407217212d3d21d0`. Berkeley was recovered from the [official City of Berkeley PDF](https://berkeleyca.gov/sites/default/files/documents/Berkeley%20Pier%20Structural%20Assessment%20DRAFT.pdf) to `/private/tmp/coastwise-berkeley-2017.pdf`, SHA-256 `b3e4f52a076a88d5afa517072f09c5db0cb38b41a8b0fe9de14522ebfe62fb7f`. Its 13,060,926-byte size matches the former source inventory. DSNY is available at `data/source-reports/new-schema/nyc-dsny/2016-southwest-brooklyn-mts-bulkhead-inspection.pdf`, SHA-256 `d7b576e1177bab20103d995128fd6318299dfe599a1791603b246adeb4a4c552`.
+
+The saved inventory also lists Berkeley's 2019 bird-habitat evaluation; select the 2017 structural assessment to match this defect-extraction showcase. Choose the locally available 2016 DSNY inspection as the representative Brooklyn report. Treat the three entire PDFs as inputs, including appendices. Do not silently trim pages or substitute the already-published DSNY output for the requested new run.
+
+Processing: unchanged native-text Method A one-shot prompt/schema/rules, pinned DeepSeek V4.1 Flash 1017 route, the current saved release's high-reasoning configuration, 24,000 primary characters/chunk, up to 1,500 adjacent-context characters per side, at most four concurrent requests, one extraction-and-provisional-grade call per chunk, no retries or separate model stages. Retain the current release's provider-native output allowance subject to verified provider availability and a persisted **$1 total new-inference ceiling**, including in-flight reservations. Historical billed cost extrapolates to about $0.27 for 37 calls; actual cost and runtime are uncertain, particularly for the long appendices. Verify current provider/model/pricing before dispatch; stop at the cap rather than buying credits, changing models or repeating failed requests. Any terminal/partial output must retain explicit coverage and uncertainty.
+
+Execution adjustment approved 2026-11-16: DeepInfra's shared pool returned HTTP 429 for several Alameda chunks. The user approved “Yes, retry only rejected chunks once.” After the initial batch settles, retry only HTTP-429-rejected chunks once, sequentially after a delay, with identical frozen request bodies/model/provider and the same persisted $1 ceiling. Reuse every successful chunk. Preserve original failures/first results and separate retry traces, and retain any failed second attempt as an explicit coverage gap. This is the only retry exception; no schema repair, successful-chunk repeat or third attempt is authorized.
+
+Operational adjustment: one Berkeley native appendix request is unusually slow. Begin the already-terminal Alameda report's authorized sequential recovery while that single initial request remains in flight. Their maximum two concurrent calls remain below the approved four-call limit; the same atomic ledger retains both full reservations under $1. Preserve first-pass snapshots by report and refresh the final checkpoint from saved run files after both processes finish. No additional request scope is introduced.
+
+- [x] Inspect current release, available source inventory, Method A implementation and deployment path; select and hash all three PDFs and compute native-text chunk counts without inference.
+- [x] Obtain the required plan check-in before implementation. User approved with “yes” on 2026-11-16; authorization covers the selected inputs, bounded processing and website replacement.
+- [x] Copy the two recovered sources into the project; persist the exact input/settings manifest, first-dispatch checkpoints and a separate bounded usage ledger. Recheck existing processing before deployment.
+- [x] Run all three selected PDFs once through Method A; save original structured outputs, per-chunk request/usage/runtime/coverage records, PDF evidence and CSV/JSON/Excel/ZIP exports. Preserve failed/uncertain outcomes without automatic resends.
+- [x] Review major findings, source/component ownership, measurements and any published numeric grades against the PDFs; disclose material errors and native-text gaps in the saved results. Keep original model outputs and distinguish review annotations from model findings.
+- [x] Generalize the release packager/installer from the hard-coded Brooklyn year set to three explicit report identities, allowing Alameda and Berkeley to share a year; preserve checksum, run/source validation and safe replacement protections. Package exactly these three new results and update dataset labels/documentation.
+- [x] Run appropriate offline regression checks and verify all three report views, highlighted PDF evidence, coverage/uncertainty and matching per-report/combined exports in the website. Prepare the complete release before replacing the hosted dataset.
+- [ ] Publish the scoped release to the existing password-protected Coastwise Railway website; remove the four previous result entries from the active dataset and verify exactly the three selected reports, correct source hashes, working evidence/downloads and unavailable superseded result URLs. Retain the existing Feature importance page, credentials and Git history. Do not expand this into deletion of unrelated historical working files.
+- [ ] Commit the source-selection lesson with the scoped release and record final report/run counts, measured times, actual billed/held costs, checks, deployment identity and URL.
+
+### Review
+
+Preparation only: verified 703 source pages and 37 native-text chunks, retrieved the missing Berkeley PDF and recorded exact source identities. No model calls, result replacement, application-code changes, push or deployment have occurred. Implementation/deployment review remains pending the plan check-in and execution.
+
+
+### Execution checkpoint — bounded appendix interruption
+
+The Berkeley first-pass appendix request (chunk 14, absolute PDF pages 231–253) was interrupted after 1,013.716 seconds without a final response. Its complete worst-case reservation remains held in the shared $1 ledger; it is not eligible for the rate-limit retry exception. All received chunk results were preserved and assembled offline, retaining 170 initial Berkeley records from three valid chunks and explicit gaps. Original interrupted files are retained under `audit/interrupted-first-pass/`. Recover the two reports in separate serial streams, at most two requests in flight globally, each rejected chunk attempted once. Enforce a true 600-second total timeout on the later Berkeley retry stream, retain any unknown charge in the ledger and continue only other approved chunks when their full reservations fit. Never repeat a timed-out or already-retried chunk.

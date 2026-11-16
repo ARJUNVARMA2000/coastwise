@@ -50,10 +50,10 @@ function renderSide() {
   const q = $('x-search').value.trim().toLowerCase();
   const selected = params().get('inspection');
   $('x-structures').innerHTML = '<ul class="x-report-list">' + reportEntries().filter(i =>
-    !q || (i.source_file + ' ' + i.report_year).toLowerCase().includes(q)).map(i =>
+    !q || (i.source_file + ' ' + i.report_name + ' ' + i.report_year).toLowerCase().includes(q)).map(i =>
     `<li><a href="?inspection=${encodeURIComponent(i.inspection_id)}" data-route
       ${i.inspection_id === selected || i.inspection_ids.includes(selected) ? 'aria-current="true"' : ''}>
-      <b>${esc(i.report_year || 'Undated')}</b><span>${esc(i.source_file)}</span>
+      <b>${esc(i.report_year || 'Undated')}</b><span>${esc(i.report_name || i.source_file)}</span>
       <small>${esc(i.n_defects)} defects · latest saved extraction</small></a></li>`).join('') + '</ul>';
 }
 
@@ -97,7 +97,7 @@ function renderBrowse() {
     <div class="x-pilots">${reports.map(i => {
       const manifest = data.manifest.find(m => m.source_sha256 === i.source_sha256 && m.origin === i.origin);
       return `<a class="x-pilot" href="?inspection=${encodeURIComponent(i.inspection_id)}" data-route>
-        <span class="eyebrow">${i.coverage === 'complete' ? 'Results ready' : 'Partial results'}</span><strong>${esc(i.source_file)} <span aria-hidden="true">→</span></strong>
+        <span class="eyebrow">${i.coverage === 'complete' ? 'Results ready' : 'Partial results'}</span><strong>${esc(i.report_name || i.source_file)} <span aria-hidden="true">→</span></strong>
         <span>${esc(i.n_defects)} defects · ${list(manifest?.selected_pdf_pages).length ? 'PDF pp. '+esc(ranges(list(manifest.selected_pdf_pages))) : esc(i.pdf_pages)+' PDF pages'}</span></a>`;
     }).join('') || '<p class="x-empty">No Method A reports yet. <a href="/?new=1">Upload a native-text PDF</a> to extract its defects.</p>'}</div>`;
 }
@@ -122,7 +122,7 @@ function coverageNotice(i, m) {
     selectionOnly ? 'Defect counts apply to this selection.' : '',
     context.length ? `Context pages ${ranges(context)}.` : '',
     lowText.length ? `Low or no native text on pages ${ranges(lowText)}.` : '',
-    m.failed_pages ? `Failed pages ${m.failed_pages}.` : '',
+    m.failed_pages ? `Failed pages ${ranges(String(m.failed_pages).split(',').map(Number))}.` : '',
     list(m.body_coverage_gaps).length ? 'See review notes for extraction gaps.' : '',
     i.pdf_available ? '' : 'Source PDF unavailable on this server.',
   ];
@@ -186,10 +186,10 @@ function renderInspection(tab) {
   const grading = {failed: 'Grading failed. Extracted defects are available.', partial: 'Some assessments could not be completed.',
     legacy_ungraded: 'Historical extraction · project grading unavailable.'};
   $('x-main').innerHTML = `<div class="x-inspection-head"><div>
-    <p class="eyebrow">${esc(i.report_year || 'Undated')} inspection · ${originLabel(i)}</p>
+    <p class="eyebrow">${esc(i.report_year || 'Undated')} ${i.report_scope ? 'report' : 'inspection'} · ${originLabel(i)}</p>
     <h2 class="x-title" id="x-inspection-title" tabindex="-1">${esc(i.report_name || structure.name || i.structure_id)}</h2>
     <p class="x-file">${esc(i.source_file)}</p>
-    <p class="x-date">Inspection date ${reported(i.inspection_date) ? esc(i.inspection_date) : 'not reported'}
+    <p class="x-date">Inspection date ${reported(i.inspection_date) ? esc(i.inspection_date) : 'not captured'}
       ${chips(i.inspection_date_src, i.inspection_id, 'inspection_date')}</p></div>
     ${downloadLinks(i.inspection_id)}</div>
     <p class="message" id="x-route-error" role="alert" hidden></p>
