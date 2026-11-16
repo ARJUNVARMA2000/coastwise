@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method B · Coastwise</title>
+<link rel="stylesheet" href="/coastwise.css">
+<link rel="stylesheet" href="/review-pages.css">
+<script src="app.js" defer></script>
+</head>
+<body class="cw-app cw-review">
+<a class="skip-link" href="#main">Skip to Method B results</a>
+<header class="cw-header">
+  <div class="cw-header-inner">
+    <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
+    <nav class="cw-nav cw-flow" aria-label="Pipeline: extract, check, model">
+      <span class="cw-stage"><span class="cw-stage-name">Extract</span><a href="/extraction">Method A</a><a href="/method-b/" aria-current="page">Method B</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Check</span><a href="/answer-key/">Answer key</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Model</span><a href="/feature-importance/">Feature importance</a></span>
+      <a href="/?new=1" class="cw-upload-link">Upload report</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <header class="cw-page-heading">
+    <div>
+      <h1>Method B</h1>
+      <p class="cw-context">Every defect found in each report, with the PDF page and the exact words it came from.</p>
+    </div>
+  </header>
+
+  <p class="message" id="loading" role="status">Loading Method B results…</p>
+  <p class="error" id="load-error" role="alert" hidden></p>
+
+  <div id="content" hidden>
+    <div class="cw-tabs" id="reports" role="group" aria-label="Choose a report"></div>
+
+    <section class="mb-detail" aria-live="polite">
+      <div class="mb-withheld" id="d-withheld" hidden>
+        <h2 tabindex="-1" id="d-withheld-title">DSNY 2020–25 is being checked</h2>
+        <p>Results for the six North Fender System inspections will appear here once a person has checked a sample against the PDFs.</p>
+      </div>
+      <div id="d-body">
+      <h2 class="mb-lead" id="d-lead" tabindex="-1"></h2>
+      <div class="mb-compare" id="d-compare"></div>
+      <p class="mb-sub" id="d-sub"></p>
+
+      <div id="d-years-wrap" hidden>
+        <div class="mb-table-wrap">
+          <table class="mb-years" id="d-years"><caption class="sr-only">Inspections by year. Choose a year to show only its defects.</caption></table>
+        </div>
+      </div>
+
+      <section class="mb-types" aria-labelledby="types-title">
+        <h3 id="types-title">Defects by type <span class="hint">Choose one to filter the list below</span></h3>
+        <ol class="mb-rank" id="d-types"></ol>
+        <button type="button" class="inline-link mb-rank-more" id="types-more" hidden></button>
+      </section>
+
+      <div class="mb-filters">
+        <label class="search">Search <input type="search" id="f-q" placeholder="Pile, defect or words in the report" autocomplete="off"></label>
+        <label>Defect <select id="f-type"></select></label>
+        <label>Severity <select id="f-sev"></select></label>
+        <button type="button" class="text-button" id="f-clear" hidden>Clear</button>
+        <span class="count" id="f-count" role="status"></span>
+        <button type="button" class="link-button" id="f-csv">Download CSV</button>
+      </div>
+      <div class="mb-table-wrap">
+        <table class="mb-table">
+          <thead><tr><th scope="col">Element</th><th scope="col">Defect</th><th scope="col">Page</th><th scope="col">Exact words in the report</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="mb-more"><button type="button" id="more" hidden>Show more</button></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<dialog class="cw-viewer" id="viewer" aria-labelledby="viewer-title">
+  <div class="bar"><strong id="viewer-title">PDF page</strong><button type="button" id="viewer-close">Close</button></div>
+  <div class="body"><p class="viewer-quote" id="viewer-quote"></p><img id="viewer-img" alt=""></div>
+</dialog>
+</body>
+</html>

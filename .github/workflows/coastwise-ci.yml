@@ -61,6 +61,8 @@ jobs:
           node --check src/coastwise/static/extraction.js
           node --check src/coastwise/static/bulk.js
           node --check src/coastwise/static/feature-importance/app.js
+          node --check src/coastwise/static/method-b/app.js
+          node --check src/coastwise/static/answer-key/app.js
 
       - name: Build the Railway source package
         run: |

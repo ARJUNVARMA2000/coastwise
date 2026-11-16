@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Answer key · Coastwise</title>
+<link rel="stylesheet" href="/coastwise.css">
+<link rel="stylesheet" href="/review-pages.css">
+<script src="app.js" defer></script>
+</head>
+<body class="cw-app cw-review">
+<a class="skip-link" href="#main">Skip to the questions</a>
+<header class="cw-header">
+  <div class="cw-header-inner">
+    <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
+    <nav class="cw-nav cw-flow" aria-label="Pipeline: extract, check, model">
+      <span class="cw-stage"><span class="cw-stage-name">Extract</span><a href="/extraction">Method A</a><a href="/method-b/">Method B</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Check</span><a href="/answer-key/" aria-current="page">Answer key</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Model</span><a href="/feature-importance/">Feature importance</a></span>
+      <a href="/?new=1" class="cw-upload-link">Upload report</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <header class="cw-page-heading">
+    <div>
+      <h1>Answer key</h1>
+      <p class="cw-context">The checked version of each report that both methods are scored against. Three labelling choices need your call.</p>
+    </div>
+  </header>
+
+  <p class="message" id="loading" role="status">Loading the answer key…</p>
+  <p class="error" id="load-error" role="alert" hidden></p>
+
+  <div id="content" hidden>
+    <section aria-labelledby="q-title">
+      <h2 id="q-title">Three questions for Mira</h2>
+      <div class="ak-questions" id="questions"></div>
+    </section>
+
+    <section class="section" aria-labelledby="rows-title">
+      <h2 id="rows-title">What a person checked</h2>
+      <p class="ak-headline" id="rows-headline"></p>
+      <div class="ak-outcomes" id="outcomes"></div>
+      <div class="ak-filter" id="filter" role="group" aria-label="Show checked rows"></div>
+      <div class="ak-rows" id="rows"></div>
+    </section>
+
+    <details class="section ak-more">
+      <summary>Rules the answer key already follows</summary>
+      <ol class="ak-rules" id="rules"></ol>
+    </details>
+  </div>
+</main>
+
+<dialog class="cw-viewer" id="viewer" aria-labelledby="viewer-title">
+  <div class="bar"><strong id="viewer-title">PDF page</strong><button type="button" id="viewer-close">Close</button></div>
+  <div class="body"><p class="viewer-quote" id="viewer-quote"></p><img id="viewer-img" alt=""></div>
+</dialog>
+</body>
+</html>
