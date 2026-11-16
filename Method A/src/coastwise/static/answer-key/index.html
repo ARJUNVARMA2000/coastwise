@@ -9,7 +9,7 @@
 <script src="app.js" defer></script>
 </head>
 <body class="cw-app cw-review">
-<a class="skip-link" href="#main">Skip to the answer key</a>
+<a class="skip-link" href="#main">Skip to the questions</a>
 <header class="cw-header">
   <div class="cw-header-inner">
     <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
@@ -27,49 +27,43 @@
   <header class="cw-page-heading">
     <div>
       <h1>Answer key</h1>
-      <p class="cw-context">The human-checked version of each report that Method A and Method B are scored against. Below: three labelling questions we would like Mira's view on, the rules we follow today, and the rows a person checked against the PDF.</p>
+      <p class="cw-context">The checked version of each report that both methods are scored against. Three labelling choices need your call.</p>
     </div>
   </header>
 
-  <ol class="cw-pipeline" aria-label="Pipeline">
-    <li><a href="/method-b/"><span class="step">Step 1</span><strong>Extract</strong><span class="sub">Method A and Method B pull defects from the PDF</span></a></li>
-    <li class="here"><span class="step">Step 2</span><strong>Check</strong><span class="sub">People check a sample against the PDF</span></li>
-    <li><a href="/feature-importance/"><span class="step">Step 3</span><strong>Model</strong><span class="sub">Which factors predict deterioration</span></a></li>
+  <ol class="cw-steps" aria-label="Where this page sits in the pipeline">
+    <li><a href="/method-b/">Extract</a></li>
+    <li aria-current="step">Check</li>
+    <li><a href="/feature-importance/">Model</a></li>
   </ol>
 
   <p class="message" id="loading" role="status">Loading the answer key…</p>
   <p class="error" id="load-error" role="alert" hidden></p>
 
   <div id="content" hidden>
-    <section aria-labelledby="status-title">
-      <h2 id="status-title" class="sr-only" style="position:absolute;left:-9999px">Status by report</h2>
-      <div class="ak-status" id="status"></div>
-    </section>
-
-    <section class="section" aria-labelledby="q-title">
-      <h2 id="q-title">Questions for Mira</h2>
-      <p class="lede">Each answer changes what counts as a correct or missed defect when the methods are scored. Option A is what the answer key does today.</p>
+    <section aria-labelledby="q-title">
+      <h2 id="q-title">Three questions for Mira</h2>
+      <p class="ak-ask">Reply with one letter per question, for example <strong>1A, 2B, 3A</strong>, on the call or by email. A is what the answer key does today.</p>
       <div class="ak-questions" id="questions"></div>
     </section>
 
-    <section class="section panel" aria-labelledby="rules-title">
-      <h2 id="rules-title">Rules the answer key follows</h2>
-      <p class="lede">Agreed by the team. The last three came out of the 15 November check and were applied to every row of the report.</p>
-      <ol class="ak-rules" id="rules"></ol>
-    </section>
-
     <section class="section" aria-labelledby="rows-title">
-      <h2 id="rows-title">Rows checked against the PDF</h2>
-      <p class="lede">A random sample of 10 rows per report. Yellow marks the evidence on the page. Where the check found a problem, the row shows what changed.</p>
-      <div class="ak-filter" id="filter" role="group" aria-label="Filter checked rows"></div>
+      <h2 id="rows-title">What a person checked</h2>
+      <p class="lede" id="rows-intro"></p>
+      <div class="ak-filter" id="filter" role="group" aria-label="Show checked rows"></div>
       <div class="ak-rows" id="rows"></div>
     </section>
+
+    <details class="section ak-more">
+      <summary>Rules the answer key already follows</summary>
+      <ol class="ak-rules" id="rules"></ol>
+    </details>
   </div>
 </main>
 
 <dialog class="cw-viewer" id="viewer" aria-labelledby="viewer-title">
   <div class="bar"><strong id="viewer-title">PDF page</strong><button type="button" id="viewer-close">Close</button></div>
-  <div class="body"><blockquote id="viewer-quote"></blockquote><img id="viewer-img" alt=""></div>
+  <div class="body"><p class="viewer-quote" id="viewer-quote"></p><img id="viewer-img" alt=""></div>
 </dialog>
 </body>
 </html>

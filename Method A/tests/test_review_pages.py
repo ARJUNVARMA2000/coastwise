@@ -48,4 +48,4 @@ def test_answer_key_rows_have_images_and_no_sesuit():
     assert {c["report"] for c in data["checked"]} == {"Alameda", "Berkeley"}
     for c in data["checked"]:
         assert (STATIC / "answer-key" / c["img"]).is_file()
-        assert c["outcome"] in {"match", "corrected", "removed", "open"}
+        assert c["outcome"] in {"match", "kept", "corrected", "removed", "open"}

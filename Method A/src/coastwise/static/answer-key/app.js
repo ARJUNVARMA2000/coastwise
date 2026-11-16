@@ -1,5 +1,5 @@
 "use strict";
-// Answer key: status, questions for Mira, agreed rules and the spot-checked rows.
+// Answer key: three questions for Mira first, then the rows a person checked, then the agreed rules.
 // Data: data.json, built by dashboard/build_coastwise_pages.py in the msds-capstone repo.
 
 const $ = id => document.getElementById(id);
@@ -7,30 +7,26 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const nice = t => String(t || "").replace(/_/g, " ");
 const OUTCOME = {
   match: ["ok", "Matches the PDF"],
-  corrected: ["info", "Corrected after check"],
-  removed: ["bad", "Removed: not a defect"],
-  open: ["wait", "Open question"],
+  kept: ["ok", "Kept after review"],
+  corrected: ["info", "Fixed after the check"],
+  removed: ["bad", "Removed, not a defect"],
+  open: ["wait", "Question 3"],
 };
-let DATA = null;
-const view = { report: "All", outcome: "All" };
-
-function renderStatus() {
-  $("status").innerHTML = DATA.status.map(s => `<div>
-    <strong>${esc(s.report)}</strong>
-    <span class="chip ${s.state === "In review" ? "wait" : "ok"}">${esc(s.state)}</span>
-    <span class="detail">${esc(s.detail)}</span></div>`).join("");
-}
+const VIEWS = [["changed", "What changed"], ["match", "Matched"], ["all", "All"]];
+let DATA = null, view = "changed";
 
 function renderQuestions() {
   $("questions").innerHTML = DATA.questions.map((q, i) => `
-    <article class="panel ak-q" id="${q.id}">
-      <div class="head"><span class="qn">Question ${i + 1}</span><h3>${esc(q.title)}</h3></div>
+    <article class="ak-q" id="${q.id}">
+      <h3><span class="qn">${i + 1}.</span> ${esc(q.title)}</h3>
       <p>${esc(q.context)}</p>
       <p class="example">${esc(q.example)}</p>
       <div class="ak-options">${q.options.map((o, j) => `
-        <div class="${j === 0 ? "current" : ""}"><strong>${esc(o.label)}</strong><span>${esc(o.effect)}</span>${j === 0 ? `<span class="tag">What the answer key does today</span>` : ""}</div>`).join("")}
+        <div${j === 0 ? ` class="current"` : ""}>
+          <strong><span class="letter">${i + 1}${"AB"[j]}</span>${esc(o.label.replace(/^[AB]\.\s*/, ""))}</strong>
+          <span>${esc(o.effect)}</span>${j === 0 ? `<span class="today">Today</span>` : ""}
+        </div>`).join("")}
       </div>
-      <p class="why">${esc(q.why)}</p>
     </article>`).join("");
 }
 
@@ -38,63 +34,65 @@ function renderRules() {
   $("rules").innerHTML = DATA.rules.map(r => `<li>${esc(r.title)}<span>${esc(r.example)}</span></li>`).join("");
 }
 
+const unchanged = c => c.outcome === "match" || c.outcome === "kept";
+const inView = c => view === "all" || (view === "match" ? unchanged(c) : !unchanged(c));
+
 function renderFilter() {
-  const reports = ["All", ...new Set(DATA.checked.map(c => c.report))];
-  const count = o => DATA.checked.filter(c => (view.report === "All" || c.report === view.report) && (o === "All" || c.outcome === o)).length;
-  const outcomes = ["All", ...Object.keys(OUTCOME).filter(o => DATA.checked.some(c => c.outcome === o))];
-  $("filter").innerHTML =
-    reports.map(r => `<button type="button" data-k="report" data-v="${r}" aria-pressed="${view.report === r}">${r === "All" ? "Both reports" : r}</button>`).join("") +
-    `<span aria-hidden="true" style="width:1px;background:var(--line);margin:0 4px"></span>` +
-    outcomes.map(o => `<button type="button" data-k="outcome" data-v="${o}" aria-pressed="${view.outcome === o}">${o === "All" ? "Any result" : OUTCOME[o][1]} (${count(o)})</button>`).join("");
-  $("filter").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
-    view[b.dataset.k] = b.dataset.v;
-    renderFilter(); renderRows();
-  }));
+  const n = v => DATA.checked.filter(c => v === "all" || (v === "match" ? unchanged(c) : !unchanged(c))).length;
+  $("filter").innerHTML = VIEWS.map(([v, label]) =>
+    `<button type="button" data-v="${v}" aria-pressed="${view === v}">${label} <span class="n">${n(v)}</span></button>`).join("");
+  $("filter").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { view = b.dataset.v; renderFilter(); renderRows(); }));
 }
 
-function changeLines(c) {
+function valueText(a) {
+  return [nice(a.type), a.severity, a.attributes, a.cause && "cause: " + a.cause].filter(Boolean).join(", ");
+}
+
+function change(c) {
   if (c.outcome === "removed") {
-    return `<dt>Before</dt><dd><del>${esc(nice(c.before.type))}, ${esc(c.before.severity)}</del></dd><dt>Now</dt><dd>No defect row</dd>`;
+    return `<dt>Was</dt><dd><del>${esc(nice(c.before.type))}, ${esc(c.before.severity)}</del></dd><dt>Now</dt><dd>No defect row</dd>`;
   }
-  const after = c.after.map(a => {
-    const bits = [nice(a.type), a.severity, a.attributes, a.cause && "cause: " + a.cause].filter(Boolean);
-    return esc(bits.join(", "));
-  }).join("<br>");
-  const before = `${nice(c.before.type)}, ${c.before.severity}`;
-  if (c.outcome === "corrected") return `<dt>Before</dt><dd><del>${esc(before)}</del></dd><dt>Now</dt><dd>${after}</dd>`;
-  return `<dt>Answer key</dt><dd>${after}</dd>`;
+  const now = c.after.map(a => esc(valueText(a))).join("<br>");
+  if (c.outcome === "corrected") {
+    return `<dt>Was</dt><dd><del>${esc(nice(c.before.type))}, ${esc(c.before.severity)}</del></dd><dt>Now</dt><dd>${now}</dd>`;
+  }
+  return `<dt>Recorded</dt><dd>${now}</dd>`;
 }
 
 function renderRows() {
-  const list = DATA.checked.filter(c => (view.report === "All" || c.report === view.report) && (view.outcome === "All" || c.outcome === view.outcome));
+  const list = DATA.checked.filter(inView);
   $("rows").innerHTML = list.map((c, i) => {
     const [tone, label] = OUTCOME[c.outcome];
-    return `<article class="panel ak-row">
-      <button type="button" class="crop" data-i="${i}" aria-label="Enlarge the highlighted PDF crop for ${esc(c.report)} page ${c.page}"><img src="${esc(c.img)}" alt="" loading="lazy"></button>
+    return `<article class="ak-row">
+      <button type="button" class="crop" data-i="${i}" aria-label="Enlarge the ${esc(c.report)} page ${c.page} excerpt">
+        <img src="${esc(c.img)}" alt="" loading="lazy" width="440" height="300"></button>
       <div>
-        <div class="meta"><span class="where">${esc(c.report)} · p.${c.page} · ${c.kind === "table" ? "table row" : "report text"}</span><span class="chip ${tone}">${label}</span></div>
-        <h3 style="margin-top:6px">${esc(c.element)}</h3>
-        <blockquote>${esc(c.quote)}</blockquote>
-        <dl>${changeLines(c)}</dl>
-        ${c.outcome === "open" ? `<p class="note">See question 3 above.</p>` : ""}
+        <p class="where"><span class="tag ${tone}">${label}</span> ${esc(c.report)}, page ${c.page}</p>
+        <h3>${esc(c.element)}</h3>
+        <p class="said">“${esc(c.quote)}”</p>
+        <dl>${change(c)}</dl>
       </div></article>`;
-  }).join("") || `<p class="message">No rows match.</p>`;
+  }).join("");
   $("rows").querySelectorAll("button.crop").forEach(b => b.addEventListener("click", () => openCrop(list[+b.dataset.i])));
 }
 
 function openCrop(c) {
-  $("viewer-title").textContent = `${c.report}, PDF page ${c.page}`;
+  $("viewer-title").textContent = `${c.report}, page ${c.page}`;
   $("viewer-quote").textContent = c.quote;
-  $("viewer-img").alt = `Highlighted crop of ${c.report} page ${c.page}`;
+  $("viewer-img").alt = `Excerpt of ${c.report} page ${c.page}, with the quoted words highlighted`;
   $("viewer-img").src = c.img;
   $("viewer").showModal();
 }
 
 fetch("data.json", { credentials: "same-origin" })
-  .then(r => { if (!r.ok) throw new Error(r.status === 401 ? "Sign in to see the answer key." : `Could not load the answer key (${r.status}).`); return r.json(); })
+  .then(r => { if (!r.ok) throw new Error(r.status === 401 ? "Sign in to see the answer key." : `Could not load the answer key (error ${r.status}). Reload the page to try again.`); return r.json(); })
   .then(data => {
     DATA = data;
-    renderStatus(); renderQuestions(); renderRules(); renderFilter(); renderRows();
+    const reports = [...new Set(data.checked.map(c => c.report))].join(" and ");
+    const changed = data.checked.filter(c => !unchanged(c)).length;
+    $("rows-intro").textContent = `${data.checked.length} random rows from ${reports} were checked against the PDF on 15 November. ` +
+      `${changed} needed a change, and each fix was applied to the whole report. DSNY 2020–25 is being checked now.`;
+    renderQuestions(); renderFilter(); renderRows(); renderRules();
     $("viewer-close").addEventListener("click", () => $("viewer").close());
     $("viewer").addEventListener("click", e => { if (e.target === $("viewer")) $("viewer").close(); });
     $("loading").hidden = true;
