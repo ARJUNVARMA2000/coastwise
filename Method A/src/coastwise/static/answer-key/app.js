@@ -19,15 +19,33 @@ function renderQuestions() {
   $("questions").innerHTML = DATA.questions.map((q, i) => `
     <article class="ak-q" id="${q.id}">
       <h3><span class="qn">${i + 1}.</span> ${esc(q.title)}</h3>
-      <p>${esc(q.context)}</p>
-      <p class="example">${esc(q.example)}</p>
+      <dl class="ak-now"><dt>Today</dt><dd>${esc(q.today)}</dd><dt>Example</dt><dd>${esc(q.example)}</dd></dl>
       <div class="ak-options">${q.options.map((o, j) => `
         <div${j === 0 ? ` class="current"` : ""}>
-          <strong><span class="letter">${i + 1}${"AB"[j]}</span>${esc(o.label.replace(/^[AB]\.\s*/, ""))}</strong>
-          <span>${esc(o.effect)}</span>${j === 0 ? `<span class="today">Today</span>` : ""}
+          <span class="letter">${i + 1}${"AB"[j]}</span>
+          <span class="what"><strong>${esc(o.label)}</strong><span>${esc(o.note)}</span></span>
+          <span class="impact">${esc(o.impact)}</span>
         </div>`).join("")}
       </div>
     </article>`).join("");
+}
+
+function renderOutcomes() {
+  const order = ["match", "kept", "corrected", "removed", "open"];
+  const changed = DATA.checked.filter(c => !unchanged(c)).length;
+  $("rows-headline").innerHTML = `<strong>${changed} of ${DATA.checked.length}</strong> randomly chosen rows needed a change. Each fix was applied to the whole report.`;
+  const reports = [...new Set(DATA.checked.map(c => c.report))];
+  const bars = reports.map(r => {
+    const rows = DATA.checked.filter(c => c.report === r);
+    return `<div class="ak-obar"><span class="name">${esc(r)}</span>
+      <span class="stack" role="img" aria-label="${esc(r)}: ${order.map(o => `${rows.filter(c => c.outcome === o).length} ${OUTCOME[o][1].toLowerCase()}`).join(", ")}">${
+        order.map(o => { const n = rows.filter(c => c.outcome === o).length;
+          return n ? `<span class="seg ${o}" style="flex:${n}" title="${OUTCOME[o][1]}: ${n}">${n}</span>` : ""; }).join("")}</span>
+      <span class="total">${rows.length} rows</span></div>`;
+  }).join("");
+  const legend = order.filter(o => DATA.checked.some(c => c.outcome === o))
+    .map(o => `<li><span class="key ${o}"></span>${o === "open" ? "Open, see question 3" : OUTCOME[o][1]} <b>${DATA.checked.filter(c => c.outcome === o).length}</b></li>`).join("");
+  $("outcomes").innerHTML = bars + `<ul class="ak-legend">${legend}<li class="pending"><span class="key"></span>DSNY 2020–25: being checked now</li></ul>`;
 }
 
 function renderRules() {
@@ -88,11 +106,7 @@ fetch("data.json", { credentials: "same-origin" })
   .then(r => { if (!r.ok) throw new Error(r.status === 401 ? "Sign in to see the answer key." : `Could not load the answer key (error ${r.status}). Reload the page to try again.`); return r.json(); })
   .then(data => {
     DATA = data;
-    const reports = [...new Set(data.checked.map(c => c.report))].join(" and ");
-    const changed = data.checked.filter(c => !unchanged(c)).length;
-    $("rows-intro").textContent = `${data.checked.length} random rows from ${reports} were checked against the PDF on 15 November. ` +
-      `${changed} needed a change, and each fix was applied to the whole report. DSNY 2020–25 is being checked now.`;
-    renderQuestions(); renderFilter(); renderRows(); renderRules();
+    renderQuestions(); renderOutcomes(); renderFilter(); renderRows(); renderRules();
     $("viewer-close").addEventListener("click", () => $("viewer").close());
     $("viewer").addEventListener("click", e => { if (e.target === $("viewer")) $("viewer").close(); });
     $("loading").hidden = true;
