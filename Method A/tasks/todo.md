@@ -257,10 +257,18 @@ The user explicitly requests: “Push the changes to both repos and deploy them 
 
 - [x] Inspect both current remote main heads, CI workflow and existing deployment/active jobs; preserve concurrent repository work and the unchanged eight-report release.
 - [x] Prepare exact scoped commits for both repos, include the regression tests in CI, run applicable checks and verify the reviewable diffs.
-- [ ] Push both approved changes to main and verify both CI runs complete successfully.
-- [ ] Follow the GitHub-triggered Railway deployment to success; verify its commit, authentication, current report data/exports and consolidated live filter behavior.
-- [ ] Save publication receipts and the live preview, then record final commits, checks, deployment and review. No new inference or report processing.
+- [x] Push both approved changes to main and verify both CI runs complete successfully.
+- [x] Follow the GitHub-triggered Railway deployment to success; verify its commit, authentication, current report data/exports and consolidated live filter behavior.
+- [x] Save publication receipts and the live preview, then record final commits, checks, deployment and review. No new inference or report processing.
 
 ### Review
 
-Publication in progress.
+Published the approved filter change to personal `ARJUNVARMA2000/coastwise` at `aef03c7bf1327d60a476fc0689e8f2ff21289342` and shared `prksyng54/msds-capstone` at `29c378b7873cb5fc287d21a40dc73df674cf5f90`. Both remote main heads were verified. The change is limited to the Method A filter, its responsive stylesheet, six regression tests, the task record and a CI step that runs all JavaScript view tests; unrelated team work is unchanged.
+
+[Personal CI](https://github.com/ARJUNVARMA2000/coastwise/actions/runs/44002076611) and [shared CI](https://github.com/prksyng54/msds-capstone/actions/runs/44002082957) passed, including 51 Python tests, 21 JavaScript tests, container builds and eight-report browser smoke checks. Local repository validation passed the same 51 Python and 21 JavaScript tests. The earlier local implementation review used the workspace's narrower 40-test Python configuration.
+
+The existing CI-gated GitHub connection deployed personal application commit `aef03c7bf1327d60a476fc0689e8f2ff21289342` successfully as Railway deployment `74b8c940-719c-4876-a795-deeb75906cdd`. Live URL: [Coastwise Method A](https://coastwise-production.up.railway.app/extraction). Both updated filter assets match the approved local bytes exactly. The unchanged dataset release is `ffe4b584ea03992866acaf1bd5eee2596970a2f9c4828d8fd6b3c4066bad6177`.
+
+Authenticated live checks verified all eight reports / 2,597 original records, all source PDF hashes, quotation evidence/rendered pages, matching CSV/JSON/Excel/ZIP exports, 16 UI/data assets, preserved Feature importance and team pages, and 404s for all five excluded DSNY 2016 URLs. Password protection remains enforced. No recent processing POST requests were present before release; no model calls or report processing were started.
+
+The live browser shows 18 DSNY 2024 category options, 93 Loose fasteners & connections records and 39 Missing fasteners records, with original source wording retained. Quotation-highlighted evidence opens at PDF page 15 of 101. Desktop (1440 px) and mobile (390 px) have no horizontal overflow and the full selected category/count fits the mobile control. The browser viewport was reset and the temporary verification tab was closed. Receipts, exact category audit and live screenshot are saved locally under `output/coastwise/method-a-defect-filter-2026-11-16/`.
