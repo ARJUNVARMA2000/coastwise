@@ -110,6 +110,8 @@ button.x-chip:hover { background: #dff0f4; }
 .x-main .toolbar .search-field { flex: 1 1 9.5rem; }
 .x-main .toolbar .search-field input { max-width: none; }
 .x-main .toolbar label:not(.search-field) { flex: 1 1 7rem; max-width: 12.5rem; min-width: 7rem; }
+.x-main .toolbar label.x-filter-type { flex: 1 1 19rem; max-width: 24rem; min-width: 0; }
+.x-main .toolbar .x-filter-type select { max-width: none; }
 .x-main .row-count { margin: .65rem 0 .15rem; font-size: .83rem; color: var(--muted); }
 .x-defects { table-layout: fixed; }
 .x-defects th { white-space: normal; }

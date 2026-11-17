@@ -64,6 +64,9 @@ jobs:
           node --check src/coastwise/static/method-b/app.js
           node --check src/coastwise/static/answer-key/app.js
 
+      - name: Test report views and defect filters
+        run: node --test tests/*.test.cjs
+
       - name: Build the Railway source package
         run: |
           uv run --frozen --python 3.12 python scripts/prepare_railway_source.py

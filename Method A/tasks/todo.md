@@ -230,3 +230,37 @@ Both application commits are pushed and verified: personal `ed774d9928520355371c
 Railway deployment `300deb7b-e861-49aa-9f8a-d1beb8cb6bb8` succeeded. Release `ffe4b584ea03992866acaf1bd5eee2596970a2f9c4828d8fd6b3c4066bad6177` is verified at [Coastwise](https://coastwise-production.up.railway.app/extraction). All 98 deployed files match the committed application source. Authenticated live checks verified all eight reports, exact PDF source hashes, quotation evidence/rendered pages and CSV/JSON/Excel/ZIP exports. All five DSNY 2016 report/source URLs remain 404. Full UI assets, Feature importance, Method B and Answer key bytes are unchanged.
 
 Restoration, deployment and verification used zero model calls and added zero inference cost. The DSNY ledger remains at 44 prior attempts, $0.51975608 billed plus $0.36893717 held, under its $30 cap. The owned local QA server was stopped. Detailed integrity, CI, source, deployment and live verification receipts remain in `output/coastwise/method-a-restored-alameda-berkeley-2026-11-16/`.
+
+## Consolidate Method A defect-type filtering — 2026-11-16
+
+Status: implemented and verified locally. The user confirmed: “Yes, go ahead and implement it.” This section restores the reviewed filter plan after concurrent publication bookkeeping replaced its earlier entry.
+
+- [x] Inspect the screenshot, active filter and all eight saved reports: 2,597 records with 446 distinct raw type strings; DSNY 2024 alone has 187.
+- [x] Obtain the required plan check-in before changing application code.
+- [x] Add deterministic browsing categories for the approved defect families, with explicit fallback for ambiguous and unreported types. Consolidate spelling, case, separator, singular/plural and location variants; let combined types match each relevant category.
+- [x] Show applicable categories alphabetically with per-report counts; preserve the raw descriptions, source records, exports, evidence links, other filters and pagination.
+- [x] Check meaningful matching and filter-intersection cases, audit all eight reports, inspect desktop/mobile behavior and real PDF evidence, run applicable existing checks and record the review.
+
+This request covers local implementation and verification. No extraction, grading, model calls, data replacement or publication is included.
+
+### Review
+
+Implemented in `src/coastwise/static/extraction.js`, with a small responsive control-width adjustment in `extraction.css` and six focused regression tests in `tests/extraction_views.test.cjs`. The largest list (DSNY 2024) shrinks from 187 raw labels to 18 categories. Counts for Alameda, Berkeley and DSNY 2020–2025 are respectively 17, 14, 5, 4, 10, 12, 18 and 17 applicable categories. Combined labels can belong to multiple categories, but each filtered table contains a finding once. Ambiguous component-only, rating-only and unspecified labels remain under Other / unspecified; unreported types remain accessible separately. Categories are browsing aids, not changes to engineering assessments.
+
+Validation: all 40 configured Python tests and all 21 JavaScript tests passed, including six new matching/filter/evidence regression cases; JavaScript syntax checks passed. Audited all 446 raw labels across 2,597 records and checked every category count against its matching records. In the real DSNY 2024 browser view, Loose fasteners & connections returns 93 original records; component plus uncertainty filters return seven and an East Top text search returns eight. Pagination and quotation-highlighted PDF evidence (page 98 of 101) work. Desktop (1440 px) and mobile (390 px) have no horizontal overflow; the widened category selector displays the full selected name/count on mobile.
+
+The saved bundle and metadata hashes are unchanged, and all 327 copied saved report/evidence/export files remain byte-identical. The preview used an isolated dataset copy, made no model calls and was stopped after verification. This change is local; neither repository nor the live website was updated. Detailed label/category audit and preview screenshot: `output/coastwise/method-a-defect-filter-2026-11-16/`.
+
+## Publish consolidated Method A defect filters — authorized 2026-11-16
+
+The user explicitly requests: “Push the changes to both repos and deploy them to the live site.” This is the plan check-in and approval for publication of the already-reviewed local implementation. Publish the same scoped filter, responsive styling and regression tests to personal `ARJUNVARMA2000/coastwise` (`Method A/`) and shared `prksyng54/msds-capstone` (`Method_A/`), preserving all other work. The existing personal-main Railway connection waits for CI; use that path and verify its exact deployed commit.
+
+- [x] Inspect both current remote main heads, CI workflow and existing deployment/active jobs; preserve concurrent repository work and the unchanged eight-report release.
+- [x] Prepare exact scoped commits for both repos, include the regression tests in CI, run applicable checks and verify the reviewable diffs.
+- [ ] Push both approved changes to main and verify both CI runs complete successfully.
+- [ ] Follow the GitHub-triggered Railway deployment to success; verify its commit, authentication, current report data/exports and consolidated live filter behavior.
+- [ ] Save publication receipts and the live preview, then record final commits, checks, deployment and review. No new inference or report processing.
+
+### Review
+
+Publication in progress.

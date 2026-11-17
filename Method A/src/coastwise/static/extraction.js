@@ -68,6 +68,51 @@ const reported = text => Boolean(text && !MISSING[text]);
 const list = item => Array.isArray(item) ? item : (item ? JSON.parse(item) : []);
 const componentName = o => [o?.component_name, o?.identifier].filter(reported).join(' ');
 const typeLabel = d => reported(d.defect_type) ? d.defect_type : 'Defect type not reported';
+// Browsing categories only: the reported type stays intact in rows, evidence and exports.
+const DEFECT_TYPE_CATEGORIES = [
+  ['abrasion', 'Abrasion & wear', /\b(?:abrasion|wear|worn|goug\w*)\b/],
+  ['coating', 'Coating damage', /\b(?:coating|paint|blister\w*)\b/],
+  ['deterioration', 'Chemical & concrete deterioration', /\b(?:chemical|carbonation|deleterious reaction|asr|dri|ettringite|sulfate attack|sea water attack|paste alteration|reaction rim|soft concrete|concrete deterioration|disintegration)\b/],
+  ['corrosion', 'Corrosion', /\b(?:corrosion|corrod\w*|rust(?:ing)?|pitting)\b/],
+  ['cracks', 'Cracks & splits', /\b(?:(?:micro)?crack\w*|check(?:s|ing)?|split\w*|fractur\w*)\b/],
+  ['deformation', 'Deformation & movement', /\b(?:deform\w*|displac\w*|dislodg\w*|deflect\w*|rotat\w*|buckl\w*|bend\w*|bent|distort\w*|stretch\w*|sag\w*|twist\w*|movement|misalignment)\b/],
+  ['separation', 'Detachment & separation', /\b(?:detach\w*|disconnect\w*|separat\w*|peel\w*|pull(?:ing|ed)? (?:out|through|thru)|pull out|gap)\b/],
+  ['reinforcement', 'Exposed reinforcement', /\b(?:exposed (?:rebar|reinforc\w*|chair)|lost cover)\b/],
+  ['voids', 'Holes & voids', /\b(?:holes?|voids?|perforation)\b/],
+  ['breakage', 'Impact & breakage', /\b(?:impact|mechanical damage|breakage|broken|collapse|tear\w*|torn|cut\w*|bolt failure|strap failure)\b/],
+  ['loose-fasteners', 'Loose fasteners & connections', /\b(?:loose(?:ness)?(?=$| (?:bolts?|washers?|nuts?|fasteners?|hardware|connections?|anchor|cap|component|timber|fender|chains?|baseplate|corrod\w*|corrosion|damaged|broken|tightened|marine growth|missing)\b)|(?:bolts?|washers?|nuts?) (?:and (?:bolts?|washers?|nuts?) )?loose)\b/],
+  ['marine-growth', 'Marine growth', /\bmarine growth\b/],
+  ['missing-fasteners', 'Missing fasteners', /\bmissing (?:(?:or|and|loose|top|bottom|north|south|east|west|anchor|cap|lock|mounting|connection|fender) )*(?:bolts?|nuts?|washers?|fasteners?|hardware)\b/],
+  ['missing-material', 'Missing material & components', /\b(?:missing (?:(?:or|and|loose|degraded|rubber) )*(?:material|components?|members?|seats?|plates?|fenders?|piles?|timber(?: caps?)?|cap(?: plate)?(?! bolts?))|(?:cap|timber|fender|component|material) missing|outer face separating and missing|material loss|fill loss|lost cover|loss of bottom mat reinforcing)\b/],
+  ['decay', 'Rot & decay', /\b(?:rot|decay)\b/],
+  ['scour', 'Scour & erosion', /\b(?:scour\w*|erosion)\b/],
+  ['section-loss', 'Section loss', /\b(?:(?:section|thickness|rebar) loss|steel thickness loss|loss of bottom mat reinforcing)\b/],
+  ['spalling', 'Spalling & delamination', /\b(?:spall\w*|delaminat\w*|divots?)\b/],
+  ['staining', 'Staining & deposits', /\b(?:stain\w*|rust bleed|discoloration|secondary (?:deposits?|mineralization)|efflorescence)\b/],
+  ['structural', 'Structural deficiencies', /\b(?:structural deficiency|seismic|ductile detailing|connection strength|capacity limitation|reduced load capacity)\b/],
+];
+
+function defectTypeCategories(defect) {
+  const type = String(defect.defect_type || '').trim().toLowerCase()
+    .replace(/[_/&;,\u2010-\u2015-]+/g, ' ').replace(/\bcoation\b/g, 'coating')
+    .replace(/\bdivet\b/g, 'divot').replace(/\s+/g, ' ').trim();
+  if (!type || ['nr', 'na', 'none', 'not reported', 'not applicable', 'none found'].includes(type)) {
+    return ['unreported'];
+  }
+  // A type such as "heavy marine growth; no scouring" must not imply scour.
+  const positive = type.replace(/\bno scour\w*\b/g, '').trim();
+  const categories = DEFECT_TYPE_CATEGORIES.filter(([, , pattern]) => pattern.test(positive)).map(([id]) => id);
+  return categories.length ? categories : ['other'];
+}
+
+function defectTypeOptions(defects) {
+  const counts = new Map();
+  defects.forEach(d => defectTypeCategories(d).forEach(id => counts.set(id, (counts.get(id) || 0) + 1)));
+  return [...DEFECT_TYPE_CATEGORIES, ['other', 'Other / unspecified'], ['unreported', 'Defect type not reported']]
+    .filter(([id]) => counts.has(id)).sort((a, b) => a[1].localeCompare(b[1]))
+    .map(([id, name]) => [id, `${name} (${counts.get(id).toLocaleString()})`]);
+}
+
 const gradeLabel = d => d.damage_grade ? `${d.damage_grade} ${d.damage_label || GRADES[d.damage_grade]}` : (STATUSES[d.grading_status] || 'Uncertain');
 const gradeBadge = d => `<span class="x-grade" data-grade="${esc(d.damage_grade || d.grading_status)}">${esc(gradeLabel(d))}</span>`;
 const reportRating = d => reported(d.severity) && (!d.rating_scope || d.rating_scope === 'defect')
@@ -137,7 +182,7 @@ function downloadLinks(inspection) {
 }
 
 function filterSelect(id, label, options, all = 'All') {
-  return `<label>${label}<select id="x-${id}"><option value="">${all}</option>
+  return `<label class="x-filter-${esc(id)}">${label}<select id="x-${id}"><option value="">${all}</option>
     ${options.map(([key, text]) => `<option value="${esc(key)}">${esc(text)}</option>`).join('')}</select></label>`;
 }
 
@@ -208,7 +253,7 @@ function renderInspection(tab) {
       <input id="x-filter" type="search" value="${esc(params().get('q') || '')}" ${tab === 'defects' ? 'placeholder="Type, location or finding"' : ''}></label>
     ${tab === 'defects' ? [
       filterSelect('component', 'Component', options(observations.map(componentName))),
-      filterSelect('type', 'Defect type', options(defects.map(typeLabel))),
+      filterSelect('type', 'Defect type', defectTypeOptions(defects), 'All types'),
       filterSelect('grade', 'Grade', Object.entries(GRADES).map(([n, name]) => [n, `${n} ${name}`])),
       filterSelect('assessment', 'Assessment status', Object.entries(STATUSES).filter(([key]) => key !== 'insufficient_evidence'), 'All statuses'),
     ].join('') : ''}
@@ -231,7 +276,7 @@ function defectTable(defects, observations, measurements, matches) {
   const grade = $('x-grade').value, status = $('x-assessment').value;
   const rows = defects.filter(d => {
     const o = observations[d.obs_id];
-    return (!component || componentName(o) === component) && (!type || typeLabel(d) === type)
+    return (!component || componentName(o) === component) && (!type || defectTypeCategories(d).includes(type))
       && (!grade || String(d.damage_grade) === grade) && (!status || (status === 'uncertain'
         ? ['uncertain', 'insufficient_evidence'].includes(d.grading_status) : d.grading_status === status))
       && matches({...d, component: componentName(o), section: o?.section, parent: o?.parent_area,
