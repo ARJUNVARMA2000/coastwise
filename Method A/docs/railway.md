@@ -50,7 +50,50 @@ Do not set `COASTWISE_BUCKET` or Cloud Tasks variables for this deployment. Peop
 
 ## Deploy an update
 
-Install the official CLI with `brew install railway`. Use your normal account login or the explicitly approved **Coastwise deployment** project token for production. The initial deployment used a memory-only CLI session, not a token saved in the project. Store any future deployment token in your own credential manager; never check it into source or print it in logs.
+Production deploys automatically from GitHub. The following settings were verified against the live Railway service on November 17, 2026:
+
+| Setting | Current value |
+| --- | --- |
+| Connected repository | [`ARJUNVARMA2000/coastwise`](https://github.com/ARJUNVARMA2000/coastwise) |
+| Trigger branch | `main` |
+| Environment / service | `production` / `coastwise` |
+| Build root | `/Method A` |
+| Dockerfile | `Dockerfile`, relative to the build root |
+| Wait for CI | Enabled (`checkSuites: true`) |
+
+Changes pushed or merged into `main` trigger a deployment when they match at least one watched path. Railway waits for GitHub Actions checks before deploying; a failed workflow skips the deployment. The [Coastwise CI workflow](https://github.com/ARJUNVARMA2000/coastwise/blob/main/.github/workflows/coastwise-ci.yml) runs Python and JavaScript checks, builds the allowlisted source package and Docker image, and verifies the saved-report site. Its pull-request and `main` push filters match Railway's watched paths below. Railway builds the connected repository; the CI image is a verification artifact.
+
+Watched paths are relative to the **repository root**, including the `Method A` prefix:
+
+```text
+/.github/workflows/coastwise-ci.yml
+/Method A/src/**
+/Method A/tests/**
+/Method A/deploy/**
+/Method A/scripts/container-entrypoint.sh
+/Method A/scripts/prepare_railway_source.py
+/Method A/.dockerignore
+/Method A/Dockerfile
+/Method A/pyproject.toml
+/Method A/uv.lock
+```
+
+Pushes to other branches, unmerged pull requests, and changes only outside these paths do not update production. For example, editing only `Method A/docs/railway.md` or `Method A/README.md` does not trigger deployment. A push to the separate `prksyng54/msds-capstone` repository does not update this service.
+
+For a normal release:
+
+1. Open a pull request against `main` in the connected repository and review the application changes and Coastwise CI result.
+2. Let active scoring jobs finish before merging: the merge can start an automatic production release once the new `main` commit passes CI.
+3. Merge the reviewed changes into `main`, then follow the GitHub checks and Railway deployment for that commit.
+4. Confirm Railway reports `SUCCESS`, verify `/health`, and check authentication, saved reports, PDF evidence and downloads without starting new inference. See [Verify](#verify).
+
+Runtime secrets and the persistent `/data` volume remain configured on the service. Source deployment does not replace those settings; the application's startup release installer still controls saved-dataset replacement as described above. See [Railway's autodeploy documentation](https://docs.railway.com/deployments/github-autodeploys) for trigger and CI behavior.
+
+### Manual deployment fallback
+
+Use a manual source upload only for an explicitly approved release or recovery when the normal GitHub deployment path is unsuitable. It uploads local source rather than the connected branch and does not use the GitHub trigger's CI gate; verify the exact reviewed source and let active scoring jobs finish before uploading.
+
+Run the commands below from the application directory: this workspace's root, or `Method A/` in the GitHub repository. Install the official CLI with `brew install railway`. Use your normal account login or the explicitly approved **Coastwise deployment** project token for production. Store credentials in your credential manager; never check them into source or print them in logs.
 
 Prepare an allowlisted staging tree:
 
@@ -59,14 +102,6 @@ uv run python scripts/prepare_railway_source.py
 ```
 
 The generated `.local/railway-source` includes application code, the lockfile, rubric/schema assets, container files and the verified latest-only release ZIP. Source PDFs are inside that verified current release; `.env`, loose historical reports, experiment outputs, developer state and credentials are excluded. Inspect `.local/railway-upload-manifest.json` before deploying.
-
-Service settings are saved directly in Railway using its current API. The reproducible nonsecret settings are in `deploy/railway-service.json`. With the CLI already authenticated for Coastwise, apply them when creating or changing the service:
-
-```sh
-uv run python scripts/configure_railway_service.py
-```
-
-The Dockerfile path, health check, restart policy and resource limits remain configured on the service between source deployments. Volume attachment and runtime secrets are managed separately. The script targets only the exact Coastwise service/environment IDs in the manifest.
 
 With the CLI already authenticated for Coastwise:
 
@@ -78,7 +113,17 @@ railway up .local/railway-source --path-as-root \
   --detach --json --message "Update Coastwise"
 ```
 
-Wait for a successful deployment and verify `/health`. Runtime secrets and the persistent volume are configured on the service and are not replaced by source uploads. Before replacing a healthy deployment, let active scoring jobs finish.
+Wait for a successful deployment and verify `/health` and the saved-site flows. Record the uploaded source revision and deployment ID; a manual upload may differ from the connected branch until a later automatic release deploys that branch.
+
+### Service configuration
+
+Service settings are saved directly in Railway using its API. The reproducible nonsecret build, health, restart and resource settings are in `deploy/railway-service.json`. Editing that file alone does not apply its values to Railway. With the CLI already authenticated for Coastwise, apply them only when intentionally creating or changing those service settings:
+
+```sh
+uv run python scripts/configure_railway_service.py
+```
+
+The script targets only the exact Coastwise service/environment IDs in the manifest. The GitHub source, trigger branch, Wait for CI setting and watched paths are configured separately in Railway's service settings; they are not managed by this script. Volume attachment and runtime secrets are also managed separately.
 
 New Railway services cannot opt into legacy `railway.json` configuration as of August 28, 2026. The initial CLI accepted that file but left service settings at their defaults. This deployment therefore uses the supported API above, and the unused legacy file has been removed. Do not add it back or rely on CLI acceptance as proof that a setting took effect.
 
@@ -124,4 +169,4 @@ archive manifests and SQLite snapshots as recovery records; a full database rest
 
 The production application includes `defect_v1` extraction mode, `defect-inventory-1` saved data and `defect-prompts-v3` generation instructions. Defect mode uses compact, source-linked inventory output and does not run the human judge. The existing report mode retains its separate historical comparisons. Cross-report trends remain deferred.
 
-Latest verified deployment: `2cad85e9-a4a2-4cbd-8953-47a449b6e5fc` (SUCCESS). Evidence and a bounded synthetic smoke test are in `output/coastwise/defect-deployment-2026-10-27/`. The temporary deployment token used for this update was revoked after verification. Preserve active-job checks and exact source-manifest matching for future deployments; do not infer extraction accuracy from a successful schema/quote check.
+Historical deployment for this October 27 release: `2cad85e9-a4a2-4cbd-8953-47a449b6e5fc` (SUCCESS). This is not the current production deployment. Evidence and a bounded synthetic smoke test are in `output/coastwise/defect-deployment-2026-10-27/`. The temporary deployment token used for this update was revoked after verification. Preserve active-job checks and exact source-manifest matching for future deployments; do not infer extraction accuracy from a successful schema/quote check.

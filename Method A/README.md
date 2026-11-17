@@ -60,4 +60,4 @@ uv run pytest -q
 uv run python scripts/prepare_railway_source.py
 ```
 
-See [Railway deployment](docs/railway.md) for the existing password-protected Coastwise service and persistent storage. Release verification does not require live inference.
+The password-protected Coastwise service automatically deploys watched application/build changes pushed or merged into `main` in `ARJUNVARMA2000/coastwise`, after GitHub Actions checks pass. Railway builds from `/Method A`. Other branches and documentation-only changes do not update production. See [Railway deployment](docs/railway.md) for the exact watched paths, release steps, persistent storage and manual fallback. Release verification does not require live inference.
