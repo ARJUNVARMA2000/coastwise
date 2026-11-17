@@ -1,38 +1,26 @@
-# DSNY 2020–2025 — Method A
+# Current Method A release
 
-Six Southwest Brooklyn DSNY PDFs were processed with the same high-reasoning Method A model, prompt, schema and grading rules as the previous showcase. Method B is owned by the team and is outside this delivery.
+The showcase contains Alameda 2017, Berkeley 2017 and DSNY 2020–2025: eight reports, 949 PDF pages and 2,597 provisional records. Alameda and Berkeley are restored from their exact previously published saved runs. DSNY 2016 remains excluded. This restoration makes zero model calls and adds no inference cost.
 
-Model: DeepSeek V4.1 Flash 1017; pinned DeepInfra FP8; high reasoning; temperature 0; 24,000-character primary chunks initially; up to 1,500 adjacent-context characters per side; 393,216 maximum output tokens per request; four active requests globally. One extraction-and-grade call per effective chunk. No OCR, vision, separate judge or model repair stage.
+| Report | PDF pages | Accepted chunks | Provisional records |
+| --- | ---: | ---: | ---: |
+| Alameda 2017 | 381 | 19/20 | 376 |
+| Berkeley 2017 | 278 | 14/15 | 778 |
+| DSNY 2020 | 12 | 2/2 | 8 |
+| DSNY 2021 | 10 | 2/2 | 32 |
+| DSNY 2022 | 20 | 2/2 | 42 |
+| DSNY 2023 | 52 | 3/3 | 121 |
+| DSNY 2024 | 101 | 14/14 | 813 |
+| DSNY 2025 | 95 | 16/16 | 427 |
 
-The first pass made 21 requests: 17 accepted, one rejected at the provider output limit and three interrupted by an unrequested one-hour report cutoff. The user corrected this to no deadline. The 17 accepted originals were reused; only failed primary ranges were subdivided for extraction without an elapsed-time cutoff. First-pass results and unknown charge reservations are preserved. Recovery phases and source boundaries are recorded explicitly below.
+All 327 saved source, response, result and export files are reused byte-for-byte. Report identities, measured extraction times, usage, review annotations and warnings are preserved. All project grades remain uncertain. Schema-valid extraction does not establish completeness or source accuracy. Record counts are not counts of unique damaged members.
 
-| Year | Pages | Valid chunks | Records | Numeric / uncertain grades | Job seconds* | Known billed USD |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 2020 | 12 | 2/2 | 8 | 0 / 8 | 129.0 | $0.009375 |
-| 2021 | 10 | 2/2 | 32 | 0 / 32 | 245.3 | $0.014527 |
-| 2022 | 20 | 2/2 | 42 | 0 / 42 | 528.6 | $0.020289 |
-| 2023 | 52 | 3/3 | 121 | 0 / 121 | 554.5 | $0.035007 |
-| 2024 | 101 | 14/14 | 813 | 0 / 813 | 8038.4 | $0.256664 |
-| 2025 | 95 | 16/16 | 427 | 0 / 427 | 8363.4 | $0.183893 |
+Alameda PDF pages 121–131 and Berkeley PDF pages 231–253 retain their original failed-extraction gaps. No failed or accepted request is repeated. Native-text gaps, combined pile IDs, repeated findings, material-test/repair scope, measurement-kind and rating-ownership errors remain disclosed in report details and exports. The six DSNY reports retain their original source-review limitations, including missing detailed findings in DSNY 2020.
 
-Recovery `recovery-no-deadline`: 20 requests; at most 6,000 primary source characters per child; no elapsed-time cutoff. Accepted inputs were reused.
+The DSNY 2020–2025 high-reasoning run used the same DeepSeek V4.1 Flash 1017 / DeepInfra FP8 route, temperature 0, prompt, schema and grading rules as the previous showcase. At most four requests ran concurrently. Failed source ranges were subdivided into 6,000-character and then 2,000-character children, retaining 1,500 adjacent-context characters per side and the original 393,216-token output allowance, with no elapsed-time cutoff. All 39 current DSNY chunks are accepted from 44 total attempts. Its budget remains $0.51975608 known billed plus $0.36893717 held for unknown original charges: $0.88869325 committed under $30. The previous three-report spending ledger is separate and unchanged.
 
-Recovery `recovery-refined-2`: 3 requests; at most 2,000 primary source characters per child; no elapsed-time cutoff. Accepted inputs were reused.
+No OCR, vision, separate judge or model repair stage was added. Restoration does not recompute Method B or the Answer key. Both team-authored pages and the separate Feature importance snapshot are preserved unchanged.
 
-Batch wall time: 8364.4 seconds. Known billed: $0.519756. Held/unknown: $0.368937. Total committed: $0.888693 under the $30 cap. Maximum active requests observed: 4.
+Publication target: the existing password-protected [Coastwise](https://coastwise-production.up.railway.app/extraction) service and both existing repository main branches. The release installer validates all source/run/file hashes and stages the full eight-report bundle before replacing the active runtime dataset. Credentials, project source archives and Git history are outside the replacement. Verification and final deployment receipts are retained under `output/coastwise/method-a-restored-alameda-berkeley-2026-11-16/` in the project workspace.
 
-*Each report job time includes its wait for the shared request pool, local validation and exports. It is not standalone model latency or browser upload-to-render time. Per-request timings and token usage are retained in the saved traces and summary CSV.
-
-For 2024 and 2025, elapsed time runs from the initial report job through recovery, including preparation/waiting between phases. Reported token totals include only returned usage; interrupted requests may have additional unknown usage. Held charges are conservative full-output reservations, not confirmed additional billing.
-
-Each year folder includes the exact source PDF and matching CSV, JSON and Excel tables with evidence, source-stated ratings and provisional grades or uncertainty. IDs are report/run scoped. Records are machine findings, not counts of unique damaged members. Raw outputs are preserved; review annotations do not repair them.
-
-Integrity checks reproduced the local merge, verified source/prompt/schema hashes and reconciled every CSV/Excel cell. Quote matching establishes native-text presence, not semantic accuracy or completeness. Scans, photographs and table reading order can leave findings or measurements absent. Unsupported grades remain uncertain. Missing findings do not imply sound condition. See integrity-review.json and source-spot-checks.json for per-year qualifications.
-
-The authorized Coastwise release replaces the previous Alameda/Berkeley/DSNY-2016 showcase with only these six saved DSNY results. See the separate release verification record for publication status. Team-authored pages and Method B are outside this data replacement.
-
-Recovery validation: the 6,000-character wave returned 19 accepted responses and one invalid JSON response. Only that failed range was refined into three 2,000-character children, all accepted. All 39 current native-text chunks are accepted; 44 total attempts, including all earlier failures, remain in the billing/provenance records.
-
-Live verification: exactly six DSNY reports / 1,443 provisional records. Correct source PDF hashes, quoted evidence highlights and CSV/JSON/Excel/ZIP exports verified. All 15 superseded report/source URLs return 404. Authentication, Feature importance and the team’s merged pages are preserved. Publication used zero inference calls.
-
-Verified service: https://coastwise-production.up.railway.app/extraction. Deployment a9776ba6-1e49-4c3a-aef6-c5c0388bf0c6 succeeded. Both application CI runs passed; 51 tests and full live source/evidence/export/removal checks passed. The team’s merged pages are preserved byte-for-byte.
+Local verification passed 51 application tests and Ruff. All eight report views, exact source PDF hashes, quotation evidence/rendered pages and CSV/JSON/Excel/ZIP exports were checked. All five DSNY 2016 report/source URLs remain unavailable. The full existing UI and team page assets are unchanged.

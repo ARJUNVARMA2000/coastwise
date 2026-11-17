@@ -1,4 +1,4 @@
-"""Package the six DSNY 2020–2025 Method A reports and their source PDFs."""
+"""Package the eight saved Alameda, Berkeley and DSNY Method A reports."""
 from __future__ import annotations
 
 import argparse
@@ -11,7 +11,7 @@ from pathlib import Path
 from coastwise.method_a_release import REPORT_KEYS, VERSION, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SOURCE = ROOT / "output/coastwise/method-a-dsny-2020-2025-2026-11-16"
+DEFAULT_SOURCE = ROOT / "output/coastwise/method-a-restored-alameda-berkeley-2026-11-16"
 DEFAULT_ASSETS = ROOT / "src/coastwise/method_a_assets"
 
 
@@ -19,7 +19,7 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
     checkpoint = json.loads((source / "checkpoint.json").read_text())
     selected = {report["report_key"]: report for report in checkpoint["reports"]}
     if set(selected) != REPORT_KEYS or len(checkpoint["reports"]) != len(REPORT_KEYS):
-        raise ValueError("Expected exactly the six DSNY 2020–2025 reports")
+        raise ValueError("Expected Alameda 2017, Berkeley 2017 and DSNY 2020–2025")
     assets.mkdir(parents=True, exist_ok=True)
     reports, files, numeric_grades = {}, {}, 0
     for report_key, selection in sorted(selected.items()):
@@ -83,7 +83,7 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
                 "warnings": [grade_note,
                              "Native-text extraction cannot interpret image-only pages, photographs or unreliable table reading order. Review each report's coverage notes.",
                              "Grades are provisional. Exact text matching does not establish correct component ownership or complete extraction.",
-                             "These reports contain 10–101 PDF pages; measured processing times include shared-queue wait. The two-minute target is not a completeness guarantee."],
+                             f"These reports contain {min(r['pages'] for r in reports.values())}–{max(r['pages'] for r in reports.values())} PDF pages; measured processing times include shared-queue wait. The two-minute target is not a completeness guarantee."],
                 "reports": reports, "files_sha256": files, "bundle_sha256": sha256(bundle)}
     (assets / "latest.json").write_text(json.dumps(metadata, indent=2) + "\n")
     return metadata

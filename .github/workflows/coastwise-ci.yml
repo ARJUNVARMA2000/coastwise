@@ -77,7 +77,7 @@ jobs:
           curl --fail --silent --show-error --max-time 3 \
             --retry 20 --retry-delay 1 --retry-all-errors "$url/health"
           curl --fail --silent --show-error "$url/api/extraction?scope=method_a_one_shot" | \
-            uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["reports"]) == 6; assert len(d["manifest"]) == 6'
+            uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["reports"]) == 8; assert len(d["manifest"]) == 8'
           curl --fail --silent --show-error "$url/feature-importance/" | grep --quiet 'coastwise.css'
           curl --fail --silent --show-error "$url/feature-importance/feature_importance.json" | \
             uv run --frozen --python 3.12 python -c 'import json,sys; d=json.load(sys.stdin); assert len(d["runs"]) == 1; r=d["runs"][0]; assert r["n_scored"] == 25; assert len(r["table"]) == 20; assert len(r["excluded"]) == 5'
@@ -89,6 +89,6 @@ jobs:
           for report_year in 2020 2021 2022 2023 2024 2025; do
             grep --quiet "$report_year" "$page"
           done
-          ! grep --quiet 'Alameda Piers' "$page"
-          ! grep --quiet 'Berkeley Municipal Pier' "$page"
+          grep --quiet 'Alameda Piers' "$page"
+          grep --quiet 'Berkeley Municipal Pier' "$page"
 

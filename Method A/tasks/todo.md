@@ -206,3 +206,21 @@ Personal application commit `ddd0c34d7454de308c59f4283e50484209e9d543` and share
 Railway deployment `4205278e-ef3c-4003-9959-66d7240a626a` succeeded at [Coastwise](https://coastwise-production.up.railway.app/extraction). All 71 packaged application/container files match the committed application, including the shared stylesheet and complete Method A, upload and Feature importance UI. Authenticated readback verified all nine updated UI assets, exactly three reports / 1,205 records, all source PDF hashes, a quotation highlight/rendered page for each report, and per-report/combined CSV, JSON, Excel and ZIP exports. All eight former result/source URLs return 404. Feature importance JSON/CSV bytes, authentication and credentials are preserved. The live browser visibly shows the new UI and all three report titles with correct counts, without horizontal overflow.
 
 Release ID remains `3598c7737174d6496cb77bb2dcbcfc89ea96bef72d08b595569973f7a74a24a1`; the full UI redeployment reused the verified saved bundle and made no model calls. Billed/held/maximum costs are unchanged. The owned local preview process was stopped. Detailed source, hosted verification, publication and spending receipts remain in `output/coastwise/method-a-three-report-release-2026-11-16/`.
+
+
+## Restore Alameda and Berkeley alongside DSNY — 2026-11-16
+
+Status: user approved “Approve restoration and publication”; implementation in progress.
+
+Requested scope: restore the saved Alameda 2017 (376 records, 381 pages) and Berkeley 2017 (778 records, 278 pages) sections to Method A alongside all six DSNY 2020–2025 reports. Publish eight reports / 2,597 provisional records / 949 PDF pages to the existing Coastwise website and both existing repository main branches. Keep DSNY 2016 excluded. Reuse exact saved native responses, sources and exports, with their partial-coverage warnings. No new inference or model cost; preserve team pages and Feature importance.
+
+- [x] Locate both archived runs and verify all 118 saved-file hashes against the previous published manifest.
+- [x] Obtain the required plan check-in before implementation. Approved restoration, both main pushes and publication on 2026-11-16.
+- [x] Build the eight-report release from the current six-report bundle plus the two exact saved historical runs; update release allowlist, packager, verification, CI counts and release documentation.
+- [x] Verify byte-identical reuse for all eight reports, pass applicable tests, and check the eight reports, PDFs, evidence and all exports locally while DSNY 2016 remains unavailable.
+- [ ] Sync scoped changes to both repositories, preserve current team work, push verified commits to main and check CI.
+- [ ] Deploy the exact verified source package to the existing Coastwise service, verify all eight hosted reports and preserved pages/authentication, and record the final review.
+
+### Review
+
+Local verification passed: 51 application tests, Ruff and exact reuse of 327 files and all report metadata. Eight report views, 2,597 records, source PDF hashes, quotation evidence/rendered pages and CSV/JSON/Excel/ZIP exports verified. The five DSNY 2016 report/source URLs return 404. All 16 current UI/data assets and Feature importance are unchanged. Publication is pending; zero new inference calls.
