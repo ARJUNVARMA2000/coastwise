@@ -21,7 +21,7 @@ from .library import Library
 VERSION = "method-a-latest-release-1"
 ASSETS = Path(__file__).with_name("method_a_assets")
 MARKER = ".method-a-release.json"
-REPORT_KEYS = {"alameda_2017", "berkeley_2017", "dsny_2016"}
+REPORT_KEYS = {f"dsny_{year}" for year in range(2020, 2026)}
 MAX_BYTES = 250 * 1024 * 1024
 
 
@@ -58,7 +58,7 @@ def install_release(data_root: Path, assets: Path | None = None) -> dict:
     root = _checked_root(data_root, assets)
     metadata = read_metadata(assets)
     if metadata.get("version") != VERSION or set(metadata.get("reports", {})) != REPORT_KEYS:
-        raise ValueError("The release must contain exactly Alameda 2017, Berkeley 2017 and DSNY 2016")
+        raise ValueError("The release must contain exactly the six DSNY 2020–2025 reports")
     bundle = assets / "latest.zip"
     if not bundle.is_file() or sha256(bundle) != metadata.get("bundle_sha256"):
         raise ValueError("Method A release bundle checksum mismatch")
@@ -70,9 +70,9 @@ def install_release(data_root: Path, assets: Path | None = None) -> dict:
     reports = metadata["reports"]
     run_ids = {report["run_id"] for report in reports.values()}
     if len(run_ids) != len(REPORT_KEYS) or any(str(uuid.UUID(value)) != value for value in run_ids):
-        raise ValueError("Release run identifiers must be three distinct UUIDs")
+        raise ValueError("Release run identifiers must be six distinct UUIDs")
     if len({report["source_sha256"] for report in reports.values()}) != len(REPORT_KEYS):
-        raise ValueError("Release reports must have three distinct source PDFs")
+        raise ValueError("Release reports must have six distinct source PDFs")
     expected = metadata.get("files_sha256", {})
     if not expected:
         raise ValueError("Release file manifest is empty")

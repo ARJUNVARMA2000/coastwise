@@ -1,4 +1,4 @@
-"""Package the three explicitly selected Method A reports and their source PDFs."""
+"""Package the six DSNY 2020–2025 Method A reports and their source PDFs."""
 from __future__ import annotations
 
 import argparse
@@ -8,10 +8,10 @@ import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from coastwise.method_a_release import VERSION, REPORT_KEYS, sha256
+from coastwise.method_a_release import REPORT_KEYS, VERSION, sha256
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SOURCE = ROOT / "output/coastwise/method-a-three-report-release-2026-11-16"
+DEFAULT_SOURCE = ROOT / "output/coastwise/method-a-dsny-2020-2025-2026-11-16"
 DEFAULT_ASSETS = ROOT / "src/coastwise/method_a_assets"
 
 
@@ -19,7 +19,7 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
     checkpoint = json.loads((source / "checkpoint.json").read_text())
     selected = {report["report_key"]: report for report in checkpoint["reports"]}
     if set(selected) != REPORT_KEYS or len(checkpoint["reports"]) != len(REPORT_KEYS):
-        raise ValueError("Expected exactly Alameda 2017, Berkeley 2017 and DSNY 2016")
+        raise ValueError("Expected exactly the six DSNY 2020–2025 reports")
     assets.mkdir(parents=True, exist_ok=True)
     reports, files, numeric_grades = {}, {}, 0
     for report_key, selection in sorted(selected.items()):
@@ -50,7 +50,7 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
         warnings = list(dict.fromkeys(str(w).strip() for w in warnings if w))
         source_hash = sha256(directory / "source.pdf")
         if (source_hash != raw["input_sha256"] or source_hash != selection["source_sha256"]
-                or job.get("filename") != selection["source_file"]
+                or job.get("filename") != selection.get("source_file", Path(selection["source"]).name)
                 or job.get("pages") != selection["pages"]
                 or job.get("status") not in {"complete", "partial"}):
             raise ValueError("Saved report is not a terminal matching-source run")
@@ -83,7 +83,7 @@ def package(source: Path = DEFAULT_SOURCE, assets: Path = DEFAULT_ASSETS) -> dic
                 "warnings": [grade_note,
                              "Native-text extraction cannot interpret image-only pages, photographs or unreliable table reading order. Review each report's coverage notes.",
                              "Grades are provisional. Exact text matching does not establish correct component ownership or complete extraction.",
-                             "These reports contain 44–381 PDF pages; measured processing times are recorded per report. The two-minute target is not a completeness guarantee."],
+                             "These reports contain 10–101 PDF pages; measured processing times include shared-queue wait. The two-minute target is not a completeness guarantee."],
                 "reports": reports, "files_sha256": files, "bundle_sha256": sha256(bundle)}
     (assets / "latest.json").write_text(json.dumps(metadata, indent=2) + "\n")
     return metadata

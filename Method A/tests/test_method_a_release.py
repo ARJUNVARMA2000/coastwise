@@ -1,6 +1,6 @@
 """Offline saved-data publication checks. No model or network requests."""
-import hashlib
 import asyncio
+import hashlib
 import importlib.util
 import json
 import zipfile
@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from coastwise.library import Library
-from coastwise.method_a_release import MARKER, VERSION, REPORT_KEYS, install_release, sha256
+from coastwise.method_a_release import MARKER, REPORT_KEYS, VERSION, install_release, sha256
 
 
 def make_assets(assets: Path, *, bad_hash=False, bad_source=False, unsafe=False):
@@ -45,7 +45,7 @@ def make_assets(assets: Path, *, bad_hash=False, bad_source=False, unsafe=False)
     return metadata
 
 
-def test_install_replaces_only_runtime_data_and_indexes_three_reports_including_same_year(tmp_path, monkeypatch):
+def test_install_replaces_only_runtime_data_and_indexes_six_dsny_reports(tmp_path, monkeypatch):
     root = tmp_path / "runs"
     root.mkdir()
     old = root / "superseded-run"
@@ -64,14 +64,14 @@ def test_install_replaces_only_runtime_data_and_indexes_three_reports_including_
 
     installed = install_release(root, assets)
 
-    assert installed["installed"] and installed["reports"] == 3
+    assert installed["installed"] and installed["reports"] == 6
     assert not old.exists() and not (root / "_reference").exists() and not (root / "_archives").exists()
     assert not (root / "old.zip").exists()
     assert (root / ".env").read_text() == "protected secret"
     assert (tmp_path / "outside.txt").read_text() == "untouched"
     rows = Library(root).rows()
     assert {row["id"] for row in rows} == {r["run_id"] for r in metadata["reports"].values()}
-    assert len(rows) == 3 and all(row["status"] == "partial" for row in rows)
+    assert len(rows) == 6 and all(row["status"] == "partial" for row in rows)
     assert all(row["defect_count"] == 1 for row in rows)
 
 
@@ -88,7 +88,7 @@ def test_same_release_is_idempotent_and_preserves_future_uploads(tmp_path, monke
 
     assert install_release(root, assets)["installed"] is False
     assert (later / "source.pdf").read_bytes() == b"later"
-    assert len(Library(root).rows()) == 4
+    assert len(Library(root).rows()) == 7
     assert (root / MARKER).read_bytes() == marker
 
 
@@ -132,9 +132,9 @@ def test_wrong_selection_or_duplicate_identity_preserves_existing_data(tmp_path,
     metadata = make_assets(assets)
     reports = metadata["reports"]
     if fault == "old_year_keys":
-        metadata["reports"] = dict(zip(("2015", "2016", "2017"), reports.values(), strict=True))
+        metadata["reports"] = dict(zip(("2015", "2016", "2017", "2018", "2020", "2021"), reports.values(), strict=True))
     else:
-        first, second, _ = reports.values()
+        first, second, *_ = reports.values()
         field = "run_id" if fault == "duplicate_run" else "source_sha256"
         second[field] = first[field]
     (assets / "latest.json").write_text(json.dumps(metadata))

@@ -1,5 +1,52 @@
 # Current Method A release
 
+## DSNY Method A 2020–2025 and Coastwise collaboration — 2026-11-16
+
+Scope: execute the six Southwest Brooklyn DSNY reports from 2020 through 2025 using the current high-reasoning Method A configuration and deliver Method A outputs/metrics. The user confirmed all six years, parallel execution, a $30 ceiling and the collaborator invitation. Subsequent correction: “ONLY THINK ABOUT METHOD A FOR NOW. THEY WILL HANDLE METHOD B.” Cross-method comparison and Method B collection are outside this task.
+
+Release update authorized during execution: “REMOVE THE OLD ones as well.” Replace the active Coastwise dataset (Alameda 2017, Berkeley 2017 and DSNY 2016) with only the six new DSNY reports. Preserve source archives, credentials, Feature importance, unrelated team work and Git history. The user was informed of this concrete scope before implementation.
+
+Execution correction: “No deadline run everything.” The initial implementation incorrectly imposed a one-hour report deadline. It fired before the correction could be applied: 17/21 initial chunks were accepted, one 2024 chunk hit the 393,216-token provider limit, and three requests were interrupted with unknown charges retained. No initial chunk was left undispatched. New plan: preserve the first pass; reuse all 17 accepted chunks; subdivide only the four failed primary ranges into 6,000-character chunks, keeping the same high-reasoning model/provider/prompt/schema and bounded adjacent context; process those through one four-request pool with no elapsed-time cutoff; retain the same $30 ledger including original unknown charges; reassemble deterministically and verify the final six-report release. This is failed-range recovery, not a full-cohort rerun or a separate model judge/repair stage.
+
+- [x] Preserve the initial outputs, request bodies and billing ledger; freeze child-to-parent chunk lineage and unchanged high-reasoning settings.
+- [x] Run only failed source ranges without an elapsed-time cutoff under the existing $30 ledger; retain successful original chunks without new model calls.
+- [x] Rebuild current results/exports from accepted original and recovery chunks, retain first-pass history separately, and verify all source ranges are represented before publication.
+
+- [x] Update the exact release identity allowlist, packager, replacement checks and documentation for DSNY 2020–2025; retain full staging/checksum validation before removing old runtime data.
+- [x] Package the six completed saved runs and their source PDFs, with explicit coverage/source-review qualifications. Verify the new dataset and that old result/source URLs return 404 in an isolated local install.
+- [ ] Prepare the complete current application release; confirm the live service has no active jobs, publish the scoped dataset replacement, and verify exactly six DSNY reports, matching evidence/exports and unavailable old URLs.
+
+### Findings and proposed execution
+
+- The current published showcase contains Alameda 2017, Berkeley 2017 and DSNY 2016. Its DSNY result is not a 2020–2025 comparison cohort.
+- The historical inventory identifies all six proposed DSNY PDFs by SHA-256, totaling 290 pages and approximately 21 native-text chunks (2, 2, 2, 3, 6 and 6 by year). These are historical planning counts; verify them after recovering the PDFs. The main source folder currently contains only 2015–2018 DSNY PDFs. Recover exact sources from existing authorized project/team locations or original links; do not silently substitute other editions.
+- Reuse the current release's extraction prompt, schema and grading rules: `deepseek/deepseek-v4.1-flash-1017`, pinned `deepinfra/fp8`, high reasoning, temperature 0, 24,000 primary characters per chunk, up to 1,500 adjacent-context characters per side and the same 393,216-token maximum output allowance. Verify current model/provider support and prices before dispatch. This is a new cohort run; historical outputs are context, not automatically equivalent results.
+- Run report jobs concurrently and schedule their chunk requests through **one shared global semaphore of four active model requests**. Four is the total across all six reports, not four per report. Use separate report/run directories and one atomic persisted budget ledger, with per-chunk checkpoints and cancellation/stop controls that account for all in-flight work. The existing three-report script processes reports sequentially, so a bounded cross-report scheduler is needed.
+- Approved **$30 total new-inference cap**, with a verified preflight reservation estimate. This is a ceiling, not an expected bill. Count billed, reserved and uncertain attempts. Preserve successful chunks; do not automatically retry failures, switch models or add paid judge/repair stages. If rate limits occur, save the failures and prepare a specific recovery proposal.
+- Deliver Method A evidence/coverage, defects, measurements, source ratings, supported project grades or uncertainty, runtime, token use and cost. Keep original outputs intact and save review annotations separately. Overall accuracy remains unmeasured. The team handles Method B; do not collect its outputs or make comparison a delivery dependency.
+- Prepare the six-report Method A handoff with per-report CSV/JSON/Excel exports and a provenance/coverage summary. Source spot-checks support the qualifications; do not expand this into feature importance or forecasting.
+- Target collaborator access to `ARJUNVARMA2000/coastwise`, not the shared repository owned by `prksyng54`. GitHub metadata confirms admin access for the connected user. The connector's collaborator-permission lookup returned 403 (`Resource not accessible by integration`), so existing access is unverified. At implementation, check access/pending invitations through a supported administrative surface and, if needed, invite `prksyng54` with write access. Review the two-page PR's routes, navigation, styling and checks when it exists.
+- The user explicitly requests removal of old entries. Replace the active three-report showcase only after the six new saved runs and their release bundle validate. Verify all six reports, evidence links, export counts and removal of superseded result/source URLs. Preserve source archives, Git history and the team's independent pages.
+
+### Checklist
+
+- [x] Inspect the current release, runner, historical DSNY inventory, source availability, common scorer and GitHub repository metadata.
+- [x] Record the user's instruction to execute DSNY work in parallel and prepare an unsent teammate reply.
+- [x] Obtain the user's plan check-in. Approved 2026-11-16: “Yes, go ahead with DSNY 2020–2025 in parallel using the same high reasoning settings. Keep it under $30 and add prksyng54 as a collaborator on Coastwise.” This supersedes the proposed $3 cap and confirms all six years and the invitation.
+- [x] Recover and hash the six PDFs from `.local/three-report-shared-source/report_pdfs/`; all historical SHA-256 hashes, 290 pages and 21 chunks match.
+- [x] Freeze requests/settings and implement the bounded cross-report scheduler; 31 focused tests and Ruff passed. Live provider/model/high-reasoning/price checks passed; the conservative full-cohort reservation estimate is $2.55001243 under the approved $30 cap.
+- [x] Execute the six reports in parallel under the shared four-request limit and approved total cap; retain raw structured outputs, per-attempt traces, costs, timings, evidence and explicit failed/partial coverage.
+- [x] Validate saved Method A outputs and exports, spot-check source/component/measurement ownership and grade support, and package the six reports with a Method A metrics/coverage summary. Method B and cross-method comparison belong to the team.
+- [ ] Prepare the Method A handoff and publish the authorized six-report replacement. The teammate's two-page PR is independent and must remain untouched.
+- [x] Verify collaborator access/invitation for `prksyng54` on `ARJUNVARMA2000/coastwise`. After the user completed GitHub's authentication handoff, the settings page showed “prksyng54 has been added as a collaborator” and “Awaiting prksyng54’s response / Pending Invite.” Invitation exists; acceptance is pending. No duplicate invitation was sent.
+- [ ] Add the completion review with counts, coverage, measured spend/runtime, comparison limitations, collaborator outcome and any publication/PR links.
+
+### Review
+
+Plan approved; execution in progress. DSNY 2020–2025, parallel high-reasoning runs, a $30 total cap and the Coastwise collaborator invitation are authorized. The teammate reply remains an unsent draft. This workspace has no `.git` metadata; the planning file is saved locally.
+
+Execution result: all 39 effective native-text chunks are valid across 290 pages after 44 total requests. There are 1443 provisional records and zero numeric project grades. Known billed cost is $0.51975608; unresolved original charges retain $0.36893717 in reservations, totaling $0.88869325 against $30. The initial 17 and subsequently reused 36 accepted chunk files remain byte-identical. The six-report bundle and all CSV/JSON/Excel cells/ZIP checks passed. Local replacement removed the three previous entries; 15 old status/result/source/inspection/page URLs return 404. The team’s merged pages from9213ed0 are preserved unchanged. Publication and live verification are next.
+
 ## Latest-only cleanup, both repositories and deployment — authorized 2026-11-11
 
 The user confirmed: keep the newest Method A output and source PDF for each of all ten Brooklyn reports; delete superseded data from project working files, current repo branches and hosted storage; preserve Git history. The user then explicitly said “Push and deploy latest outputs,” overriding the earlier quality-based deployment hold. Known omissions, incorrect member/repair labels, uncertain grades and truncated chunks must remain visible. Do not rerun a model or rewrite Git history.

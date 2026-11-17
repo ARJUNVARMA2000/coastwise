@@ -1,5 +1,16 @@
 # Project lessons
 
+## 2026-11-16 — Use the user's budget, not an invented run deadline
+
+The user corrects the DSNY batch: “No deadline run everything.” A spending ceiling does not authorize a wall-clock cutoff. Run the authorized inputs to terminal results under the $30 shared ledger, with no overall or per-report elapsed-time limit. Preserve completed outputs and all billed/unknown reservations. If an imposed cutoff interrupts requests, disclose it and finish only failed ranges; do not repeat accepted chunks. Smaller native-text recovery chunks may be needed for provider output-limit failures, with the same high-reasoning model/prompt/schema and explicit lineage/settings records.
+
+## 2026-11-16 — Keep the DSNY handoff within Method A
+
+When the user says “ONLY THINK ABOUT METHOD A FOR NOW. THEY WILL HANDLE METHOD B,” finish the authorized DSNY 2020–2025 Method A runs and deliver their evidence-linked outputs, coverage, timings and spending. Do not request, locate, generate or score Method B outputs, or make a cross-method comparison a completion dependency. The team owns Method B. Run DSNY requests in parallel under one global concurrency limit and the approved total budget.
+
+The follow-up “REMOVE THE OLD ones as well” changes the active showcase to only DSNY 2020–2025, replacing Alameda 2017, Berkeley 2017 and DSNY 2016. Verify superseded result/source URLs disappear from the active site; preserve source archives and Git history.
+
+
 ## 2026-11-11 — Publish only the requested current dataset
 
 When the user asks to remove superseded data everywhere, clarify whether “latest” means one current run per report and whether Git history should remain. Here the user confirmed the newest Method A output and source PDF for all ten Brooklyn reports, deletion from working files/current repository branches/hosted storage, and preservation of Git history. Remove old datasets rather than retaining hidden replay bundles. Push both the personal Coastwise repo and the shared repo's Method_A folder when requested. The user explicitly chose deployment of the latest outputs despite the quality gate, so keep the confirmed limitations visible rather than silently repairing or relabeling results.

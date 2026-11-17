@@ -4,11 +4,11 @@ Coastwise runs at **https://coastwise-production.up.railway.app** in the dedicat
 
 ## Current dataset and startup replacement
 
-The current showcase contains only Alameda Piers 1–3 (2017), Berkeley Municipal Pier (2017) and the DSNY Southwest Brooklyn inspection (2016), with their Method A outputs and source PDFs. These replace the four previous Brooklyn report entries in the active dataset; Git history and unrelated local work remain intact. The package is `src/coastwise/method_a_assets/latest.zip`, verified by `latest.json`.
+The current showcase contains only the six Southwest Brooklyn DSNY inspections from 2020 through 2025, with their Method A outputs and source PDFs. These replace Alameda 2017, Berkeley 2017 and DSNY 2016 in the active dataset; Git history and source archives remain intact. The package is `src/coastwise/method_a_assets/latest.zip`, verified by `latest.json`.
 
-The entrypoint validates all current files and source hashes, stages the three explicitly selected runs, removes superseded content from the configured `/data/runs` directory, and rebuilds its index with only current records before starting the server. Credentials/environment settings remain outside this data replacement. A release marker makes repeated startup idempotent and preserves later uploads. No inference is performed during installation.
+The entrypoint validates all current files and source hashes, stages the six explicitly selected runs, removes superseded content from the configured `/data/runs` directory, and rebuilds its index with only current records before starting the server. Credentials/environment settings remain outside this data replacement. A release marker makes repeated startup idempotent and preserves later uploads. No inference is performed during installation.
 
-The three-report replacement and bounded Method A processing were explicitly approved. Provider rate-limit recovery is recorded separately; the interrupted Berkeley appendix remains an explicit coverage gap with its charge reservation retained. Source reviews identify repeated mentions, uncertain grading and measurement/rating/repair scope errors. The website and exports display the limitations; deployment does not certify correctness. See `docs/method-a/latest-release.md` for final counts, timing and billing.
+The DSNY-only replacement and parallel high-reasoning Method A processing under $30 were explicitly approved. Source reviews identify omitted findings, uncertain grading and measurement/rating scope errors. The website and exports retain the limitations; deployment does not certify correctness. Method B and team-authored pages are outside this dataset replacement. See `docs/method-a/latest-release.md` for final counts, timing and billing.
 
 Set `COASTWISE_ENABLE_LEGACY_QUEUE=0`. New uploads use native text, bounded chunks and one extraction-and-grade request per chunk; no OCR, retry or separate judge/grading pass is added.
 
