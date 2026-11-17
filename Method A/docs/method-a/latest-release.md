@@ -31,4 +31,8 @@ Integrity checks reproduced the local merge, verified source/prompt/schema hashe
 
 The authorized Coastwise release replaces the previous Alameda/Berkeley/DSNY-2016 showcase with only these six saved DSNY results. See the separate release verification record for publication status. Team-authored pages and Method B are outside this data replacement.
 
-Published-service target: https://coastwise-production.up.railway.app/extraction. The team’s merged review pages from commit 9213ed0 are preserved byte-for-byte. Saved source archives and Git history remain available; the old three-report runtime collection is replaced.
+Recovery validation: the 6,000-character wave returned 19 accepted responses and one invalid JSON response. Only that failed range was refined into three 2,000-character children, all accepted. All 39 current native-text chunks are accepted; 44 total attempts, including all earlier failures, remain in the billing/provenance records.
+
+Live verification: exactly six DSNY reports / 1,443 provisional records. Correct source PDF hashes, quoted evidence highlights and CSV/JSON/Excel/ZIP exports verified. All 15 superseded report/source URLs return 404. Authentication, Feature importance and the team’s merged pages are preserved. Publication used zero inference calls.
+
+Verified service: https://coastwise-production.up.railway.app/extraction. Deployment a9776ba6-1e49-4c3a-aef6-c5c0388bf0c6 succeeded. Both application CI runs passed; 51 tests and full live source/evidence/export/removal checks passed. The team’s merged pages are preserved byte-for-byte.

@@ -14,7 +14,7 @@ Execution correction: “No deadline run everything.” The initial implementati
 
 - [x] Update the exact release identity allowlist, packager, replacement checks and documentation for DSNY 2020–2025; retain full staging/checksum validation before removing old runtime data.
 - [x] Package the six completed saved runs and their source PDFs, with explicit coverage/source-review qualifications. Verify the new dataset and that old result/source URLs return 404 in an isolated local install.
-- [ ] Prepare the complete current application release; confirm the live service has no active jobs, publish the scoped dataset replacement, and verify exactly six DSNY reports, matching evidence/exports and unavailable old URLs.
+- [x] Prepare the complete current application release; confirm the live service has no active jobs, publish the scoped dataset replacement, and verify exactly six DSNY reports, matching evidence/exports and unavailable old URLs.
 
 ### Findings and proposed execution
 
@@ -37,15 +37,34 @@ Execution correction: “No deadline run everything.” The initial implementati
 - [x] Freeze requests/settings and implement the bounded cross-report scheduler; 31 focused tests and Ruff passed. Live provider/model/high-reasoning/price checks passed; the conservative full-cohort reservation estimate is $2.55001243 under the approved $30 cap.
 - [x] Execute the six reports in parallel under the shared four-request limit and approved total cap; retain raw structured outputs, per-attempt traces, costs, timings, evidence and explicit failed/partial coverage.
 - [x] Validate saved Method A outputs and exports, spot-check source/component/measurement ownership and grade support, and package the six reports with a Method A metrics/coverage summary. Method B and cross-method comparison belong to the team.
-- [ ] Prepare the Method A handoff and publish the authorized six-report replacement. The teammate's two-page PR is independent and must remain untouched.
+- [x] Prepare the Method A handoff and publish the authorized six-report replacement. The teammate's two-page PR is independent and must remain untouched.
 - [x] Verify collaborator access/invitation for `prksyng54` on `ARJUNVARMA2000/coastwise`. After the user completed GitHub's authentication handoff, the settings page showed “prksyng54 has been added as a collaborator” and “Awaiting prksyng54’s response / Pending Invite.” Invitation exists; acceptance is pending. No duplicate invitation was sent.
-- [ ] Add the completion review with counts, coverage, measured spend/runtime, comparison limitations, collaborator outcome and any publication/PR links.
+- [x] Add the completion review with counts, coverage, measured spend/runtime, comparison limitations, collaborator outcome and any publication/PR links.
 
 ### Review
 
-Plan approved; execution in progress. DSNY 2020–2025, parallel high-reasoning runs, a $30 total cap and the Coastwise collaborator invitation are authorized. The teammate reply remains an unsent draft. This workspace has no `.git` metadata; the planning file is saved locally.
+Completed and verified. DSNY 2020–2025, parallel high-reasoning runs, a $30 total cap and the Coastwise collaborator invitation are authorized. The teammate reply remains an unsent draft. This workspace has no `.git` metadata; the planning file is saved locally.
 
 Execution result: all 39 effective native-text chunks are valid across 290 pages after 44 total requests. There are 1443 provisional records and zero numeric project grades. Known billed cost is $0.51975608; unresolved original charges retain $0.36893717 in reservations, totaling $0.88869325 against $30. The initial 17 and subsequently reused 36 accepted chunk files remain byte-identical. The six-report bundle and all CSV/JSON/Excel cells/ZIP checks passed. Local replacement removed the three previous entries; 15 old status/result/source/inspection/page URLs return 404. The team’s merged pages from9213ed0 are preserved unchanged. Publication and live verification are next.
+
+### Completion review — DSNY 2020–2025
+
+Published and verified the six DSNY reports on https://coastwise-production.up.railway.app/extraction. The active Alameda 2017, Berkeley 2017 and DSNY 2016 entries were replaced; all 15 old status/result/PDF/inspection/page endpoints return 404. Source archives and Git history remain.
+
+Processed 290 PDF pages into 1,443 provisional records with 39 accepted current native-text chunks. All project grades remain uncertain, and the source spot-check notes retain omissions, repeated rows, measurement-kind errors and source-rating scope issues. Technical chunk completion is not semantic extraction accuracy.
+
+The first pass made 21 requests (17 accepted, one output-limit rejection and three interrupted by an unrequested one-hour cutoff). The user explicitly removed that deadline. Failed ranges were recovered as 20 smaller chunks (19 accepted, one invalid JSON), then only that failed range was recovered as three 2,000-character children. All 17 original and later 36 reused accepted chunk files remained byte-identical. No judge, model repair, OCR, vision or Method B processing was added.
+
+Total: 44 attempts, $0.51975608 known billed plus $0.36893717 reserved for three unresolved original charges; $0.88869325 committed under the $30 cap. No elapsed-time cutoff applied to recovery. Publication and verification made zero inference calls.
+
+51 application tests passed. Source/PDF/prompt/schema integrity, deterministic assembly, all CSV/JSON/Excel cells and ZIP contents passed. Local and live report/evidence/download checks passed; both application CI runs passed. The team's merged review pages and historical Feature importance assets are unchanged.
+
+The user explicitly approved both main pushes. Personal application commit 291fd6dc585f96baeccc483c3e01848551aedace and shared application commit c98e2a8658356293b092b15fe591375f8cb2e67b are pushed and remote heads verified. Railway deployment a9776ba6-1e49-4c3a-aef6-c5c0388bf0c6 is successful; prior successful deployment cebd08cd-a8fd-4355-8db0-b4310e4161bd is the rollback reference. Release identity: d121c97d59a1fd7f5fb6442bb001302774cca67df4ee99b68ba13a421f3f60b4. All 98 deployment files match the application commit.
+
+`prksyng54` has an existing write-permission invitation to Coastwise, awaiting acceptance. No duplicate invitation was sent. The teammate response remains an unsent draft.
+
+CI: https://github.com/ARJUNVARMA2000/coastwise/actions/runs/43992098317, https://github.com/prksyng54/msds-capstone/actions/runs/43992125263
+
 
 ## Latest-only cleanup, both repositories and deployment — authorized 2026-11-11
 
