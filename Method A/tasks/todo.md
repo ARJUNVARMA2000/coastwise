@@ -210,7 +210,7 @@ Release ID remains `3598c7737174d6496cb77bb2dcbcfc89ea96bef72d08b595569973f7a74a
 
 ## Restore Alameda and Berkeley alongside DSNY — 2026-11-16
 
-Status: user approved “Approve restoration and publication”; implementation in progress.
+Status: completed and published with the user’s explicit approval.
 
 Requested scope: restore the saved Alameda 2017 (376 records, 381 pages) and Berkeley 2017 (778 records, 278 pages) sections to Method A alongside all six DSNY 2020–2025 reports. Publish eight reports / 2,597 provisional records / 949 PDF pages to the existing Coastwise website and both existing repository main branches. Keep DSNY 2016 excluded. Reuse exact saved native responses, sources and exports, with their partial-coverage warnings. No new inference or model cost; preserve team pages and Feature importance.
 
@@ -218,9 +218,15 @@ Requested scope: restore the saved Alameda 2017 (376 records, 381 pages) and Ber
 - [x] Obtain the required plan check-in before implementation. Approved restoration, both main pushes and publication on 2026-11-16.
 - [x] Build the eight-report release from the current six-report bundle plus the two exact saved historical runs; update release allowlist, packager, verification, CI counts and release documentation.
 - [x] Verify byte-identical reuse for all eight reports, pass applicable tests, and check the eight reports, PDFs, evidence and all exports locally while DSNY 2016 remains unavailable.
-- [ ] Sync scoped changes to both repositories, preserve current team work, push verified commits to main and check CI.
-- [ ] Deploy the exact verified source package to the existing Coastwise service, verify all eight hosted reports and preserved pages/authentication, and record the final review.
+- [x] Sync scoped changes to both repositories, preserve current team work, push verified commits to main and check CI.
+- [x] Deploy the exact verified source package to the existing Coastwise service, verify all eight hosted reports and preserved pages/authentication, and record the final review.
 
 ### Review
 
-Local verification passed: 51 application tests, Ruff and exact reuse of 327 files and all report metadata. Eight report views, 2,597 records, source PDF hashes, quotation evidence/rendered pages and CSV/JSON/Excel/ZIP exports verified. The five DSNY 2016 report/source URLs return 404. All 16 current UI/data assets and Feature importance are unchanged. Publication is pending; zero new inference calls.
+Restored Alameda 2017 (376 records) and Berkeley 2017 (778 records) alongside the six current DSNY 2020–2025 reports: eight reports / 949 pages / 2,597 provisional records. All 327 saved-file hashes and report metadata are byte-identical to their prior published versions. Existing partial-coverage warnings and uncertain project grades are retained; no requests were repeated.
+
+Both application commits are pushed and verified: personal `ed774d9928520355371c83d832e376e01e846be6`, shared `ebc23394b87490f5ccbd8d89f0dda543f620d96d`. [Personal CI](https://github.com/ARJUNVARMA2000/coastwise/actions/runs/43996499403) and [shared CI](https://github.com/prksyng54/msds-capstone/actions/runs/43996574422) passed, including 51 application tests, container builds and browser checks for all eight report titles. The shared change is confined to Method_A and its CI workflow; team pages remain unchanged.
+
+Railway deployment `300deb7b-e861-49aa-9f8a-d1beb8cb6bb8` succeeded. Release `ffe4b584ea03992866acaf1bd5eee2596970a2f9c4828d8fd6b3c4066bad6177` is verified at [Coastwise](https://coastwise-production.up.railway.app/extraction). All 98 deployed files match the committed application source. Authenticated live checks verified all eight reports, exact PDF source hashes, quotation evidence/rendered pages and CSV/JSON/Excel/ZIP exports. All five DSNY 2016 report/source URLs remain 404. Full UI assets, Feature importance, Method B and Answer key bytes are unchanged.
+
+Restoration, deployment and verification used zero model calls and added zero inference cost. The DSNY ledger remains at 44 prior attempts, $0.51975608 billed plus $0.36893717 held, under its $30 cap. The owned local QA server was stopped. Detailed integrity, CI, source, deployment and live verification receipts remain in `output/coastwise/method-a-restored-alameda-berkeley-2026-11-16/`.
