@@ -6,13 +6,22 @@ The user requests: “Push the incognito upload changes to both repos and deploy
 
 - [x] Check both current remote heads and CI configuration, Railway source/settings, production health and active work; prepare isolated scoped checkouts.
 - [x] Port the reviewed feature, focused tests and incognito documentation to both repository heads without dropping their broader test suites. Review diffs and pass local checks.
-- [ ] Push both scoped commits to main, verify both CI runs and follow the exact personal application commit through Railway deployment.
-- [ ] Verify live authentication, private upload/free-preview/session ownership/deletion, UI at desktop/mobile widths and unchanged saved reports/evidence/exports/team pages without paid model calls.
-- [ ] Record final commits, CI/deployment provenance, live verification and material limitations; stop any owned QA processes.
+- [x] Push both scoped commits to main, verify both CI runs and follow the exact personal application commit through Railway deployment.
+- [x] Verify live authentication, private upload/free-preview/session ownership/deletion, UI at desktop/mobile widths and unchanged saved reports/evidence/exports/team pages without paid model calls.
+- [x] Record final commits, CI/deployment provenance, live verification and material limitations; stop any owned QA processes.
 
 ### Review
 
-In progress. The GitHub connector can read the personal repository but returns 404 for the shared repository; use the existing authenticated GitHub CLI for that repository and Git publication.
+Published the incognito implementation to both repositories: personal `bf68244ea057e650640b9a16b6212fad6eba413d` and shared `30e879b109c41780c6179c242f628ef78abf87f3`. Each application commit changes twelve files within its Method A folder; unrelated team folders and the saved release bundle are unchanged. Preserved the repositories' broader CI configuration while adding the eight new privacy/lifecycle tests. Both isolated repository checks passed **59 Python tests** and **21 JavaScript tests**; whitespace and syntax checks passed. The personal repository's concurrent documentation-only commit `1f2c0df9fbf8cb96688241a550cc1cbedd18e264` was fast-forwarded into the publication checkout before adding this review, preserving its README and automatic-deployment guide.
+
+[Personal CI](https://github.com/ARJUNVARMA2000/coastwise/actions/runs/44141911623) and [shared CI](https://github.com/prksyng54/msds-capstone/actions/runs/44141907034) succeeded, including the container builds and saved-site browser smoke checks. Railway's existing Wait for CI connection deployed the exact personal application commit as deployment `e465a726-9482-41b9-a261-a447e847a451`, status SUCCESS. Existing authentication, the single replica, source connection and persistent volume are retained. Live upload URL: https://coastwise-production.up.railway.app/?new=1.
+
+Live Chrome checks at **1440, 390 and 320 px** verified the opt-in checkbox, private upload, free source preview/rendered PDF, Secure/HttpOnly/SameSite=Strict browser-session cookie, ZIP download, denial from a separate authenticated browser, and deletion of both upload and preview. The saved report summary remained byte-for-byte equivalent as JSON before and after every private preview. There were no client errors or horizontal overflow. Paid run requests were explicitly blocked by the browser verifier; completed private inference/findings were covered by the local mocked-inference tests, not another paid production run.
+
+Read-only hosted checks verified the exact updated UI bytes, all unchanged static/team/Feature importance assets, all eight saved reports / **2,597 records**, every source-PDF hash, quotation highlighting/rendered source pages per report, per-report exports and combined CSV/JSON/Excel/ZIP parity. Dataset release remains `ffe4b584ea03992866acaf1bd5eee2596970a2f9c4828d8fd6b3c4066bad6177`. Production had no processing POSTs in the two hours before publication. Verification made **zero paid model calls** and no saved-report reruns.
+
+Private files are temporary until explicit deletion or one-hour expiry; deletion during processing removes access immediately and defers file removal until the worker finishes. Provider retention and ordinary hosting logs are outside this feature's cleanup. Browser contexts are closed; no local QA servers were started for publication. Commits, preflight, CI/deployment provenance, saved-data verification, browser records and screenshots are under `output/coastwise/incognito-release-2026-11-17/`. Completion-record commits touch only task documentation and do not match the application's CI/deployment watch paths.
+
 
 ## Incognito report uploads — 2026-11-17
 
