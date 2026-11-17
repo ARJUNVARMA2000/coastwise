@@ -135,8 +135,10 @@ def saved_upload(run_id: str, directory: Path, result_stamp: int, grading_stamp:
 def combined(root: Path, rows: list[dict], *, one_shot_only: bool = True) -> dict:
     """The current workspace contains one-shot results only, regardless of legacy query flags."""
     groups = []
+    private_ids = {r["id"] for r in rows if r.get("incognito")}
     for run_id, path in upload_runs(root, rows):
-        groups.append(saved_upload(run_id, path, (path / "result.json").stat().st_mtime_ns, 0))
+        loader = saved_upload.__wrapped__ if run_id in private_ids else saved_upload
+        groups.append(loader(run_id, path, (path / "result.json").stat().st_mtime_ns, 0))
     tables = {name: [row for group in groups for row in group[name]] for name in TABLES}
     structures = {r["structure_id"]: r for r in reversed(tables["structures"])}
     tables["structures"] = sorted(structures.values(), key=lambda r: r["name"].lower())
@@ -166,7 +168,12 @@ def pdf_index(root: Path, rows: list[dict], only: str = "", *, uploads_only: boo
         if row["id"] not in current or not sha or (only and sha != only) or sha in index:
             continue
         path = root / row["id"] / "source.pdf"
-        if matching_pdf(path, sha):
+        if row.get("incognito"):
+            with path.open("rb") as stream:
+                matches = hashlib.file_digest(stream, "sha256").hexdigest() == sha
+        else:
+            matches = matching_pdf(path, sha)
+        if matches:
             index[sha] = path
     return index
 

@@ -4,9 +4,17 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;'
 const MISSING = {NR: 'Not reported', NA: 'Not applicable', NONE: 'None found'};
 const PAGE = 50;
 let data, current = null, currentTab, routeRequest = 0;
+const privateRun = new URLSearchParams(location.search).get('private');
+const privateQuery = privateRun ? `private=${encodeURIComponent(privateRun)}&amp;` : '';
+function scopedUrl(url) {
+  if (!privateRun) return url;
+  const result = new URL(url, location.href);
+  result.searchParams.set('private', privateRun);
+  return result.pathname + result.search;
+}
 
 async function getJson(url) {
-  const response = await fetch(url, {headers: {'X-Coastwise-Request': '1'}});
+  const response = await fetch(scopedUrl(url), {headers: {'X-Coastwise-Request': '1'}});
   if (!response.ok) throw new Error(response.status === 401 ? 'Sign in to the workspace first.' : `Request failed (${response.status})`);
   return response.json();
 }
@@ -51,7 +59,7 @@ function renderSide() {
   const selected = params().get('inspection');
   $('x-structures').innerHTML = '<ul class="x-report-list">' + reportEntries().filter(i =>
     !q || (i.source_file + ' ' + i.report_name + ' ' + i.report_year).toLowerCase().includes(q)).map(i =>
-    `<li><a href="?inspection=${encodeURIComponent(i.inspection_id)}" data-route
+    `<li><a href="?${privateQuery}inspection=${encodeURIComponent(i.inspection_id)}" data-route
       ${i.inspection_id === selected || i.inspection_ids.includes(selected) ? 'aria-current="true"' : ''}>
       <b>${esc(i.report_year || 'Undated')}</b><span>${esc(i.report_name || i.source_file)}</span>
       <small>${esc(i.n_defects)} defects</small></a></li>`).join('') + '</ul>';
@@ -140,7 +148,7 @@ function renderBrowse() {
   $('x-main').innerHTML = `<h2>Saved reports</h2>
     <div class="x-pilots">${reports.map(i => {
       const manifest = data.manifest.find(m => m.source_sha256 === i.source_sha256 && m.origin === i.origin);
-      return `<a class="x-pilot" href="?inspection=${encodeURIComponent(i.inspection_id)}" data-route>
+      return `<a class="x-pilot" href="?${privateQuery}inspection=${encodeURIComponent(i.inspection_id)}" data-route>
         <strong>${esc(i.report_name || i.source_file)} <span aria-hidden="true">→</span></strong>
         <span>${esc(i.n_defects)} defects · ${list(manifest?.selected_pdf_pages).length ? 'PDF pp. '+esc(ranges(list(manifest.selected_pdf_pages))) : esc(i.pdf_pages)+' PDF pages'}</span></a>`;
     }).join('') || '<p class="x-empty">No Method A reports yet. <a href="/?new=1">Upload a native-text PDF</a> to extract its defects.</p>'}</div>`;
@@ -175,7 +183,7 @@ function coverageNotice(i, m) {
 }
 
 function downloadLinks(inspection) {
-  const base = `/api/extraction/download?scope=method_a_one_shot&amp;inspection=${encodeURIComponent(inspection)}&amp;format=`;
+  const base = `/api/extraction/download?${privateQuery}scope=method_a_one_shot&amp;inspection=${encodeURIComponent(inspection)}&amp;format=`;
   return `<details class="x-download"><summary>Download inspection</summary><div>
     <a href="${base}csv">Defects CSV</a><a href="${base}json">JSON</a>
     <a href="${base}xlsx">Excel</a><a href="${base}zip">All tables ZIP</a></div></details>`;
@@ -246,7 +254,7 @@ function renderInspection(tab) {
       ${list(i.scoped_conditions).map(r => `<p>${esc(humanize(r.scope))} condition · ${esc(r.scope_name || r.name || r.section || '')} · ${esc(r.condition)}</p>`).join('')}
     </details>
     <nav class="x-tabs" aria-label="Inspection views">${TABS.map(([t, name]) =>
-      `<a href="?inspection=${encodeURIComponent(i.inspection_id)}&amp;tab=${t}" data-route ${t === tab ? 'aria-current="page"' : ''}>${name}${counts[t] == null ? '' : ` <span>${counts[t]}</span>`}</a>`).join('')}</nav>
+      `<a href="?${privateQuery}inspection=${encodeURIComponent(i.inspection_id)}&amp;tab=${t}" data-route ${t === tab ? 'aria-current="page"' : ''}>${name}${counts[t] == null ? '' : ` <span>${counts[t]}</span>`}</a>`).join('')}</nav>
     ${tab === 'defects' ? `<div class="x-legend" aria-label="Damage grade legend"><strong>Project grade</strong>
       ${Object.entries(GRADES).map(([n, name]) => `<span data-grade="${n}">${n} ${name}</span>`).join('<span class="x-arrow" aria-hidden="true">→</span>')}</div>` : ''}
     <div class="toolbar"><label class="search-field">${tab === 'defects' ? 'Search defects' : 'Search this table'}
@@ -494,7 +502,7 @@ async function renderSource(number, focus = false) {
     const image = new Image();
     image.alt = `PDF page ${number}. ${precision}.`;
     image.onerror = () => { if (serial === evidenceRequest) body.querySelector('.x-precision').textContent = 'This PDF page could not be rendered.'; };
-    image.src = '/api/extraction/page/' + address;
+    image.src = scopedUrl('/api/extraction/page/' + address);
     body.append(image);
   } catch (error) {
     if (serial === evidenceRequest) body.querySelector('.x-precision').textContent = error.message;
@@ -595,6 +603,22 @@ $('x-search').oninput = renderSide;
 
 (async () => {
   try {
+    if (privateRun) {
+      $('x-private').hidden = false;
+      document.querySelector('h1').textContent = 'Incognito results';
+      document.querySelector('.cw-context').textContent = 'Method A · Private session';
+      const job = await getJson(`/api/runs/${encodeURIComponent(privateRun)}`);
+      $('x-private-expiry').textContent = `Incognito · Temporary files expire ${new Date(job.expires_at * 1000).toLocaleString()}.`;
+      document.querySelector('.snapshot a').href = scopedUrl('/api/extraction/download?scope=method_a_one_shot');
+      $('x-private-delete').onclick = async () => {
+        try {
+          const response = await fetch(`/api/runs/${encodeURIComponent(privateRun)}`, {method: 'DELETE', headers: {'X-Coastwise-Request': '1'}});
+          if (!response.ok && response.status !== 404) throw new Error('Could not delete the temporary report. Try again.');
+          sessionStorage.removeItem('coastwise-method-a-' + privateRun);
+          location.replace('/?new=1');
+        } catch (error) { $('x-error').hidden = false; $('x-error').textContent = error.message; }
+      };
+    }
     data = await getJson('/api/extraction?scope=method_a_one_shot');
     $('x-totals').textContent = `${reportEntries().length} reports · ${data.inspections.reduce((n, i) => n + Number(i.n_defects || 0), 0)} defects`;
     $('x-loading').hidden = true;

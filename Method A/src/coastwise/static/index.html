@@ -39,6 +39,8 @@
   <section class="controls" aria-label="Report upload">
     <div class="section-heading"><strong>PDF report</strong><button id="newRun" class="text-button">Clear</button></div>
     <select id="workflow" hidden aria-label="Report workflow"><option value="scoring">Method A</option></select>
+    <label class="check-label"><input id="incognitoUpload" type="checkbox" aria-describedby="incognitoHint">Incognito upload</label>
+    <p class="hint" id="incognitoHint">Keep this report out of saved reports. Temporary files expire one hour after processing finishes. Report text still goes to the model provider.</p>
     <label class="upload-zone" id="dropzone" for="fileInput">
       <span class="upload-symbol" aria-hidden="true">↥</span><strong>Choose a PDF report</strong>
       <span>Drop a PDF here · up to 50 MB</span>
@@ -82,6 +84,10 @@
     <p class="privacy-note" id="privacyNote">Report text is sent to DeepSeek via OpenRouter. Grades are provisional; missing grades do not imply sound condition.</p>
   </section>
 
+    <section id="privateNotice" class="result-banner" hidden aria-label="Incognito report">
+      <p>Incognito · Available only in this browser session. Temporary files expire one hour after processing finishes. Closing this tab does not delete them immediately. If you delete during processing, access ends now and files are removed when processing finishes.</p>
+      <button id="deletePrivate" type="button" class="secondary-button">Delete now</button>
+    </section>
     <section id="libraryPanel" class="library-panel" hidden aria-label="Saved report results">
       <div id="libraryTotals" class="library-totals" aria-live="polite"></div>
       <div class="library-toolbar">

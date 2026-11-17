@@ -8,6 +8,7 @@ const workflowDrafts = {};
 const fourTableMode = mode => ['method_a_one_shot', 'four_table_v1', 'four_table_v2'].includes(mode);
 const METHOD_A_MODEL = 'deepseek/deepseek-v4.1-flash-1017';
 let uploadStartedAt = null, processingStartedAt = null;
+let privateUpload = false;
 const methodDescriptions = {
   a: 'One extraction and provisional grading request per native-text chunk.'
 };
@@ -20,7 +21,7 @@ async function api(url, options = {}) {
   return response.json();
 }
 function error(message) { $('formError').textContent = message; $('formError').hidden = !message; }
-function setBusy(value) { busy = value; $('workflow').disabled=value; $('preview').disabled = value || !uploadId; $('extract').disabled = value || !uploadId; $('newRun').disabled = value; $('newAssessment').disabled=value; $('removeFile').disabled = value; $('fileInput').disabled = value; }
+function setBusy(value) { busy = value; $('workflow').disabled=value; $('preview').disabled = value || !uploadId; $('extract').disabled = value || !uploadId; $('newRun').disabled = value; $('newAssessment').disabled=value; $('removeFile').disabled = value; $('fileInput').disabled = value; $('incognitoUpload').disabled=value||Boolean(uploadId)||settings?.incognito_available===false; }
 function clearResults() { currentResult = null; $('results').hidden = true; $('reportNavigation').hidden=true; $('assessmentSummary').hidden=true; $('usageSummary').hidden=true; $('failurePanel').hidden = true; $('emptyState').hidden = false; $('progressPanel').hidden = true; }
 async function upload(file) {
   if (!file || busy) return;
@@ -29,7 +30,9 @@ async function upload(file) {
   error(''); setBusy(true); $('fileMeta').textContent = 'Uploading…';
   try {
     const form = new FormData(); form.append('file', file);
+    form.append('incognito_upload', String($('incognitoUpload').checked));
     const data = await api('/api/uploads', {method:'POST',body:form});
+    privateUpload = Boolean(data.incognito); $('privateNotice').hidden = !privateUpload;
     uploadId = data.id; runId=null; history.replaceState(null,'',location.pathname); clearResults();
     $('filename').textContent = data.filename; $('fileMeta').textContent = `${data.pages} PDF pages · ${(data.size/1024/1024).toFixed(1)} MB`;
     $('fileCard').hidden = false; $('dropzone').hidden = true;
@@ -84,7 +87,7 @@ async function poll(expectedId=runId) {
     if(expectedId!==runId)return;
     currentResult=loaded;
     if(loaded.extraction_mode==='method_a_one_shot'&&!loaded.preview_only){
-      if(loaded.four_table){ location.assign('/extraction?'+new URLSearchParams({inspection:'report:'+expectedId,run:expectedId})); return; }
+      if(loaded.four_table){ location.assign('/extraction?'+new URLSearchParams({inspection:'report:'+expectedId,run:expectedId,...(job.incognito?{private:expectedId}:{})})); return; }
     }
     if(loaded.extraction_mode==='method_a_one_shot'){
       currentReportRow=null;renderResult(job);
@@ -185,7 +188,18 @@ async function refreshModels() {
 $('fileInput').onchange = e=>upload(e.target.files?.[0]);
 ['dragenter','dragover'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.add('dragging');}));
 ['dragleave','drop'].forEach(event=>$('dropzone').addEventListener(event,e=>{e.preventDefault();$('dropzone').classList.remove('dragging');if(event==='drop'){if(e.dataTransfer.files.length!==1)return error('Choose one PDF report.');upload(e.dataTransfer.files[0]);}}));
-function clear(){if(busy)return;savedOpenSequence++;clearBulkSelection();hideLibrary();uploadId=null;runId=null;currentReportRow=null;history.replaceState(null,'','?new=1');$('fileInput').value='';$('fileCard').hidden=true;$('dropzone').hidden=false;clearResults();setWorkspaceView('new');setBusy(false);updateBulkButton();error('');$('workspaceTitle').textContent='Upload report';}
+async function discardPrivate(){
+  if(!privateUpload)return;
+  for(const id of new Set([uploadId,runId].filter(Boolean))){
+    const response=await fetch(`/api/runs/${id}`,{method:'DELETE',headers:{'X-Coastwise-Request':'1'}});
+    if(!response.ok&&response.status!==404)throw new Error('Could not delete the temporary report. Try again.');
+    sessionStorage.removeItem('coastwise-method-a-'+id);
+  }
+}
+async function clear(){if(busy)return;try{await discardPrivate();}catch(e){error(e.message);return;}savedOpenSequence++;clearBulkSelection();hideLibrary();uploadId=null;runId=null;privateUpload=false;$('privateNotice').hidden=true;currentReportRow=null;history.replaceState(null,'','?new=1');$('fileInput').value='';$('fileCard').hidden=true;$('dropzone').hidden=false;clearResults();setWorkspaceView('new');setBusy(false);updateBulkButton();error('');$('workspaceTitle').textContent='Upload report';}
+$('deletePrivate').onclick=async()=>{
+  try{await discardPrivate();busy=false;await clear();}catch(e){error(e.message);}
+};
 $('newRun').onclick=clear; $('removeFile').onclick=clear;
 $('newAssessment').onclick=e=>{e.preventDefault();clear();};
 $('preview').onclick=()=>start(true); $('extract').onclick=()=>start(false);
@@ -219,6 +233,8 @@ async function openSavedRun(saved,tab=null){
   if(libraryBatch&&!libraryRows.length){const data=await api('/api/library?batch_id='+encodeURIComponent(libraryBatch));libraryRows=data.rows;}
   if(sequence!==savedOpenSequence)return;
   currentReportRow=allLibraryRows.find(r=>r.id===saved)||libraryRows.find(r=>r.id===saved)||null;
+  privateUpload=Boolean(job.incognito);$('privateNotice').hidden=!privateUpload;
+  $('incognitoUpload').checked=privateUpload;
   runId=saved;uploadId=saved;history.replaceState(null,'',reportUrl(saved));
   $('filename').textContent=job.filename;$('fileMeta').textContent=`${job.pages} PDF pages · saved run`;
   $('fileCard').hidden=false;$('dropzone').hidden=true;$('workflow').value=job.workflow||'extraction';updateWorkflow();

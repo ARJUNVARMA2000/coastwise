@@ -1,5 +1,43 @@
 # Current Method A release
 
+## Publish incognito uploads — authorized 2026-11-17
+
+The user requests: “Push the incognito upload changes to both repos and deploy them to the live website.” This approves publication of the reviewed incognito implementation to personal `ARJUNVARMA2000/coastwise` (`Method A/`) and shared `prksyng54/msds-capstone` (`Method_A/`), followed by the existing personal-main CI-gated Railway deployment. Preserve concurrent changes, the eight-report dataset, authentication, team pages and the persistent volume. No paid inference is authorized for verification.
+
+- [x] Check both current remote heads and CI configuration, Railway source/settings, production health and active work; prepare isolated scoped checkouts.
+- [x] Port the reviewed feature, focused tests and incognito documentation to both repository heads without dropping their broader test suites. Review diffs and pass local checks.
+- [ ] Push both scoped commits to main, verify both CI runs and follow the exact personal application commit through Railway deployment.
+- [ ] Verify live authentication, private upload/free-preview/session ownership/deletion, UI at desktop/mobile widths and unchanged saved reports/evidence/exports/team pages without paid model calls.
+- [ ] Record final commits, CI/deployment provenance, live verification and material limitations; stop any owned QA processes.
+
+### Review
+
+In progress. The GitHub connector can read the personal repository but returns 404 for the shared repository; use the existing authenticated GitHub CLI for that repository and Git publication.
+
+## Incognito report uploads — 2026-11-17
+
+Request: add an upload option that runs an assessment without saving the report/results in the website. The user approved this plan and local implementation; review and checks are recorded below.
+
+Proposed behavior: an opt-in **Incognito upload** toggle selected before choosing a PDF. Use the existing Method A pipeline and run limits. Show findings, PDF evidence and downloadable exports in a private session view; exclude the upload and results from saved reports, search, shared indexes, combined exports and saved-report replacement/deduplication. Method B upload processing remains a separate integration.
+
+- [x] Inspect upload/run persistence, shared authentication, report discovery, result navigation and evidence/export routes. Current uploads and jobs live under the durable data root; saved-job writes update the shared ledger, and results redirect into the shared report library. Hiding a library row alone would not meet the request.
+- [x] Obtain the user's check-in on this concrete plan before implementation. Approved: “Yes, go ahead and implement the incognito upload option.”
+- [x] Add ephemeral storage outside the persistent report directory, private run metadata and browser-session ownership independent of the shared workspace login. Enforce ownership for upload/start/status/result/evidence/download/delete requests; never register private uploads in the shared ledger or cloud object storage. Target the current filesystem Railway deployment; reject unsupported storage modes explicitly rather than silently persisting private content.
+- [x] Add the opt-in upload toggle, a private result view with the existing findings/evidence/download capabilities, an expiry notice and a **Delete now** action. Keep private results out of the shared library and combined exports, including when the identical PDF already exists as a saved report. Keep owner credentials out of URLs/history and preserve ordinary saved-upload behavior.
+- [x] Clean up PDF, text chunks, prompts/responses, exports, caches and private job state on explicit deletion and expiry. Proposed expiry: one hour after results finish (also applies to failed runs); abandoned uploads expire after one hour. Do not delete files under an active worker or interrupt processing on tab closure; use a server-side cleanup task and startup/shutdown cleanup for leftover ephemeral files. Closing a browser tab is not a reliable deletion signal. Preserve only content-free operational/billing metrics if necessary; document their exact fields.
+- [x] Add meaningful offline tests with mocked inference: no durable files/index entries, separate-browser access denied, private and saved copies of the same PDF isolated, working evidence/downloads, success/failure/abandonment/deletion/expiry/restart cleanup and unchanged saved uploads. Check the private upload/result flow at desktop/mobile widths without paid model calls.
+- [x] Add the implementation review and validation results. Prepare local changes for review; repository pushes/deployment require the user's publication instruction.
+
+### Review
+
+Implemented locally for the current Method A filesystem deployment. `src/coastwise/incognito.py` owns temporary directories, a separate browser-session HttpOnly ownership cookie, in-memory run metadata, one-hour expiry, request/worker leases and per-process locks for crash cleanup. Private uploads and jobs bypass durable job files, the shared ledger, cloud storage and saved-result caches. The extraction view uses a session-authorized private scope for findings, quotations, rendered PDF pages and CSV/JSON/Excel/ZIP downloads; private and saved copies of the same PDF remain isolated. The upload toggle locks after file selection, and the private view shows expiry and Delete now. Deletion also removes previews from the same upload; active worker files are removed on completion rather than while in use.
+
+All **48 Python tests** and **21 JavaScript tests** passed, along with Ruff and both changed JavaScript syntax checks. Eight new privacy/lifecycle tests cover cross-browser denial for upload/start/status/results/evidence/download/deletion, private metrics updates, no durable files/index entries or cached records, identical saved/private PDFs, preview groups, invalid/cancelled uploads, failed run setup/inference, expiry, active-processing deletion and restart cleanup. Chrome verified synthetic upload → findings → PDF evidence → all four downloaded formats → deletion at **1440, 390 and 320 pixels**, with no client errors or horizontal overflow. Evidence is in `.local/incognito-checks/` (browser JSON, screenshots and fixture scripts). Browser inference was mocked; zero paid model calls were made.
+
+The feature retains temporary server files until explicit deletion or expiry (up to 30 seconds for the sweep after access expires), requires the current single-process filesystem host and does not change model-provider retention. No private report content or usage metrics are retained in the durable report index; ordinary hosting request logs and provider billing remain outside this feature's cleanup. The tests include cancellation during upload and a failed file copy to verify no orphaned busy run is left behind.
+
+Application code, tests, README and Railway notes are updated. No Git push or deployment was performed. This workspace has no `.git` metadata; publication remains a separate user instruction. The owned QA server is stopped after verification.
+
 ## DSNY Method A 2020–2025 and Coastwise collaboration — 2026-11-16
 
 Scope: execute the six Southwest Brooklyn DSNY reports from 2020 through 2025 using the current high-reasoning Method A configuration and deliver Method A outputs/metrics. The user confirmed all six years, parallel execution, a $30 ceiling and the collaborator invitation. Subsequent correction: “ONLY THINK ABOUT METHOD A FOR NOW. THEY WILL HANDLE METHOD B.” Cross-method comparison and Method B collection are outside this task.

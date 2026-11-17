@@ -35,6 +35,11 @@
   </header>
   <p class="message" id="x-loading" role="status">Loading the extraction…</p>
   <p class="message" id="x-error" role="alert" hidden></p>
+  <section class="message" id="x-private" hidden aria-label="Incognito report">
+    <p id="x-private-expiry"></p>
+    <p>Temporary results stay out of saved reports. Download what you need before expiry. Closing this tab does not delete files immediately.</p>
+    <button type="button" id="x-private-delete">Delete now</button>
+  </section>
   <div class="x-layout" id="x-content" hidden>
     <aside class="x-side" aria-label="Latest report versions">
       <label class="search-field">Find a report <input id="x-search" type="search" autocomplete="off"></label>

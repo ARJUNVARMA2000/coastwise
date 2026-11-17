@@ -12,6 +12,8 @@ Restoring Alameda and Berkeley alongside DSNY, both main-branch pushes and publi
 
 Set `COASTWISE_ENABLE_LEGACY_QUEUE=0`. New uploads use native text, bounded chunks and one extraction-and-grade request per chunk; no OCR, retry or separate judge/grading pass is added.
 
+Incognito uploads use the OS temporary directory (`coastwise-incognito-<uid>/session-*`), outside `/data/runs`. Each process holds a filesystem lock so startup can reclaim crashed processes' private files without deleting a live process's files. Use the existing single application process/replica: private session state is deliberately memory-only and cannot be shared across workers. Keep the temporary directory off persistent volumes and backups. A browser-session HttpOnly cookie owns private access independently of the shared workspace login; credentials are not put in links. All private artifacts and caches are temporary, including model prompts/responses and usage files. No private index or content-bearing billing record is written to the saved library.
+
 ## Resources and storage
 
 - Project: `4d64a6a4-d4ea-4162-a038-761b3e3fa1b7`

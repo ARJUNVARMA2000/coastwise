@@ -30,6 +30,7 @@ from . import (
     extraction_workspace,
     four_table,
     full_schema,
+    incognito,
     method_a_evidence,
     method_a_exports,
     method_a_one_shot,
@@ -48,11 +49,20 @@ ROOT = Path(os.getenv("COASTWISE_DATA_DIR", ".local/runs")).resolve()
 ROOT.mkdir(parents=True, exist_ok=True)
 JOBS: dict[str, dict] = {}
 TASKS: set = set()
+PRIVATE = incognito.PrivateRuns(on_remove=lambda identity: JOBS.pop(identity, None))
 _STORE = None
 _CATALOG = {"time": 0, "data": []}
 @asynccontextmanager
 async def lifespan(app):
     auth.validate_hosted_configuration()
+    PRIVATE.start()
+
+    async def clean_private_runs():
+        while True:
+            await asyncio.sleep(30)
+            PRIVATE.sweep()
+
+    cleaner = asyncio.create_task(clean_private_runs())
     dispatcher = None
     if not cloud_store() and os.getenv("COASTWISE_ENABLE_LEGACY_QUEUE") == "1":
         bulk.index_existing()
@@ -60,10 +70,19 @@ async def lifespan(app):
     try:
         yield
     finally:
+        cleaner.cancel()
+        with suppress(asyncio.CancelledError):
+            await cleaner
         if dispatcher:
             dispatcher.cancel()
             with suppress(asyncio.CancelledError):
                 await dispatcher
+        # Worker threads must finish before removing files they are using.
+        if TASKS:
+            await asyncio.gather(*list(TASKS), return_exceptions=True)
+        while any(entry.busy for entry in list(PRIVATE.entries.values())):
+            await asyncio.sleep(.05)
+        PRIVATE.close()
 
 
 app = FastAPI(title="Coastwise inspection workbench", lifespan=lifespan)
@@ -83,6 +102,8 @@ def upload_limit_mb():
 
 def save_job(job: dict):
     job.setdefault("created_at", time.time())
+    if job.get("incognito"):
+        return
     path = ROOT / job["id"]
     path.mkdir(parents=True, exist_ok=True)
     temporary = path / "job.tmp"
@@ -118,14 +139,43 @@ async def local_requests(request: Request, call_next):
         if not internal and ((origin and origin != expected) or
                              (not is_login and request.headers.get("x-coastwise-request") != "1")):
             return Response("Request must originate from this application", status_code=403)
-    if request.method in {'GET', 'HEAD'} and request.url.path.startswith('/api/runs/') and not cloud_store():
+    private_id = request.query_params.get("private")
+    if request.url.path.startswith('/api/runs/'):
+        identity = request.url.path.split('/')[3]
+        if identity in PRIVATE.entries:
+            private_id = identity
+    entry = None
+    if private_id:
+        try:
+            entry = PRIVATE.acquire(private_id, request.cookies.get(incognito.COOKIE))
+        except HTTPException:
+            return Response('{"detail":"Private run unavailable or expired"}', status_code=404,
+                            media_type="application/json", headers={"Cache-Control": "no-store"})
+        request.state.private_id = private_id
+    if request.method in {'GET', 'HEAD'} and request.url.path.startswith('/api/runs/') and not cloud_store() and not entry:
         identity = request.url.path.split('/')[3]
         if request_is_uuid(identity):
             replacement = bulk.ledger().resolve_run(identity)
             if replacement != identity:
                 target = request.url.path.replace('/api/runs/' + identity, '/api/runs/' + replacement, 1)
                 return RedirectResponse(target, status_code=307)
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except BaseException:
+        if entry:
+            PRIVATE.release(private_id)
+        raise
+    if entry:
+        original = response.body_iterator
+
+        async def private_body():
+            try:
+                async for block in original:
+                    yield block
+            finally:
+                PRIVATE.release(private_id)
+
+        response.body_iterator = private_body()
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["Cache-Control"] = "no-store"
@@ -177,6 +227,8 @@ def job_path(job_id: str) -> Path:
             raise ValueError()
     except ValueError as exc:
         raise HTTPException(404, "Run not found") from exc
+    if entry := PRIVATE.entries.get(job_id):
+        return entry.path
     path = ROOT / job_id
     if not path.is_dir():
         store = cloud_store()
@@ -221,6 +273,7 @@ def settings():
             "default_model": "deepseek/deepseek-v4.1-flash-1017",
             "default_provider": os.getenv("OPENROUTER_PROVIDER", ""),
             "hosted": auth.hosted() or bool(cloud_store()),
+            "incognito_available": not bool(cloud_store()),
             "max_upload_mb": upload_limit_mb(), "bulk_available": False}
 
 
@@ -246,12 +299,21 @@ async def models(expanded: bool = False):
 
 
 @app.post("/api/uploads")
-async def upload(file: Annotated[UploadFile, File()], source_url: str = Form(""),
-                 source_notes: str = Form(""), reference_id: str = Form("")):
+async def upload(request: Request, response: Response, file: Annotated[UploadFile, File()],
+                 source_url: str = Form(""), source_notes: str = Form(""),
+                 reference_id: str = Form(""), incognito_upload: bool = Form(False)):
+    if incognito_upload and cloud_store():
+        raise HTTPException(400, "Incognito uploads require filesystem hosting")
     upload_started_at = time.time()
     job_id = str(uuid.uuid4())
-    directory = ROOT / job_id
-    directory.mkdir(parents=True)
+    if incognito_upload:
+        token = incognito.session_token(request.cookies.get(incognito.COOKIE))
+        response.set_cookie(incognito.COOKIE, token, httponly=True, samesite="strict",
+                            secure=auth.hosted() or request.url.scheme == "https")
+        directory = PRIVATE.create(job_id, token, busy=True)
+    else:
+        directory = ROOT / job_id
+        directory.mkdir(parents=True)
     path = directory / "source.pdf"
     total = 0
     digest = hashlib.sha256()
@@ -268,29 +330,42 @@ async def upload(file: Annotated[UploadFile, File()], source_url: str = Form("")
             if not pdf.is_pdf or pdf.needs_pass or len(pdf) == 0 or len(pdf) > 2000:
                 raise HTTPException(400, "Upload an unlocked PDF containing 1–2000 pages")
             pages = len(pdf)
-    except HTTPException:
-        path.unlink(missing_ok=True)
-        raise
-    except Exception as exc:
-        path.unlink(missing_ok=True)
+    except BaseException as exc:
+        if incognito_upload:
+            PRIVATE.delete(job_id)
+            PRIVATE.finish(job_id)
+        else:
+            shutil.rmtree(directory)
+        if isinstance(exc, HTTPException) or not isinstance(exc, Exception):
+            raise
         raise HTTPException(400, "This file could not be read as a PDF") from exc
-    filename = Path(file.filename or "Inspection report.pdf").name
-    (directory / "upload.json").write_text(json.dumps({"filename": filename, "pages": pages,
-                                                       "sha256": digest.hexdigest(), "source_url": source_url[:2000],
-                                                       "upload_started_at": upload_started_at,
-                                                       "source_notes": source_notes[:4000], "reference_id": reference_id[:100]}))
-    JOBS[job_id] = {"id": job_id, "filename": filename, "pages": pages,
-                    "status": "uploaded", "stage": "Ready to configure", "size": total}
-    if store := cloud_store():
-        store.upload(job_id, directory, ["source.pdf", "upload.json"])
-    save_job(JOBS[job_id])
-    if cloud_store():
-        shutil.rmtree(directory)
-    return JOBS[job_id]
+    try:
+        filename = Path(file.filename or "Inspection report.pdf").name
+        (directory / "upload.json").write_text(json.dumps({
+            "filename": filename, "pages": pages, "sha256": digest.hexdigest(),
+            "source_url": source_url[:2000], "upload_started_at": upload_started_at,
+            "source_notes": source_notes[:4000], "reference_id": reference_id[:100]}))
+        JOBS[job_id] = {"id": job_id, "filename": filename, "pages": pages,
+                        "status": "uploaded", "stage": "Ready to configure", "size": total}
+        if incognito_upload:
+            JOBS[job_id]["incognito"] = True
+        if store := cloud_store():
+            store.upload(job_id, directory, ["source.pdf", "upload.json"])
+        save_job(JOBS[job_id])
+        if cloud_store():
+            shutil.rmtree(directory)
+        return JOBS[job_id]
+    except BaseException:
+        if incognito_upload:
+            PRIVATE.delete(job_id)
+        raise
+    finally:
+        if incognito_upload:
+            PRIVATE.finish(job_id)
 
 
 @app.post("/api/runs/{job_id}")
-async def start_run(job_id: str, config: str = Form(...), api_key: str = Form(""),
+async def start_run(job_id: str, request: Request, config: str = Form(...), api_key: str = Form(""),
                     preview: bool = Form(False)):
     upload_directory = job_path(job_id)
     store = cloud_store()
@@ -310,17 +385,28 @@ async def start_run(job_id: str, config: str = Form(...), api_key: str = Form(""
     key = api_key.strip() or server_key()
     if not preview and (not key or not run_config.model.strip()):
         raise HTTPException(400, "Select a model and provide an OpenRouter key before extraction")
-    if sum(j.get("status") == "running" for j in JOBS.values()) >= 2:
+    if sum(j.get("status") == "running" for j in list(JOBS.values())) >= 2:
         raise HTTPException(429, "Two runs are already active. Wait for one to finish.")
     run_id = str(uuid.uuid4())
-    directory = ROOT / run_id
-    directory.mkdir(parents=True)
-    if store:
-        store.fetch(job_id, "source.pdf", directory)
-        (directory / "upload.json").write_text(json.dumps(upload_info))
+    private = job_id in PRIVATE.entries
+    if private:
+        directory = PRIVATE.create(run_id, request.cookies.get(incognito.COOKIE), busy=True,
+                                   group=PRIVATE.entries[job_id].group)
     else:
-        shutil.copyfile(upload_directory / "source.pdf", directory / "source.pdf")
-        shutil.copyfile(upload_directory / "upload.json", directory / "upload.json")
+        directory = ROOT / run_id
+        directory.mkdir(parents=True)
+    try:
+        if store:
+            store.fetch(job_id, "source.pdf", directory)
+            (directory / "upload.json").write_text(json.dumps(upload_info))
+        else:
+            shutil.copyfile(upload_directory / "source.pdf", directory / "source.pdf")
+            shutil.copyfile(upload_directory / "upload.json", directory / "upload.json")
+    except BaseException:
+        if private:
+            PRIVATE.delete(run_id)
+            PRIVATE.finish(run_id)
+        raise
     job = {"id": run_id, "filename": upload_info["filename"], "pages": upload_info["pages"],
            "workflow": "scoring" if isinstance(run_config, ScoringWebConfig) else "extraction",
            "source_sha256": upload_info.get("sha256"), "model": run_config.model,
@@ -328,6 +414,10 @@ async def start_run(job_id: str, config: str = Form(...), api_key: str = Form(""
            "extraction_mode": getattr(run_config, "extraction_mode", "report_v1"),
            "upload_started_at": upload_info.get("upload_started_at"), "processing_started_at": time.time()}
     JOBS[run_id] = job
+    if private:
+        job["incognito"] = True
+        if not preview:
+            PRIVATE.delete(job_id)
     job.update(status="queued" if store else "running", stage="Queued" if store else "Preparing pages", preview_only=preview)
     if store:
         (directory / "request.json").write_text(json.dumps({"config": asdict(run_config),
@@ -423,6 +513,8 @@ def execute_run(directory: Path, job: dict, run_config: RunConfig | ScoringWebCo
                 await client.close()
             if cloud_store():
                 shutil.rmtree(directory, ignore_errors=True)
+            if job.get("incognito"):
+                PRIVATE.finish(job["id"])
     asyncio.run(work())
 
 
@@ -586,7 +678,18 @@ def request_is_uuid(value: str) -> bool:
 
 @app.get("/api/runs/{job_id}")
 def status(job_id: str):
-    return public_job(job_id)
+    job = dict(public_job(job_id))
+    if entry := PRIVATE.entries.get(job_id):
+        job["expires_at"] = None if entry.busy else entry.expires_at
+    return job
+
+
+@app.delete("/api/runs/{job_id}")
+def delete_private_run(job_id: str):
+    if job_id not in PRIVATE.entries:
+        raise HTTPException(404, "Private run unavailable or expired")
+    PRIVATE.delete_group(job_id)
+    return {"deleted": True, "cleanup_pending": PRIVATE.entries[job_id].busy}
 
 
 @app.post("/api/runs/{job_id}/ready")
@@ -709,42 +812,53 @@ def ledger_rows():
     return [] if cloud_store() else bulk.ledger().rows()
 
 
+def extraction_scope(request: Request):
+    if identity := getattr(request.state, "private_id", None):
+        job = JOBS.get(identity)
+        if not job or job["status"] not in {"complete", "partial"} or job.get("preview_only"):
+            raise HTTPException(409, "Private results are not ready")
+        return PRIVATE.root, [job]
+    return ROOT, ledger_rows()
+
+
 @app.get("/api/extraction")
-def extraction_summary(scope: str = ""):
-    return extraction_workspace.summary(ROOT, ledger_rows())
+def extraction_summary(request: Request, scope: str = ""):
+    root, rows = extraction_scope(request)
+    return extraction_workspace.summary(root, rows)
 
 
 @app.get("/api/extraction/inspections/{inspection_id}")
-def extraction_inspection(inspection_id: str):
-    rows = ledger_rows()
-    detail = extraction_workspace.inspection_rows(ROOT, rows, inspection_id)
+def extraction_inspection(inspection_id: str, request: Request):
+    root, rows = extraction_scope(request)
+    detail = extraction_workspace.inspection_rows(root, rows, inspection_id)
     if detail is None:
         raise HTTPException(404, "Inspection not found")
     detail["answer_key"] = extraction_workspace.answer_key(detail["inspection"])
     sha = detail["inspection"]["source_sha256"]
-    detail["inspection"] = {**detail["inspection"], "pdf_available": sha in extraction_workspace.pdf_index(ROOT, rows, sha)}
+    detail["inspection"] = {**detail["inspection"], "pdf_available": sha in extraction_workspace.pdf_index(root, rows, sha)}
     return detail
 
 
 @app.get("/api/extraction/sources/{row_id}")
-def extraction_sources(row_id: str):
-    return extraction_workspace.citations(ROOT, ledger_rows(), row_id)
+def extraction_sources(row_id: str, request: Request):
+    root, rows = extraction_scope(request)
+    return extraction_workspace.citations(root, rows, row_id)
 
 
-def extraction_pdf_source(sha: str, page: int, citation: str):
-    rows = ledger_rows()
-    pdf = extraction_workspace.pdf_index(ROOT, rows, sha).get(sha)
+def extraction_pdf_source(sha: str, page: int, citation: str, request: Request):
+    root, rows = extraction_scope(request)
+    pdf = extraction_workspace.pdf_index(root, rows, sha).get(sha)
     if pdf is None:
         raise HTTPException(404, "Source PDF unavailable on this server")
-    cite = extraction_workspace.citation_by_id(ROOT, rows, sha, page, citation) if citation else None
+    cite = extraction_workspace.citation_by_id(root, rows, sha, page, citation) if citation else None
     if citation and cite is None:
         raise HTTPException(404, "Citation not found on this PDF page")
     return pdf, cite
 
 
 @app.get("/api/extraction/evidence/{source_sha256}/{number}")
-def extraction_evidence(source_sha256: str, number: int, citation: str = ""):
-    pdf, cite = extraction_pdf_source(source_sha256, number, citation)
+def extraction_evidence(source_sha256: str, number: int, request: Request, citation: str = ""):
+    pdf, cite = extraction_pdf_source(source_sha256, number, citation, request)
     try:
         return method_a_evidence.page_info(pdf, number, cite)
     except ValueError as exc:
@@ -752,8 +866,8 @@ def extraction_evidence(source_sha256: str, number: int, citation: str = ""):
 
 
 @app.get("/api/extraction/page/{source_sha256}/{number}")
-def extraction_page_image(source_sha256: str, number: int, bbox: str = "", citation: str = ""):
-    pdf, cite = extraction_pdf_source(source_sha256, number, citation)
+def extraction_page_image(source_sha256: str, number: int, request: Request, bbox: str = "", citation: str = ""):
+    pdf, cite = extraction_pdf_source(source_sha256, number, citation, request)
     try:
         box = [float(v) for v in bbox.split(",")] if bbox and not citation else None
         return Response(method_a_evidence.page_image(pdf, number, box, cite=cite), media_type="image/png")
@@ -762,9 +876,10 @@ def extraction_page_image(source_sha256: str, number: int, bbox: str = "", citat
 
 
 @app.get("/api/extraction/download")
-def extraction_download(inspection: str = "", format: Literal["zip", "csv", "json", "xlsx"] = "zip",
+def extraction_download(request: Request, inspection: str = "", format: Literal["zip", "csv", "json", "xlsx"] = "zip",
                         table: str = "defects", scope: str = ""):
-    tables = extraction_workspace.combined(ROOT, ledger_rows())
+    root, rows = extraction_scope(request)
+    tables = extraction_workspace.combined(root, rows)
     if inspection:
         tables = extraction_workspace.inspection_tables(tables, inspection)
         if tables is None:
