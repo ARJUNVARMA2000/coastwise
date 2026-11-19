@@ -25,6 +25,7 @@ class ScoringWebConfig(BaselineConfig):
     extraction_mode: str = "method_a_one_shot"
     context_chars: int = 1500
     concurrency: int = 4
+    reader: str = "native"  # "layout" runs Method B through the same one-shot pipeline
 
     def __post_init__(self):
         super().__post_init__()
@@ -39,6 +40,8 @@ class ScoringWebConfig(BaselineConfig):
                 raise ValueError("Method A uses deepseek/deepseek-v4.1-flash-1017")
             if self.full_schema:
                 raise ValueError("Method A uses its compact defect schema")
+            if self.reader not in {"native", "layout"}:
+                raise ValueError("Reader must be native (Method A) or layout (Method B)")
             if not 0 <= self.context_chars <= 4000 or not 1 <= self.concurrency <= 4:
                 raise ValueError("Method A context must be 0–4000 characters and concurrency 1–4")
         if self.extraction_mode == "defect_v1":
