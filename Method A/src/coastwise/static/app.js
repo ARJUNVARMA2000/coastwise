@@ -21,7 +21,7 @@ async function api(url, options = {}) {
   return response.json();
 }
 function error(message) { $('formError').textContent = message; $('formError').hidden = !message; }
-function setBusy(value) { busy = value; $('workflow').disabled=value; $('preview').disabled = value || !uploadId; $('extract').disabled = value || !uploadId; $('newRun').disabled = value; $('newAssessment').disabled=value; $('removeFile').disabled = value; $('fileInput').disabled = value; $('incognitoUpload').disabled=value||Boolean(uploadId)||settings?.incognito_available===false; }
+function setBusy(value) { busy = value; $('workflow').disabled=value; $('preview').disabled = value || !uploadId; $('extract').disabled = value || !uploadId; $('newRun').disabled = value; $('newAssessment').disabled=value; $('removeFile').disabled = value; $('fileInput').disabled = value; $('incognitoUpload').disabled=value||Boolean(uploadId)||settings?.incognito_available===false||$('methodChoice').value==='layout'; $('methodChoice').disabled=value||(Boolean(uploadId)&&!privateUpload)||settings?.incognito_available===false; }
 function clearResults() { currentResult = null; $('results').hidden = true; $('reportNavigation').hidden=true; $('assessmentSummary').hidden=true; $('usageSummary').hidden=true; $('failurePanel').hidden = true; $('emptyState').hidden = false; $('progressPanel').hidden = true; }
 async function upload(file) {
   if (!file || busy) return;
@@ -40,7 +40,7 @@ async function upload(file) {
   } catch (e) { error(e.message); } finally { setBusy(false); }
 }
 function config() {
-  return {workflow:'scoring', extraction_mode:'method_a_one_shot',
+  return {workflow:'scoring', extraction_mode:'method_a_one_shot', reader:$('methodChoice').value,
     full_schema:false, model:METHOD_A_MODEL,
     provider:$('provider').value.trim(),system_prompt:$('systemPrompt').value,pages:$('pages').value,
     chunk_chars:Number($('chunkChars').value),max_usd:Number($('maxUsd').value),
@@ -115,7 +115,7 @@ function renderResult(job) {
     'Extraction finished. Source checks passed; review the records for completeness and meaning.';
   const costs = r.requests.filter(x => x.usage?.cost != null).map(x => Number(x.usage.cost));
   const cost = r.requests.length && costs.length === r.requests.length ? `$${costs.reduce((a,b)=>a+b,0).toFixed(4)}` : preview ? '$0.00' : 'Cost unavailable';
-  const methodName = 'Method A · Native text';
+  const methodName = r.method==='B' ? 'Method B · Layout-aware' : 'Method A · Native text';
   $('metrics').innerHTML = `<span>${escapeHtml(methodName)}</span><span>${r.inventory.length} pages</span><span>${r.runtime_seconds}s</span><span>${cost}</span>`;
   $('assessmentSummary').hidden=true; $('usageSummary').hidden=true;
   $('contractBadge').textContent='Provisional extraction schema';
@@ -245,3 +245,12 @@ async function openSavedRun(saved,tab=null){
   window.scrollTo(0,0);
   }catch(e){if(sequence!==savedOpenSequence)return;clearResults();$('emptyState').hidden=true;$('failurePanel').hidden=false;$('failureMessage').textContent=e.message;setBusy(false);}
 }
+
+// Method B is the internal (incognito-only) path: choosing it turns incognito on and locks it.
+$('methodChoice').addEventListener('change', () => {
+  if ($('methodChoice').value === 'layout') $('incognitoUpload').checked = true;
+  $('workflowHint').textContent = $('methodChoice').value === 'layout'
+    ? 'Tables, scanned pages (OCR) and X-marked rating forms are read. Photos and drawings are not interpreted.'
+    : 'Native-text PDFs only. Scanned and image-only findings may be missed.';
+  setBusy(busy);
+});

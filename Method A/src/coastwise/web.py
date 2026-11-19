@@ -389,6 +389,10 @@ async def start_run(job_id: str, request: Request, config: str = Form(...), api_
         raise HTTPException(429, "Two runs are already active. Wait for one to finish.")
     run_id = str(uuid.uuid4())
     private = job_id in PRIVATE.entries
+    method_b = getattr(run_config, "reader", "native") == "layout"
+    if method_b and not private:
+        # Method B is the internal comparison path: its results never enter the saved Method A library.
+        raise HTTPException(400, "Method B runs only as an incognito upload")
     if private:
         directory = PRIVATE.create(run_id, request.cookies.get(incognito.COOKIE), busy=True,
                                    group=PRIVATE.entries[job_id].group)
@@ -412,6 +416,7 @@ async def start_run(job_id: str, request: Request, config: str = Form(...), api_
            "source_sha256": upload_info.get("sha256"), "model": run_config.model,
            "full_schema": bool(getattr(run_config, "full_schema", False)),
            "extraction_mode": getattr(run_config, "extraction_mode", "report_v1"),
+           "method": "B" if method_b else "A",
            "upload_started_at": upload_info.get("upload_started_at"), "processing_started_at": time.time()}
     JOBS[run_id] = job
     if private:
@@ -532,7 +537,7 @@ async def run_method_a_one_shot(directory: Path, job: dict, run_config: ScoringW
         model=run_config.model, provider=run_config.provider, chunk_chars=run_config.chunk_chars,
         context_chars=run_config.context_chars, concurrency=run_config.concurrency,
         max_output_tokens=run_config.max_output_tokens, max_usd=run_config.max_usd,
-        max_requests=run_config.max_requests)
+        max_requests=run_config.max_requests, reader=run_config.reader)
     client = None if preview else method_a_one_shot.make_client(config, key)
     selected = tuple(run_config.pages or ())
     if set(selected) == set(range(1, job["pages"] + 1)):

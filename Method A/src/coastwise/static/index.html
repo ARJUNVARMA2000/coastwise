@@ -39,6 +39,9 @@
   <section class="controls" aria-label="Report upload">
     <div class="section-heading"><strong>PDF report</strong><button id="newRun" class="text-button">Clear</button></div>
     <select id="workflow" hidden aria-label="Report workflow"><option value="scoring">Method A</option></select>
+    <label class="method-choice" for="methodChoice">Extraction method
+      <select id="methodChoice" aria-describedby="methodChoiceHint"><option value="native">Method A · Native text</option><option value="layout">Method B · Layout-aware (internal)</option></select></label>
+    <p class="hint" id="methodChoiceHint">Method B reads tables row by row with their headers, OCRs scanned pages and reads X marks on rating forms. It runs as an incognito upload only.</p>
     <label class="check-label"><input id="incognitoUpload" type="checkbox" aria-describedby="incognitoHint">Incognito upload</label>
     <p class="hint" id="incognitoHint">Keep this report out of saved reports. Temporary files expire one hour after processing finishes. Report text still goes to the model provider.</p>
     <label class="upload-zone" id="dropzone" for="fileInput">
