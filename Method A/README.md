@@ -17,7 +17,7 @@ The current showcase contains eight saved Method A reports: Alameda 2017, Berkel
 | DSNY 2024 | 101 | 813 |
 | DSNY 2025 | 95 | 427 |
 
-Alameda and Berkeley were restored from their exact saved results without new model calls. Their partial extraction and source-review warnings are preserved. DSNY 2016 remains excluded. The existing Feature importance page retains its separate saved October 29 analysis and provenance. See [release details](docs/method-a/latest-release.md) for coverage, processing and usage. Method B is maintained by the team.
+Alameda and Berkeley were restored from their exact saved results without new model calls. Their partial extraction and source-review warnings are preserved. DSNY 2016 remains excluded. The Feature importance page now analyzes the Method B defect rows (one row = one defect, Alameda and Berkeley separately); rebuild its data with `uv run scripts/analyze_defect_importance.py`. The saved October 29 report-level analysis is kept at `/feature-importance/report-level.html`. See [release details](docs/method-a/latest-release.md) for coverage, processing and usage. Method B is maintained by the team.
 
 ## Method B and Answer key pages
 

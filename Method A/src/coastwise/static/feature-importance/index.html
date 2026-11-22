@@ -26,29 +26,29 @@
   <div class="workspace-heading cw-page-heading">
     <div>
       <h1>Feature importance</h1>
-      <p class="cw-context">Saved Claude analysis · October 29, 2026. Report scores: 1 good → 4 serious/critical.</p>
+      <p class="cw-context">What goes with a more severe rating in the <a href="/method-b/">Method B</a> defect rows. One row is one defect. Severity: 1 minor → 4 severe.</p>
     </div>
     <div class="run-control">
-      <label class="field-label" for="runSelect">Scoring run</label>
-      <select id="runSelect"></select>
+      <span class="field-label" id="reportLabel">Report</span>
+      <div id="reportButtons" class="filter-buttons" role="group" aria-labelledby="reportLabel"></div>
     </div>
   </div>
 
   <div id="loadError" class="error" role="alert" hidden></div>
-  <p class="cw-note">Historical snapshot; excludes current Method A defect grades.</p>
+  <p class="cw-note" id="scopeNote"></p>
   <details id="analysis-notes" class="cw-details" hidden><summary>Analysis limitations</summary><div id="notes" class="result-banner warning" hidden></div></details>
 
-  <section id="totals" class="library-totals" aria-label="Run summary"></section>
+  <section id="totals" class="library-totals" aria-label="Report summary"></section>
 
   <div class="card-grid">
     <section class="card">
-      <h2>Score distribution</h2>
-      <p class="card-intro">Reports by severity score.</p>
+      <h2>Severity distribution</h2>
+      <p class="card-intro">Defect rows by the inspector's severity code.</p>
       <div id="distChart" class="chart"></div>
     </section>
     <section class="card">
       <h2>Model check</h2>
-      <p class="card-intro">Prediction error in score points. Lower is better.</p>
+      <p class="card-intro">Prediction error in severity points. Lower is better.</p>
       <div id="modelCheck"></div>
     </section>
   </div>
@@ -60,8 +60,8 @@
         <p class="card-intro">Higher positive values indicate greater model reliance on a feature group.</p>
       </div>
       <div class="filter-buttons" role="group" aria-label="Model variant">
-        <button data-model="with_human_rating" aria-pressed="true">With human rating</button>
-        <button data-model="without_human_rating" aria-pressed="false">Without human rating</button>
+        <button data-model="all" aria-pressed="true">All features</button>
+        <button data-model="without_defect_type" aria-pressed="false">Without defect type</button>
       </div>
     </div>
     <div id="importanceChart" class="chart"></div>
@@ -69,18 +69,10 @@
   </section>
 
   <section class="card">
-    <div class="card-head">
-      <div>
-        <h2>Feature correlations</h2>
-        <p class="card-intro">Select a feature to see its reports. Intervals crossing zero indicate an uncertain association.</p>
-      </div>
-      <div class="filter-buttons" role="group" aria-label="Target">
-        <button data-target="score" aria-pressed="true">LLM score</button>
-        <button data-target="disagreement" aria-pressed="false">LLM − human rating</button>
-      </div>
-    </div>
+    <h2>Feature correlations</h2>
+    <p class="card-intro">Select a feature to see its defects. Intervals crossing zero indicate an uncertain association.</p>
     <div id="corrChart" class="chart"></div>
-    <details class="cw-details"><summary>How correlations are measured</summary><p>Spearman rank correlation with 95% intervals from resampling whole structures.</p></details>
+    <details class="cw-details"><summary>How correlations are measured</summary><p>Spearman rank correlation with severity, over the rows where the feature is recorded. 95% intervals come from resampling whole bents.</p></details>
   </section>
 
   <section class="card">
@@ -91,24 +83,25 @@
       </div>
       <div class="collection-control"><label class="field-label" for="featureSelect">Feature</label><select id="featureSelect"></select></div>
     </div>
+    <div id="detailLegend" class="legend" aria-hidden="true"></div>
     <div id="detailChart" class="chart"></div>
+    <details class="cw-details"><summary>Show as a table</summary><div class="table-wrap"><table id="detailTable" class="report-ledger"></table></div></details>
   </section>
 
   <section class="card">
-    <h2>Reports in this analysis</h2>
-    <p class="card-intro">Disagreement = LLM score − human rating, on the same 1–4 scale.</p>
-    <div class="table-wrap"><table id="reportTable" class="report-ledger"></table></div>
-    <div id="excluded"></div>
-    <p class="hint"><a href="scores-2026-10-29.csv" download>Download the October 29 scores (CSV)</a> for all 25 scored reports, including those excluded from the charts.</p>
+    <h2>Rows in this analysis</h2>
+    <p class="card-intro" id="rowsIntro"></p>
+    <div class="table-wrap"><table id="rowsTable" class="report-ledger"></table></div>
+    <p class="hint">The rows themselves, with their source quotes and pages, are on the <a href="/method-b/">Method B page</a>.</p>
   </section>
 
   <details class="card cw-disclosure">
     <summary><h2>Feature definitions</h2></summary>
-    <p class="card-intro">Features are coded from human report fields. “Filled” counts available values; the model replaces missing values with the median.</p>
+    <p class="card-intro">Features are coded from the Method B row fields. “Filled” counts rows with a value; the model replaces missing values with the median.</p>
     <div class="table-wrap"><table id="featureTable" class="report-ledger"></table></div>
   </details>
 
-  <details id="analysis-provenance" class="cw-details"><summary>Analysis provenance</summary><p>25 reports scored; 20 analyzed using the team's human New_Schema fields. This saved analysis uses report-level scores and is separate from Method A defect grades.</p><p id="modelBadge"></p><p id="generated"></p></details>
+  <details id="analysis-provenance" class="cw-details"><summary>Analysis provenance</summary><p>Computed by <code>scripts/analyze_defect_importance.py</code> from the published Method B rows; no model calls. Each report is analyzed separately and never pooled.</p><p id="generated"></p><p>The earlier <a href="report-level.html">report-level analysis of October 29</a> (25 scored reports, Method A rubric score) is kept unchanged.</p></details>
 </main>
 <div id="tooltip" class="tooltip" role="status" hidden></div>
 </body>

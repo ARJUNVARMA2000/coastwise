@@ -53,3 +53,26 @@ def test_answer_key_rows_have_images_and_no_sesuit():
     for c in data["checked"]:
         assert (STATIC / "answer-key" / c["img"]).is_file()
         assert c["outcome"] in {"match", "kept", "corrected", "removed", "open"}
+
+
+def test_defect_importance_matches_method_b_rows():
+    rows = json.loads((STATIC / "method-b" / "data.json").read_text())["rows"]
+    data = json.loads((STATIC / "feature-importance" / "defect_importance.json").read_text())
+    assert {r["key"] for r in data["reports"]} == {"alameda", "berkeley"}
+    assert [w["key"] for w in data["withheld"]] == ["dsny"]
+    for report in data["reports"]:
+        assert report["n_rows"] == sum(r["r"] == report["key"] for r in rows)
+        assert report["n_analyzed"] + sum(e["n"] for e in report["excluded"]) == report["n_rows"]
+        assert sum(report["severity_distribution"].values()) == report["n_analyzed"]
+        keys = {f["key"] for f in report["features"]}
+        assert {u["feature"] for u in report["univariate"]} == keys
+        for feature in report["features"]:
+            assert sum(level["n"] for level in feature["levels"]) == report["n_analyzed"]
+        for model in report["models"].values():
+            assert {k for group in model["importance"] for k in group["features"]} <= keys
+
+
+def test_report_level_feature_importance_is_kept():
+    folder = STATIC / "feature-importance"
+    assert 'src="report-level.js"' in (folder / "report-level.html").read_text()
+    assert len(json.loads((folder / "feature_importance.json").read_text())["runs"]) == 1

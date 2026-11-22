@@ -88,3 +88,14 @@ select{width:100%;min-height:44px;border:1px solid #d6e1e6;border-radius:5px;pad
   .topbar { height: auto; min-height: 64px; padding-block: 8px; flex-wrap: wrap; gap: 8px; }
   .topbar-actions { flex-wrap: wrap; }
 }
+
+/* Defect-level detail: severity is ordered, so one hue runs light (minor) to dark (severe). */
+.chart .dot-muted{fill:#a9bcc4}
+.sev-1{fill:#b5dde6;background:#b5dde6}.sev-2{fill:#5fb3c4;background:#5fb3c4}.sev-3{fill:#147d92;background:#147d92}.sev-4{fill:#163444;background:#163444}
+.chart .on-1,.chart .on-2{fill:var(--ink);font:11px var(--utility);pointer-events:none}
+.chart .on-3,.chart .on-4{fill:white;font:11px var(--utility);pointer-events:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 10px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.run-control .filter-buttons{display:flex}.run-control .filter-buttons button{flex:1}
+@media (max-width: 700px) { #detailChart svg { min-width: 640px; } }
