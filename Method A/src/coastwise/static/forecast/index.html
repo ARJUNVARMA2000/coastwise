@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecast · Coastwise</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/coastwise.css">
+</head>
+<body class="cw-app cw-forecast">
+<a class="skip-link" href="#main">Skip to forecast</a>
+<header class="cw-header">
+  <div class="cw-header-inner">
+    <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
+    <nav class="cw-nav cw-flow" aria-label="Pipeline: extract, check, model">
+      <span class="cw-stage"><span class="cw-stage-name">Extract</span><a href="/extraction">Method A</a><a href="/method-b/">Method B</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Check</span><a href="/answer-key/">Answer key</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Model</span><a href="/feature-importance/">Feature importance</a><a href="/forecast/" aria-current="page">Forecast</a></span>
+      <a href="/?new=1" class="cw-upload-link">Upload report</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="page viz-root">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow" id="eyebrow">Method B defect rows · one row = one defect</p>
+      <h1>Deterioration &amp; repair-timing forecast</h1>
+      <p class="lede" id="source-line"></p>
+    </div>
+    <div class="masthead-actions">
+      <label class="field"><span>Structure</span>
+        <select id="asset-select" aria-label="Choose a structure"></select>
+      </label>
+    </div>
+  </header>
+
+  <p class="notice" id="rates-notice" hidden></p>
+  <section class="kpi-row" id="kpi-row" aria-label="Dataset summary"></section>
+
+  <section class="card" id="asset-card">
+    <div class="card-head">
+      <div>
+        <h2 id="asset-title"></h2>
+        <p class="muted" id="asset-subtitle"></p>
+      </div>
+      <div class="chips" id="asset-chips"></div>
+    </div>
+    <div class="two-col">
+      <figure class="chart-block">
+        <figcaption>
+          <strong>Defects by grade at each inspection</strong>
+          <span class="muted" id="timeline-sub">Method A damage grade of every extracted defect, per report</span>
+        </figcaption>
+        <div id="timeline-chart" class="chart"></div>
+        <div class="legend" id="grade-legend" aria-label="Grade legend"></div>
+      </figure>
+      <figure class="chart-block">
+        <figcaption>
+          <strong>Defects expected to need priority repair</strong>
+          <span class="muted">Reached grade 3 (advanced) or worse · mean with 90% band · from the latest inspection</span>
+        </figcaption>
+        <div class="hero-row" id="outlook-heroes"></div>
+        <div id="outlook-chart" class="chart"></div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Current defects and when repair is likely to be needed</h2>
+        <p class="muted" id="defects-subtitle"></p>
+      </div>
+      <div class="filters">
+        <label class="field"><span>Defect class</span><select id="filter-class"></select></label>
+        <label class="field"><span>Grade at least</span><select id="filter-grade">
+          <option value="0">any</option><option value="1">minor</option><option value="2">moderate</option>
+          <option value="3">advanced</option><option value="4">severe</option></select></label>
+        <label class="field"><span>Search</span><input id="filter-search" type="search" placeholder="location, defect, material"></label>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data" id="defects-table">
+        <thead><tr>
+          <th>Location</th><th>Defect</th><th>Class · material</th><th>Grade</th><th>Action now</th>
+          <th class="num" title="Probability the grade worsens by at least one step within 1 year">P(worse, 1 y)</th>
+          <th class="num" title="Probability of reaching grade 3 or worse within 3 years">P(repair, 3 y)</th>
+          <th class="num" title="Probability of reaching grade 3 or worse within 5 years">P(repair, 5 y)</th>
+          <th class="num">Likely repair year</th><th>Pages</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><button class="ghost" id="show-all">Show all rows</button><span class="muted" id="rows-note"></span></div>
+  </section>
+
+  <section class="card" id="links-card">
+    <div class="card-head"><div>
+      <h2>Linked across inspections</h2>
+      <p class="muted" id="links-sub">The same element (or named sub-structure) and defect class seen in consecutive reports. These pairs are the model's training data.</p>
+    </div><div class="chips" id="pairs-chips"></div></div>
+    <div class="two-col">
+      <div>
+        <h3>Tracks</h3>
+        <div class="table-wrap"><table class="data compact" id="tracks-table">
+          <thead><tr><th>Element</th><th>Class</th><th>Grade by year</th><th>Level</th></tr></thead><tbody></tbody>
+        </table></div>
+      </div>
+      <div id="human-block">
+        <h3>Report-level check against the human New_Schema sheet</h3>
+        <div class="table-wrap"><table class="data compact" id="human-table">
+          <thead><tr><th>Year</th><th>Human reported condition</th><th>Human urgency</th><th>Pipeline worst action</th><th>Repairs since previous</th></tr></thead><tbody></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div>
+      <h2>Model</h2>
+      <p class="muted">A defect stays in its grade for an exponential sojourn, then advances one grade. Rate = grade sojourn rate × defect-class multiplier. Both are Gamma posteriors from the linked pairs; thin groups shrink toward the pooled rate.</p>
+    </div></div>
+    <div class="two-col">
+      <figure class="chart-block">
+        <figcaption><strong>Advances per defect-year, by current grade</strong><span class="muted">Posterior mean with 90% interval · pairs / exposure in years</span></figcaption>
+        <div id="grade-rates-chart" class="chart"></div>
+      </figure>
+      <figure class="chart-block">
+        <figcaption><strong>Defect-class multiplier</strong><span class="muted">1.0 = population rate · shrunk toward 1 with 5 pseudo-events</span></figcaption>
+        <div id="class-mult-chart" class="chart"></div>
+      </figure>
+    </div>
+    <div class="two-col">
+      <div>
+        <h3>Hold-out checks</h3>
+        <p class="muted small">Fit without the held-out pairs, then score P(worsened within the elapsed years). Brier: lower is better; compare with the pooled-rate and base-rate (climatology) columns.</p>
+        <div class="table-wrap"><table class="data compact" id="backtest-table">
+          <thead><tr><th>Hold-out</th><th class="num">n</th><th class="num">Observed</th><th class="num">Predicted</th><th class="num">Brier</th><th class="num">Pooled</th><th class="num">Base rate</th></tr></thead><tbody></tbody>
+        </table></div>
+      </div>
+      <div>
+        <h3>Action-now rules</h3>
+        <div class="table-wrap"><table class="data compact" id="rules-table">
+          <thead><tr><th>Grade</th><th>Extent</th><th>Action</th><th>Window</th></tr></thead><tbody></tbody>
+        </table></div>
+        <h3>Method notes</h3>
+        <ul class="notes" id="method-notes"></ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="muted small" id="footer"></footer>
+  <p class="muted small">Rates are fitted on <a href="training_pairs.csv" download>72 linked transitions (CSV)</a>. Built by <code>scripts/build_forecast.py</code>; the defect rows are on the <a href="/method-b/">Method B page</a>.</p>
+</main>
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+<script src="forecast_data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

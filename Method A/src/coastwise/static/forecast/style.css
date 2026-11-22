@@ -1,0 +1,142 @@
+:root {
+  color-scheme: light;
+  --page: #f7fafb;
+  --surface-1: #ffffff;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+  --series-1: #147d92;
+  --series-1-soft: rgba(20, 125, 146, 0.16);
+  --grade-0: #dcf0f4;
+  --grade-1: #b5dde6;
+  --grade-2: #5fb3c4;
+  --grade-3: #147d92;
+  --grade-4: #163444;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --on-fill: #ffffff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page);
+  color: var(--text-primary);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.page { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 26px; margin: 2px 0 6px; letter-spacing: -0.01em; }
+h2 { font-size: 18px; margin: 0 0 4px; }
+h3 { font-size: 14px; margin: 18px 0 8px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+p { margin: 0; }
+.eyebrow { color: var(--text-secondary); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+.lede { color: var(--text-secondary); }
+.muted { color: var(--text-secondary); }
+.small { font-size: 13px; }
+
+.masthead { display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 18px; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary); }
+.field select, .field input {
+  font: inherit; font-size: 14px; color: var(--text-primary); background: var(--surface-1);
+  border: 1px solid var(--axis); border-radius: 8px; padding: 7px 10px; min-width: 180px;
+}
+#asset-select { min-width: 300px; max-width: 100%; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.tile .label { color: var(--text-secondary); font-size: 13px; }
+.tile .value { font-size: 30px; font-weight: 600; line-height: 1.1; margin-top: 4px; }
+.tile .sub { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px; margin-bottom: 16px; }
+.card-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 12px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-size: 12px; color: var(--text-secondary); border: 1px solid var(--axis); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+.two-col > * { min-width: 0; }
+#links-card .two-col { grid-template-columns: 1fr; }
+#links-card .table-wrap { max-height: 460px; overflow: auto; }
+#links-card thead th { position: sticky; top: 0; background: var(--surface-1); }
+
+.chart-block { margin: 0; min-width: 0; }
+.chart-block figcaption { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
+.chart-block figcaption .muted { font-size: 13px; }
+.chart { width: 100%; min-height: 220px; position: relative; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: inherit; fill: var(--text-muted); font-size: 11px; }
+.chart .axis-label { fill: var(--text-secondary); }
+.chart .grid line { stroke: var(--grid); stroke-width: 1; shape-rendering: crispEdges; }
+.chart .baseline { stroke: var(--axis); stroke-width: 1; shape-rendering: crispEdges; }
+.chart .hit { fill: transparent; }
+.chart .hit:hover { fill: var(--series-1-soft); }
+.chart .annot { fill: var(--text-secondary); font-size: 11px; }
+.chart .direct-label { fill: var(--text-primary); font-size: 11px; font-weight: 600; }
+.chart .empty { color: var(--text-muted); font-size: 13px; padding: 24px 0; }
+
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
+.legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.legend .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.hero-row { display: flex; gap: 22px; flex-wrap: wrap; margin: 2px 0 10px; }
+.hero .n { font-size: 26px; font-weight: 600; line-height: 1.1; }
+.hero .t { color: var(--text-secondary); font-size: 13px; }
+
+.filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.filters .field select, .filters .field input { min-width: 150px; }
+
+.table-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+#defects-table { min-width: 1150px; }
+#defects-table td:nth-child(1) { min-width: 170px; }
+#defects-table td:nth-child(2) { min-width: 230px; }
+#defects-table td:nth-child(3) { min-width: 150px; }
+table.data th, table.data td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+table.data th { color: var(--text-secondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
+table.data.compact td, table.data.compact th { padding: 6px 8px; font-size: 13px; }
+table.data tbody tr:hover { background: var(--series-1-soft); }
+td .sub { display: block; color: var(--text-muted); font-size: 12px; margin-top: 2px; max-width: 300px; }
+td.loc { max-width: 240px; }
+.table-foot { display: flex; gap: 12px; align-items: center; margin-top: 10px; font-size: 13px; }
+button.ghost { font: inherit; font-size: 13px; color: var(--series-1); background: none; border: 1px solid var(--axis); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+button.ghost:hover { background: var(--series-1-soft); }
+
+.grade-badge { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.grade-badge .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 600; }
+.status .ico { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.status.monitor .ico { background: var(--status-good); }
+.status.routine .ico { background: var(--status-warning); }
+.status.priority .ico { background: var(--status-serious); }
+.status.immediate .ico { background: var(--status-critical); }
+.status .win { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+
+.seq { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seq .g { display: inline-block; min-width: 18px; text-align: center; color: var(--on-fill); border-radius: 3px; padding: 0 3px; font-size: 12px; font-weight: 600; }
+.seq .g.g0, .seq .g.g1 { color: var(--text-primary); }
+.seq .yr { color: var(--text-muted); font-size: 11px; margin: 0 3px; }
+.notes { margin: 6px 0 0; padding-left: 18px; color: var(--text-secondary); font-size: 13px; }
+.notes li { margin-bottom: 4px; }
+
+.tooltip {
+  position: fixed; z-index: 10; pointer-events: none; max-width: 320px;
+  background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--axis); border-radius: 8px;
+  padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+.tooltip[hidden] { display: none; }
+.tooltip .tt-title { font-weight: 600; margin-bottom: 4px; }
+.tooltip .tt-row { display: flex; justify-content: space-between; gap: 14px; }
+.tooltip .tt-row span:last-child { font-variant-numeric: tabular-nums; }
+footer { margin-top: 12px; }
+
+/* Coastwise shell: the shared header sits above .page. */
+.skip-link{position:fixed;top:-80px;left:16px;z-index:100;padding:12px 18px;background:#163444;color:#fff;border-radius:4px}.skip-link:focus{top:10px}
+.cw-forecast .page a{color:#0c6678}
+
+/* Shown when the rates were fitted on a different dataset than the defects being forecast. */
+.notice{margin:0 0 16px;padding:12px 14px;border:1px solid var(--border,#e3d6b8);border-left:3px solid var(--status-warning,#b7791f);border-radius:6px;font-size:13px;line-height:1.5;max-width:110ch}
