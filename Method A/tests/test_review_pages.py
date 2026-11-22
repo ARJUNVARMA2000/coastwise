@@ -9,7 +9,7 @@ from coastwise import web
 
 STATIC = Path(web.__file__).with_name("static")
 PAGES = ("extraction.html", "index.html", "feature-importance/index.html",
-         "method-b/index.html", "answer-key/index.html")
+         "method-b/index.html", "answer-key/index.html", "forecast/index.html")
 
 
 def test_review_pages_are_served(tmp_path, monkeypatch):
@@ -53,3 +53,60 @@ def test_answer_key_rows_have_images_and_no_sesuit():
     for c in data["checked"]:
         assert (STATIC / "answer-key" / c["img"]).is_file()
         assert c["outcome"] in {"match", "kept", "corrected", "removed", "open"}
+
+
+def test_defect_importance_matches_method_b_rows():
+    rows = json.loads((STATIC / "method-b" / "data.json").read_text())["rows"]
+    data = json.loads((STATIC / "feature-importance" / "defect_importance.json").read_text())
+    assert {r["key"] for r in data["reports"]} == {"alameda", "berkeley"}
+    assert [w["key"] for w in data["withheld"]] == ["dsny"]
+    for report in data["reports"]:
+        assert report["n_rows"] == sum(r["r"] == report["key"] for r in rows)
+        assert report["n_analyzed"] + sum(e["n"] for e in report["excluded"]) == report["n_rows"]
+        assert sum(report["severity_distribution"].values()) == report["n_analyzed"]
+        keys = {f["key"] for f in report["features"]}
+        assert {u["feature"] for u in report["univariate"]} == keys
+        for feature in report["features"]:
+            assert sum(level["n"] for level in feature["levels"]) == report["n_analyzed"]
+        for model in report["models"].values():
+            assert {k for group in model["importance"] for k in group["features"]} <= keys
+
+
+def test_report_level_feature_importance_is_kept():
+    folder = STATIC / "feature-importance"
+    assert 'src="report-level.js"' in (folder / "report-level.html").read_text()
+    assert len(json.loads((folder / "feature_importance.json").read_text())["runs"]) == 1
+
+
+def test_forecast_page_is_served_and_linked(tmp_path, monkeypatch):
+    setup_web(tmp_path, monkeypatch)
+    client = TestClient(web.app)
+    for path in ("/forecast/", "/forecast/app.js", "/forecast/style.css", "/forecast/forecast_data.js",
+                 "/forecast/training_pairs.csv"):
+        assert client.get(path).status_code == 200, path
+    for page in PAGES:
+        assert 'href="/forecast/"' in (STATIC / page).read_text(), page
+
+
+def test_forecast_data_matches_method_b_rows():
+    text = (STATIC / "forecast" / "forecast_data.js").read_text()
+    prefix = "window.FORECAST_DATA = "
+    assert text.startswith(prefix)
+    data = json.loads(text[len(prefix):].rstrip().rstrip(";"))
+    rows = json.loads((STATIC / "method-b" / "data.json").read_text())["rows"]
+    source = data["source"]
+    assert {a["key"] for a in data["assets"]} == {"alameda", "berkeley"}
+    assert [w["key"] for w in source["withheld"]] == ["dsny"]
+    assert source["defect_rows"] == len(rows)
+    assert data["totals"]["defect_events"] + source["skipped_total"] == len(rows)
+    # One inspection per report: the rates come from the saved training pairs, not from these rows.
+    assert data["totals"]["fit_pairs"] > 20 and data["rates_source"]["kind"] == "training_pairs"
+    grades = {"MN": 1, "MD": 2, "MJ": 3, "SV": 4, "S ": 4}
+    for asset in data["assets"]:
+        defects = asset["current_defects"]
+        assert asset["curve"]["n_defects"] == len(defects) == asset["coverage"]["defects"]
+        assert asset["curve"]["n_now"] == sum(d["repair_now"] for d in defects)
+        for d in defects:
+            assert d["grade"] == grades[d["severity_raw"][:2]]
+            assert d["repair_now"] == (d["grade"] >= data["repair_threshold"])
+            assert d["p_repair_1y"] <= d["p_repair_5y"] <= d["p_repair_10y"]

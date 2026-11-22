@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report-level feature importance · Coastwise</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/coastwise.css">
+<script src="report-level.js" defer></script>
+</head>
+<body class="cw-app cw-analysis">
+<a class="skip-link" href="#main">Skip to analysis</a>
+<header class="cw-header">
+  <div class="cw-header-inner">
+    <a class="cw-brand" href="/extraction" aria-label="Coastwise home"><span aria-hidden="true">≋</span>coastwise</a>
+    <nav class="cw-nav cw-flow" aria-label="Pipeline: extract, check, model">
+      <span class="cw-stage"><span class="cw-stage-name">Extract</span><a href="/extraction">Method A</a><a href="/method-b/">Method B</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Check</span><a href="/answer-key/">Answer key</a></span>
+      <span class="cw-stage"><span class="cw-stage-name">Model</span><a href="/feature-importance/">Feature importance</a><a href="/forecast/">Forecast</a></span>
+      <a href="/?new=1" class="cw-upload-link">Upload report</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="workspace">
+  <div class="workspace-heading cw-page-heading">
+    <div>
+      <h1>Report-level feature importance</h1>
+      <p class="cw-context">Saved Claude analysis · October 29, 2026. Report scores: 1 good → 4 serious/critical.</p>
+    </div>
+    <div class="run-control">
+      <label class="field-label" for="runSelect">Scoring run</label>
+      <select id="runSelect"></select>
+    </div>
+  </div>
+
+  <div id="loadError" class="error" role="alert" hidden></div>
+  <p class="cw-note">Historical snapshot; excludes current Method A defect grades. <a href="./">Back to the defect-level analysis</a>.</p>
+  <details id="analysis-notes" class="cw-details" hidden><summary>Analysis limitations</summary><div id="notes" class="result-banner warning" hidden></div></details>
+
+  <section id="totals" class="library-totals" aria-label="Run summary"></section>
+
+  <div class="card-grid">
+    <section class="card">
+      <h2>Score distribution</h2>
+      <p class="card-intro">Reports by severity score.</p>
+      <div id="distChart" class="chart"></div>
+    </section>
+    <section class="card">
+      <h2>Model check</h2>
+      <p class="card-intro">Prediction error in score points. Lower is better.</p>
+      <div id="modelCheck"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Grouped importance</h2>
+        <p class="card-intro">Higher positive values indicate greater model reliance on a feature group.</p>
+      </div>
+      <div class="filter-buttons" role="group" aria-label="Model variant">
+        <button data-model="with_human_rating" aria-pressed="true">With human rating</button>
+        <button data-model="without_human_rating" aria-pressed="false">Without human rating</button>
+      </div>
+    </div>
+    <div id="importanceChart" class="chart"></div>
+    <details class="cw-details"><summary>How importance is measured</summary><p>Increase in held-out mean absolute error when a feature group is shuffled. Values near zero or below show little evidence of contribution.</p><p id="importanceFoot"></p></details>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Feature correlations</h2>
+        <p class="card-intro">Select a feature to see its reports. Intervals crossing zero indicate an uncertain association.</p>
+      </div>
+      <div class="filter-buttons" role="group" aria-label="Target">
+        <button data-target="score" aria-pressed="true">LLM score</button>
+        <button data-target="disagreement" aria-pressed="false">LLM − human rating</button>
+      </div>
+    </div>
+    <div id="corrChart" class="chart"></div>
+    <details class="cw-details"><summary>How correlations are measured</summary><p>Spearman rank correlation with 95% intervals from resampling whole structures.</p></details>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Feature detail</h2>
+        <p class="card-intro" id="detailIntro"></p>
+      </div>
+      <div class="collection-control"><label class="field-label" for="featureSelect">Feature</label><select id="featureSelect"></select></div>
+    </div>
+    <div id="detailChart" class="chart"></div>
+  </section>
+
+  <section class="card">
+    <h2>Reports in this analysis</h2>
+    <p class="card-intro">Disagreement = LLM score − human rating, on the same 1–4 scale.</p>
+    <div class="table-wrap"><table id="reportTable" class="report-ledger"></table></div>
+    <div id="excluded"></div>
+    <p class="hint"><a href="scores-2026-10-29.csv" download>Download the October 29 scores (CSV)</a> for all 25 scored reports, including those excluded from the charts.</p>
+  </section>
+
+  <details class="card cw-disclosure">
+    <summary><h2>Feature definitions</h2></summary>
+    <p class="card-intro">Features are coded from human report fields. “Filled” counts available values; the model replaces missing values with the median.</p>
+    <div class="table-wrap"><table id="featureTable" class="report-ledger"></table></div>
+  </details>
+
+  <details id="analysis-provenance" class="cw-details"><summary>Analysis provenance</summary><p>25 reports scored; 20 analyzed using the team's human New_Schema fields. This saved analysis uses report-level scores and is separate from Method A defect grades.</p><p id="modelBadge"></p><p id="generated"></p></details>
+</main>
+<div id="tooltip" class="tooltip" role="status" hidden></div>
+</body>
+</html>

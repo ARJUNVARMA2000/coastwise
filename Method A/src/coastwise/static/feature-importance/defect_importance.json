@@ -1,0 +1,2361 @@
+{
+ "generated_utc": "2026-11-22T20:09:32+00:00",
+ "source": {
+  "file": "method-b/data.json",
+  "generated": "2026-11-16"
+ },
+ "severity_words": {
+  "1": "Minor",
+  "2": "Moderate",
+  "3": "Major",
+  "4": "Severe"
+ },
+ "reports": [
+  {
+   "key": "alameda",
+   "name": "Alameda",
+   "title": "Alameda Piers 1, 2 and 3",
+   "firm": "SGH",
+   "edition": "May 2017",
+   "n_rows": 1166,
+   "n_analyzed": 1009,
+   "n_elements": 739,
+   "n_groups": 125,
+   "excluded": [
+    {
+     "reason": "No severity recorded (NR)",
+     "n": 118,
+     "examples": []
+    },
+    {
+     "reason": "Severity given in words, not as a code",
+     "n": 38,
+     "examples": [
+      "minor to moderate",
+      "minor",
+      "hairline",
+      "a few isolated areas",
+      "limited",
+      "large"
+     ]
+    },
+    {
+     "reason": "Recorded as no defect",
+     "n": 1,
+     "examples": []
+    }
+   ],
+   "severity_distribution": {
+    "1": 6,
+    "2": 357,
+    "3": 92,
+    "4": 554
+   },
+   "features": [
+    {
+     "key": "type_concrete_deterioration_chemical",
+     "label": "Type: concrete deterioration chemical",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'concrete_deterioration_chemical'.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 480,
+       "mean": 3.214583333333333,
+       "counts": [
+        6,
+        177,
+        5,
+        292
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 529,
+       "mean": 3.1550094517958414,
+       "counts": [
+        0,
+        180,
+        87,
+        262
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_exposed_rebar",
+     "label": "Type: exposed rebar",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'exposed_rebar'.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 744,
+       "mean": 2.8951612903225805,
+       "counts": [
+        6,
+        357,
+        90,
+        291
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 265,
+       "mean": 3.9924528301886792,
+       "counts": [
+        0,
+        0,
+        2,
+        263
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_cracking",
+     "label": "Type: cracking",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'cracking'.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 886,
+       "mean": 3.3465011286681716,
+       "counts": [
+        6,
+        235,
+        91,
+        554
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 123,
+       "mean": 2.008130081300813,
+       "counts": [
+        0,
+        122,
+        1,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_spalling",
+     "label": "Type: spalling",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'spalling'.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 970,
+       "mean": 3.177319587628866,
+       "counts": [
+        2,
+        351,
+        90,
+        527
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 39,
+       "mean": 3.3333333333333335,
+       "counts": [
+        4,
+        6,
+        2,
+        27
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_other",
+     "label": "Type: other or not recorded",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Any type with fewer than 10 analyzed rows, or no type recorded.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 956,
+       "mean": 3.2468619246861925,
+       "counts": [
+        4,
+        308,
+        92,
+        552
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 53,
+       "mean": 2.0377358490566038,
+       "counts": [
+        2,
+        49,
+        0,
+        2
+       ]
+      }
+     ]
+    },
+    {
+     "key": "n_on_element",
+     "label": "Defects recorded on the same element",
+     "group": "Defects on the same element",
+     "kind": "numeric",
+     "how": "Number of Method B rows that share this row's element (pile, bollard, deck section). A table line that names two defects becomes two rows.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "1",
+       "n": 391,
+       "mean": 2.2941176470588234,
+       "counts": [
+        6,
+        286,
+        77,
+        22
+       ]
+      },
+      {
+       "label": "2",
+       "n": 564,
+       "mean": 3.721631205673759,
+       "counts": [
+        0,
+        71,
+        15,
+        478
+       ]
+      },
+      {
+       "label": "3",
+       "n": 54,
+       "mean": 4.0,
+       "counts": [
+        0,
+        0,
+        0,
+        54
+       ]
+      }
+     ]
+    },
+    {
+     "key": "batter_pile",
+     "label": "Batter pile",
+     "group": "Element kind",
+     "kind": "binary",
+     "how": "Element name contains BAT or 'batter'.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 832,
+       "mean": 3.175480769230769,
+       "counts": [
+        2,
+        302,
+        76,
+        452
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 177,
+       "mean": 3.2203389830508473,
+       "counts": [
+        4,
+        55,
+        16,
+        102
+       ]
+      }
+     ]
+    },
+    {
+     "key": "mooring_hardware",
+     "label": "Bollard or cleat",
+     "group": "Element kind",
+     "kind": "binary",
+     "how": "Element name starts with Bollard or Cleat.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 934,
+       "mean": 3.2184154175588864,
+       "counts": [
+        6,
+        310,
+        92,
+        526
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 75,
+       "mean": 2.7466666666666666,
+       "counts": [
+        0,
+        47,
+        0,
+        28
+       ]
+      }
+     ]
+    },
+    {
+     "key": "bent",
+     "label": "Bent number (position along the pier)",
+     "group": "Position in the structure",
+     "kind": "numeric",
+     "how": "Bent number in the element name, e.g. 47 in 'pile 47-E' or 364 in 'bent 364 row A'.",
+     "n_nonmissing": 985,
+     "levels": [
+      {
+       "label": "1 to 34",
+       "n": 248,
+       "mean": 3.5524193548387095,
+       "counts": [
+        3,
+        45,
+        12,
+        188
+       ]
+      },
+      {
+       "label": "34.2 to 48",
+       "n": 254,
+       "mean": 3.7755905511811023,
+       "counts": [
+        0,
+        20,
+        17,
+        217
+       ]
+      },
+      {
+       "label": "48.8 to 70",
+       "n": 237,
+       "mean": 3.240506329113924,
+       "counts": [
+        1,
+        68,
+        41,
+        127
+       ]
+      },
+      {
+       "label": "70.2 to 113",
+       "n": 246,
+       "mean": 2.2357723577235773,
+       "counts": [
+        0,
+        206,
+        22,
+        18
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 24,
+       "mean": 2.25,
+       "counts": [
+        2,
+        18,
+        0,
+        4
+       ]
+      }
+     ]
+    },
+    {
+     "key": "row",
+     "label": "Pile row (A = 1, B = 2 ...)",
+     "group": "Position in the structure",
+     "kind": "ordinal",
+     "how": "Row letter in the element name, as a number.",
+     "n_nonmissing": 960,
+     "levels": [
+      {
+       "label": "1 to 2",
+       "n": 315,
+       "mean": 3.1809523809523808,
+       "counts": [
+        3,
+        110,
+        29,
+        173
+       ]
+      },
+      {
+       "label": "3 to 4",
+       "n": 203,
+       "mean": 3.1576354679802954,
+       "counts": [
+        1,
+        72,
+        24,
+        106
+       ]
+      },
+      {
+       "label": "5 to 7",
+       "n": 346,
+       "mean": 3.2976878612716765,
+       "counts": [
+        0,
+        105,
+        33,
+        208
+       ]
+      },
+      {
+       "label": "8",
+       "n": 96,
+       "mean": 3.125,
+       "counts": [
+        0,
+        39,
+        6,
+        51
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 49,
+       "mean": 2.6122448979591835,
+       "counts": [
+        2,
+        31,
+        0,
+        16
+       ]
+      }
+     ]
+    },
+    {
+     "key": "zone_tidal",
+     "label": "Reaches the tidal zone",
+     "group": "Water zone",
+     "kind": "binary",
+     "how": "Location starts at the tidal zone: TZ-ML, TZ-Mid, Tidal Zone or Full HT.",
+     "n_nonmissing": 910,
+     "levels": [
+      {
+       "label": "No",
+       "n": 213,
+       "mean": 2.3380281690140845,
+       "counts": [
+        0,
+        159,
+        36,
+        18
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 697,
+       "mean": 3.513629842180775,
+       "counts": [
+        2,
+        142,
+        49,
+        504
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 99,
+       "mean": 2.676767676767677,
+       "counts": [
+        4,
+        56,
+        7,
+        32
+       ]
+      }
+     ]
+    },
+    {
+     "key": "zone_mudline",
+     "label": "Reaches the mudline",
+     "group": "Water zone",
+     "kind": "binary",
+     "how": "Location ends at the mudline: TZ-ML, Mid-ML, Mudline or Full HT.",
+     "n_nonmissing": 910,
+     "levels": [
+      {
+       "label": "No",
+       "n": 201,
+       "mean": 2.288557213930348,
+       "counts": [
+        2,
+        153,
+        32,
+        14
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 709,
+       "mean": 3.5077574047954867,
+       "counts": [
+        0,
+        148,
+        53,
+        508
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 99,
+       "mean": 2.676767676767677,
+       "counts": [
+        4,
+        56,
+        7,
+        32
+       ]
+      }
+     ]
+    },
+    {
+     "key": "zone_span",
+     "label": "Zones covered (1-3)",
+     "group": "Water zone",
+     "kind": "ordinal",
+     "how": "How many of tidal zone, mid-water and mudline the location covers.",
+     "n_nonmissing": 910,
+     "levels": [
+      {
+       "label": "1",
+       "n": 170,
+       "mean": 2.347058823529412,
+       "counts": [
+        2,
+        123,
+        29,
+        16
+       ]
+      },
+      {
+       "label": "2",
+       "n": 133,
+       "mean": 2.3533834586466167,
+       "counts": [
+        0,
+        98,
+        23,
+        12
+       ]
+      },
+      {
+       "label": "3",
+       "n": 607,
+       "mean": 3.6820428336079076,
+       "counts": [
+        0,
+        80,
+        33,
+        494
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 99,
+       "mean": 2.676767676767677,
+       "counts": [
+        4,
+        56,
+        7,
+        32
+       ]
+      }
+     ]
+    },
+    {
+     "key": "crack_width_in",
+     "label": "Crack width (in)",
+     "group": "Measurements",
+     "kind": "numeric",
+     "how": "'\u2026 in wide' in the measurement.",
+     "n_nonmissing": 130,
+     "levels": [
+      {
+       "label": "0.0312",
+       "n": 11,
+       "mean": 2.0,
+       "counts": [
+        0,
+        11,
+        0,
+        0
+       ]
+      },
+      {
+       "label": "0.0625",
+       "n": 52,
+       "mean": 2.019230769230769,
+       "counts": [
+        0,
+        51,
+        1,
+        0
+       ]
+      },
+      {
+       "label": "0.125",
+       "n": 51,
+       "mean": 2.0784313725490198,
+       "counts": [
+        0,
+        47,
+        4,
+        0
+       ]
+      },
+      {
+       "label": "0.25",
+       "n": 16,
+       "mean": 2.1875,
+       "counts": [
+        0,
+        13,
+        3,
+        0
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 879,
+       "mean": 3.3492605233219566,
+       "counts": [
+        6,
+        235,
+        84,
+        554
+       ]
+      }
+     ]
+    },
+    {
+     "key": "corner_rounding",
+     "label": "Corner rounding (1 minor, 2 major)",
+     "group": "Measurements",
+     "kind": "ordinal",
+     "how": "Measurement reads 'MN RND' (1) or 'MJ RND' (2).",
+     "n_nonmissing": 255,
+     "levels": [
+      {
+       "label": "1",
+       "n": 176,
+       "mean": 2.0056818181818183,
+       "counts": [
+        0,
+        175,
+        1,
+        0
+       ]
+      },
+      {
+       "label": "2",
+       "n": 79,
+       "mean": 3.0,
+       "counts": [
+        0,
+        0,
+        79,
+        0
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 754,
+       "mean": 3.477453580901857,
+       "counts": [
+        6,
+        182,
+        12,
+        554
+       ]
+      }
+     ]
+    },
+    {
+     "key": "exposed_reinforcement",
+     "label": "Exposed reinforcement noted",
+     "group": "Measurements",
+     "kind": "binary",
+     "how": "Measurement or associated signs mention exposed reinforcement.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 744,
+       "mean": 2.8951612903225805,
+       "counts": [
+        6,
+        357,
+        90,
+        291
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 265,
+       "mean": 3.9924528301886792,
+       "counts": [
+        0,
+        0,
+        2,
+        263
+       ]
+      }
+     ]
+    },
+    {
+     "key": "cause_reinforcement_corrosion",
+     "label": "Cause: corrosion of reinforcement",
+     "group": "Cause",
+     "kind": "binary",
+     "how": "Cause field starts with 'corrosion of'.",
+     "n_nonmissing": 1009,
+     "levels": [
+      {
+       "label": "No",
+       "n": 982,
+       "mean": 3.160896130346232,
+       "counts": [
+        6,
+        357,
+        92,
+        527
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 27,
+       "mean": 4.0,
+       "counts": [
+        0,
+        0,
+        0,
+        27
+       ]
+      }
+     ]
+    }
+   ],
+   "univariate": [
+    {
+     "feature": "corner_rounding",
+     "n": 255,
+     "rho": 0.9909032266298533,
+     "ci_low": 0.9719644395181728,
+     "ci_high": 1.0,
+     "p": 2.1527073742691785e-222
+    },
+    {
+     "feature": "n_on_element",
+     "n": 1009,
+     "rho": 0.75144984780669,
+     "ci_low": 0.6847858019268745,
+     "ci_high": 0.7931914042496635,
+     "p": 4.6323042934039836e-184
+    },
+    {
+     "feature": "zone_span",
+     "n": 910,
+     "rho": 0.6726409628658017,
+     "ci_low": 0.6073465103440521,
+     "ci_high": 0.7314802785192154,
+     "p": 6.92317348478532e-121
+    },
+    {
+     "feature": "zone_mudline",
+     "n": 910,
+     "rho": 0.5498386577036628,
+     "ci_low": 0.4774812823201366,
+     "ci_high": 0.6057152306167837,
+     "p": 5.019673462524992e-73
+    },
+    {
+     "feature": "zone_tidal",
+     "n": 910,
+     "rho": 0.5450927811581313,
+     "ci_low": 0.4763282691154926,
+     "ci_high": 0.6140319352269628,
+     "p": 1.470690893012502e-71
+    },
+    {
+     "feature": "bent",
+     "n": 985,
+     "rho": -0.5313442287253485,
+     "ci_low": -0.6345909175523861,
+     "ci_high": -0.42491497233835,
+     "p": 7.363482879899565e-73
+    },
+    {
+     "feature": "type_exposed_rebar",
+     "n": 1009,
+     "rho": 0.5190181986076008,
+     "ci_low": 0.49902782954856345,
+     "ci_high": 0.5411316786067126,
+     "p": 1.1290331167916175e-70
+    },
+    {
+     "feature": "exposed_reinforcement",
+     "n": 1009,
+     "rho": 0.5190181986076008,
+     "ci_low": 0.49902782954856345,
+     "ci_high": 0.5411316786067126,
+     "p": 1.1290331167916175e-70
+    },
+    {
+     "feature": "type_cracking",
+     "n": 1009,
+     "rho": -0.4580837683434982,
+     "ci_low": -0.5024266640838152,
+     "ci_high": -0.4021509071781308,
+     "p": 1.726176604518495e-53
+    },
+    {
+     "feature": "type_other",
+     "n": 1009,
+     "rho": -0.27857462290412854,
+     "ci_low": -0.3344240703382546,
+     "ci_high": -0.2249255504595294,
+     "p": 1.9335759004464535e-19
+    },
+    {
+     "feature": "crack_width_in",
+     "n": 130,
+     "rho": 0.21633455180903133,
+     "ci_low": 0.07962275035695372,
+     "ci_high": 0.3287208422272034,
+     "p": 0.01343148900298948
+    },
+    {
+     "feature": "cause_reinforcement_corrosion",
+     "n": 1009,
+     "rho": 0.14576423321636173,
+     "ci_low": 0.10877795319971005,
+     "ci_high": 0.18894519862494244,
+     "p": 3.3309656684075257e-06
+    },
+    {
+     "feature": "mooring_hardware",
+     "n": 1009,
+     "rho": -0.12657806749160697,
+     "ci_low": -0.19364419450711276,
+     "ci_high": -0.059342017087431,
+     "p": 5.531229000320716e-05
+    },
+    {
+     "feature": "type_concrete_deterioration_chemical",
+     "n": 1009,
+     "rho": -0.04833667087906255,
+     "ci_low": -0.10985752830152845,
+     "ci_high": 0.027039642800966594,
+     "p": 0.12493214135906756
+    },
+    {
+     "feature": "row",
+     "n": 960,
+     "rho": 0.04820722548062878,
+     "ci_low": -0.013111190341901386,
+     "ci_high": 0.10969498007528931,
+     "p": 0.13555029031185625
+    },
+    {
+     "feature": "type_spalling",
+     "n": 1009,
+     "rho": 0.040239957196139875,
+     "ci_low": -0.035294459262752015,
+     "ci_high": 0.11027969847561196,
+     "p": 0.20155089355821346
+    },
+    {
+     "feature": "batter_pile",
+     "n": 1009,
+     "rho": 0.02085332135052372,
+     "ci_low": -0.049029451824353656,
+     "ci_high": 0.09278758708374006,
+     "p": 0.5081945182004024
+    }
+   ],
+   "models": {
+    "all": {
+     "cv_mae": 0.0824364170815464,
+     "baseline_mae": 0.8166501486620417,
+     "n_groups": 125,
+     "bootstraps_used": 200,
+     "importance": [
+      {
+       "group": "Defects on the same element",
+       "features": [
+        "n_on_element"
+       ],
+       "mae_increase": 0.5676565345849477,
+       "median_rank": 1.0,
+       "rank_p10": 1.0,
+       "rank_p90": 1.0,
+       "top3_share": 1.0
+      },
+      {
+       "group": "Position in the structure",
+       "features": [
+        "bent",
+        "row"
+       ],
+       "mae_increase": 0.212440559944567,
+       "median_rank": 2.0,
+       "rank_p10": 2.0,
+       "rank_p90": 3.0,
+       "top3_share": 0.94
+      },
+      {
+       "group": "Measurements",
+       "features": [
+        "crack_width_in",
+        "corner_rounding",
+        "exposed_reinforcement"
+       ],
+       "mae_increase": 0.11521225712744537,
+       "median_rank": 3.0,
+       "rank_p10": 2.0,
+       "rank_p90": 3.0,
+       "top3_share": 0.935
+      },
+      {
+       "group": "Cause",
+       "features": [
+        "cause_reinforcement_corrosion"
+       ],
+       "mae_increase": 0.07087830076010714,
+       "median_rank": 4.0,
+       "rank_p10": 4.0,
+       "rank_p90": 5.0,
+       "top3_share": 0.09
+      },
+      {
+       "group": "Defect type",
+       "features": [
+        "type_concrete_deterioration_chemical",
+        "type_exposed_rebar",
+        "type_cracking",
+        "type_spalling",
+        "type_other"
+       ],
+       "mae_increase": 0.03718364402666139,
+       "median_rank": 5.0,
+       "rank_p10": 4.0,
+       "rank_p90": 6.0,
+       "top3_share": 0.035
+      },
+      {
+       "group": "Water zone",
+       "features": [
+        "zone_tidal",
+        "zone_mudline",
+        "zone_span"
+       ],
+       "mae_increase": 0.02789323310118652,
+       "median_rank": 6.0,
+       "rank_p10": 5.0,
+       "rank_p90": 6.0,
+       "top3_share": 0.0
+      },
+      {
+       "group": "Element kind",
+       "features": [
+        "batter_pile",
+        "mooring_hardware"
+       ],
+       "mae_increase": 0.005199165850763926,
+       "median_rank": 7.0,
+       "rank_p10": 7.0,
+       "rank_p90": 7.0,
+       "top3_share": 0.0
+      }
+     ]
+    },
+    "without_defect_type": {
+     "cv_mae": 0.08988262041270687,
+     "baseline_mae": 0.8166501486620417,
+     "n_groups": 125,
+     "bootstraps_used": 200,
+     "importance": [
+      {
+       "group": "Defects on the same element",
+       "features": [
+        "n_on_element"
+       ],
+       "mae_increase": 0.5492535012898363,
+       "median_rank": 1.0,
+       "rank_p10": 1.0,
+       "rank_p90": 1.0,
+       "top3_share": 1.0
+      },
+      {
+       "group": "Position in the structure",
+       "features": [
+        "bent",
+        "row"
+       ],
+       "mae_increase": 0.2699804521320552,
+       "median_rank": 2.0,
+       "rank_p10": 2.0,
+       "rank_p90": 2.0,
+       "top3_share": 1.0
+      },
+      {
+       "group": "Measurements",
+       "features": [
+        "crack_width_in",
+        "corner_rounding",
+        "exposed_reinforcement"
+       ],
+       "mae_increase": 0.11246058827985769,
+       "median_rank": 3.0,
+       "rank_p10": 3.0,
+       "rank_p90": 3.0,
+       "top3_share": 0.96
+      },
+      {
+       "group": "Cause",
+       "features": [
+        "cause_reinforcement_corrosion"
+       ],
+       "mae_increase": 0.06020133873213793,
+       "median_rank": 4.0,
+       "rank_p10": 4.0,
+       "rank_p90": 4.0,
+       "top3_share": 0.04
+      },
+      {
+       "group": "Water zone",
+       "features": [
+        "zone_tidal",
+        "zone_mudline",
+        "zone_span"
+       ],
+       "mae_increase": 0.029613304289975998,
+       "median_rank": 5.0,
+       "rank_p10": 5.0,
+       "rank_p90": 6.0,
+       "top3_share": 0.0
+      },
+      {
+       "group": "Element kind",
+       "features": [
+        "batter_pile",
+        "mooring_hardware"
+       ],
+       "mae_increase": 0.015111302546927743,
+       "median_rank": 6.0,
+       "rank_p10": 5.0,
+       "rank_p90": 6.0,
+       "top3_share": 0.0
+      }
+     ]
+    }
+   },
+   "notes": [
+    "One structure and one inspection firm (SGH): these patterns describe this report, not waterfront structures in general.",
+    "Severity is the inspector's rating for the pile, repeated on each of its defect rows: 268 of the 270 elements with several defects carry one rating throughout. A feature therefore shows which defects sit on worse-rated piles, not how severe that single defect is.",
+    "Some fields restate the rating instead of explaining it: Corner rounding (1 minor, 2 major) (\u03c1 = +0.99).",
+    "Rows from the same bent are held out and resampled together, so one pile cannot appear in both training and testing.",
+    "Defect type and severity are recorded side by side in the source tables. Use the 'Without defect type' variant to see what the remaining fields add.",
+    "9 of 1166 Method B rows have been checked against the PDF; the rest are draft.",
+    "These are associations in the extracted rows, not causes of deterioration."
+   ]
+  },
+  {
+   "key": "berkeley",
+   "name": "Berkeley",
+   "title": "Berkeley Municipal Pier",
+   "firm": "GHD",
+   "edition": "November 2017 (draft)",
+   "n_rows": 938,
+   "n_analyzed": 906,
+   "n_elements": 432,
+   "n_groups": 173,
+   "excluded": [
+    {
+     "reason": "Severity given in words, not as a code",
+     "n": 16,
+     "examples": [
+      "extensive",
+      "localized",
+      "noticeable",
+      "heavily",
+      "numerous panels",
+      "corroded away"
+     ]
+    },
+    {
+     "reason": "No severity recorded (NR)",
+     "n": 14,
+     "examples": []
+    },
+    {
+     "reason": "Recorded as no defect",
+     "n": 2,
+     "examples": []
+    }
+   ],
+   "severity_distribution": {
+    "1": 40,
+    "2": 534,
+    "3": 291,
+    "4": 41
+   },
+   "features": [
+    {
+     "key": "type_cracking",
+     "label": "Type: cracking",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'cracking'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 285,
+       "mean": 2.6385964912280704,
+       "counts": [
+        35,
+        73,
+        137,
+        40
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 621,
+       "mean": 2.243156199677939,
+       "counts": [
+        5,
+        461,
+        154,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_corrosion",
+     "label": "Type: corrosion",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'corrosion'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 806,
+       "mean": 2.436724565756824,
+       "counts": [
+        11,
+        473,
+        281,
+        41
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 100,
+       "mean": 1.81,
+       "counts": [
+        29,
+        61,
+        10,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_delamination",
+     "label": "Type: delamination",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'delamination'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 821,
+       "mean": 2.302070645554202,
+       "counts": [
+        40,
+        534,
+        206,
+        41
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 85,
+       "mean": 3.0,
+       "counts": [
+        0,
+        0,
+        85,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_spalling",
+     "label": "Type: spalling",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'spalling'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 862,
+       "mean": 2.3491879350348026,
+       "counts": [
+        37,
+        528,
+        256,
+        41
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 44,
+       "mean": 2.727272727272727,
+       "counts": [
+        3,
+        6,
+        35,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_section_loss",
+     "label": "Type: section loss",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'section_loss'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 871,
+       "mean": 2.319173363949483,
+       "counts": [
+        40,
+        529,
+        286,
+        16
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 35,
+       "mean": 3.5714285714285716,
+       "counts": [
+        0,
+        5,
+        5,
+        25
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_disconnection",
+     "label": "Type: disconnection",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Method B defect type is 'disconnection'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 895,
+       "mean": 2.347486033519553,
+       "counts": [
+        40,
+        534,
+        291,
+        30
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 11,
+       "mean": 4.0,
+       "counts": [
+        0,
+        0,
+        0,
+        11
+       ]
+      }
+     ]
+    },
+    {
+     "key": "type_other",
+     "label": "Type: other or not recorded",
+     "group": "Defect type",
+     "kind": "binary",
+     "how": "Any type with fewer than 10 analyzed rows, or no type recorded.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 896,
+       "mean": 2.3638392857142856,
+       "counts": [
+        37,
+        533,
+        289,
+        37
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 10,
+       "mean": 2.7,
+       "counts": [
+        3,
+        1,
+        2,
+        4
+       ]
+      }
+     ]
+    },
+    {
+     "key": "n_on_element",
+     "label": "Defects recorded on the same element",
+     "group": "Defects on the same element",
+     "kind": "numeric",
+     "how": "Number of Method B rows that share this row's element (pile, bollard, deck section). A table line that names two defects becomes two rows.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "1 to 2",
+       "n": 432,
+       "mean": 2.275462962962963,
+       "counts": [
+        40,
+        268,
+        89,
+        35
+       ]
+      },
+      {
+       "label": "3",
+       "n": 210,
+       "mean": 2.357142857142857,
+       "counts": [
+        0,
+        141,
+        63,
+        6
+       ]
+      },
+      {
+       "label": "4",
+       "n": 128,
+       "mean": 2.46875,
+       "counts": [
+        0,
+        68,
+        60,
+        0
+       ]
+      },
+      {
+       "label": "5 to 7",
+       "n": 136,
+       "mean": 2.5808823529411766,
+       "counts": [
+        0,
+        57,
+        79,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "batter_pile",
+     "label": "Batter pile",
+     "group": "Element kind",
+     "kind": "binary",
+     "how": "Element name contains BAT or 'batter'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 851,
+       "mean": 2.291421856639248,
+       "counts": [
+        37,
+        529,
+        285,
+        0
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 55,
+       "mean": 3.5454545454545454,
+       "counts": [
+        3,
+        5,
+        6,
+        41
+       ]
+      }
+     ]
+    },
+    {
+     "key": "bent",
+     "label": "Bent number (position along the pier)",
+     "group": "Position in the structure",
+     "kind": "numeric",
+     "how": "Bent number in the element name, e.g. 47 in 'pile 47-E' or 364 in 'bent 364 row A'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "281 to 326",
+       "n": 230,
+       "mean": 2.534782608695652,
+       "counts": [
+        1,
+        109,
+        116,
+        4
+       ]
+      },
+      {
+       "label": "327 to 378",
+       "n": 223,
+       "mean": 2.3318385650224216,
+       "counts": [
+        6,
+        144,
+        66,
+        7
+       ]
+      },
+      {
+       "label": "379 to 419",
+       "n": 227,
+       "mean": 2.251101321585903,
+       "counts": [
+        16,
+        149,
+        51,
+        11
+       ]
+      },
+      {
+       "label": "420 to 465",
+       "n": 226,
+       "mean": 2.349557522123894,
+       "counts": [
+        17,
+        132,
+        58,
+        19
+       ]
+      }
+     ]
+    },
+    {
+     "key": "row",
+     "label": "Pile row (A = 1, B = 2 ...)",
+     "group": "Position in the structure",
+     "kind": "ordinal",
+     "how": "Row letter in the element name, as a number.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "1",
+       "n": 270,
+       "mean": 2.4,
+       "counts": [
+        16,
+        153,
+        78,
+        23
+       ]
+      },
+      {
+       "label": "2",
+       "n": 188,
+       "mean": 2.127659574468085,
+       "counts": [
+        15,
+        134,
+        39,
+        0
+       ]
+      },
+      {
+       "label": "3",
+       "n": 448,
+       "mean": 2.4486607142857144,
+       "counts": [
+        9,
+        247,
+        174,
+        18
+       ]
+      }
+     ]
+    },
+    {
+     "key": "crack_width_in",
+     "label": "Crack width (in)",
+     "group": "Measurements",
+     "kind": "numeric",
+     "how": "'\u2026 in wide' in the measurement.",
+     "n_nonmissing": 450,
+     "levels": [
+      {
+       "label": "0.0625 to 0.125",
+       "n": 361,
+       "mean": 2.25207756232687,
+       "counts": [
+        3,
+        265,
+        92,
+        1
+       ]
+      },
+      {
+       "label": "0.1667 to 0.5",
+       "n": 89,
+       "mean": 2.3258426966292136,
+       "counts": [
+        1,
+        58,
+        30,
+        0
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 456,
+       "mean": 2.4671052631578947,
+       "counts": [
+        36,
+        211,
+        169,
+        40
+       ]
+      }
+     ]
+    },
+    {
+     "key": "length_ft",
+     "label": "Length (ft)",
+     "group": "Measurements",
+     "kind": "numeric",
+     "how": "'\u2026 ft long' in the measurement.",
+     "n_nonmissing": 589,
+     "levels": [
+      {
+       "label": "0.125 to 1.5",
+       "n": 221,
+       "mean": 2.1312217194570136,
+       "counts": [
+        3,
+        186,
+        32,
+        0
+       ]
+      },
+      {
+       "label": "1.75 to 2",
+       "n": 155,
+       "mean": 2.264516129032258,
+       "counts": [
+        2,
+        110,
+        43,
+        0
+       ]
+      },
+      {
+       "label": "2.5 to 3",
+       "n": 160,
+       "mean": 2.31875,
+       "counts": [
+        0,
+        110,
+        49,
+        1
+       ]
+      },
+      {
+       "label": "3.5 to 6.5",
+       "n": 53,
+       "mean": 2.30188679245283,
+       "counts": [
+        0,
+        37,
+        16,
+        0
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 317,
+       "mean": 2.6182965299684544,
+       "counts": [
+        35,
+        91,
+        151,
+        40
+       ]
+      }
+     ]
+    },
+    {
+     "key": "area_sqft",
+     "label": "Area (sq ft)",
+     "group": "Measurements",
+     "kind": "numeric",
+     "how": "'\u2026 sq ft' in the measurement.",
+     "n_nonmissing": 104,
+     "levels": [
+      {
+       "label": "0.25 to 1",
+       "n": 35,
+       "mean": 2.9714285714285715,
+       "counts": [
+        0,
+        1,
+        34,
+        0
+       ]
+      },
+      {
+       "label": "1.5",
+       "n": 17,
+       "mean": 3.0,
+       "counts": [
+        0,
+        0,
+        17,
+        0
+       ]
+      },
+      {
+       "label": "2 to 3",
+       "n": 42,
+       "mean": 2.9761904761904763,
+       "counts": [
+        0,
+        1,
+        41,
+        0
+       ]
+      },
+      {
+       "label": "4 to 5",
+       "n": 10,
+       "mean": 3.0,
+       "counts": [
+        0,
+        0,
+        10,
+        0
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 802,
+       "mean": 2.2880299251870326,
+       "counts": [
+        40,
+        532,
+        189,
+        41
+       ]
+      }
+     ]
+    },
+    {
+     "key": "depth_in",
+     "label": "Depth (in)",
+     "group": "Measurements",
+     "kind": "numeric",
+     "how": "'\u2026 in deep' in the measurement.",
+     "n_nonmissing": 41,
+     "levels": [
+      {
+       "label": "0.5 to 0.75",
+       "n": 13,
+       "mean": 2.230769230769231,
+       "counts": [
+        3,
+        4,
+        6,
+        0
+       ]
+      },
+      {
+       "label": "1 to 1.5",
+       "n": 20,
+       "mean": 3.0,
+       "counts": [
+        0,
+        0,
+        20,
+        0
+       ]
+      },
+      {
+       "label": "2 to 4",
+       "n": 8,
+       "mean": 2.875,
+       "counts": [
+        0,
+        1,
+        7,
+        0
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 865,
+       "mean": 2.3502890173410407,
+       "counts": [
+        37,
+        529,
+        258,
+        41
+       ]
+      }
+     ]
+    },
+    {
+     "key": "percent",
+     "label": "Percent affected",
+     "group": "Measurements",
+     "kind": "numeric",
+     "how": "First percentage in the measurement.",
+     "n_nonmissing": 34,
+     "levels": [
+      {
+       "label": "10 to 30",
+       "n": 10,
+       "mean": 2.9,
+       "counts": [
+        0,
+        5,
+        1,
+        4
+       ]
+      },
+      {
+       "label": "40 to 50",
+       "n": 9,
+       "mean": 3.5555555555555554,
+       "counts": [
+        0,
+        0,
+        4,
+        5
+       ]
+      },
+      {
+       "label": "60 to 90",
+       "n": 10,
+       "mean": 4.0,
+       "counts": [
+        0,
+        0,
+        0,
+        10
+       ]
+      },
+      {
+       "label": "95 to 100",
+       "n": 5,
+       "mean": 4.0,
+       "counts": [
+        0,
+        0,
+        0,
+        5
+       ]
+      },
+      {
+       "label": "Not recorded",
+       "n": 872,
+       "mean": 2.3211009174311927,
+       "counts": [
+        40,
+        529,
+        286,
+        17
+       ]
+      }
+     ]
+    },
+    {
+     "key": "exposed_reinforcement",
+     "label": "Exposed reinforcement noted",
+     "group": "Measurements",
+     "kind": "binary",
+     "how": "Measurement or associated signs mention exposed reinforcement.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 903,
+       "mean": 2.3654485049833887,
+       "counts": [
+        40,
+        534,
+        288,
+        41
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 3,
+       "mean": 3.0,
+       "counts": [
+        0,
+        0,
+        3,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "cause_reinforcement_corrosion",
+     "label": "Cause: corrosion of reinforcement",
+     "group": "Cause",
+     "kind": "binary",
+     "how": "Cause field starts with 'corrosion of'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 305,
+       "mean": 2.6262295081967215,
+       "counts": [
+        35,
+        84,
+        146,
+        40
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 601,
+       "mean": 2.2362728785357735,
+       "counts": [
+        5,
+        450,
+        145,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "key": "cause_structural",
+     "label": "Cause: structural",
+     "group": "Cause",
+     "kind": "binary",
+     "how": "Cause field starts with 'structural'.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 894,
+       "mean": 2.3713646532438477,
+       "counts": [
+        40,
+        523,
+        290,
+        41
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 12,
+       "mean": 2.0833333333333335,
+       "counts": [
+        0,
+        11,
+        1,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "key": "sign_corrosion_stain",
+     "label": "Corrosion stain",
+     "group": "Associated signs",
+     "kind": "binary",
+     "how": "Associated signs include a corrosion stain.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 471,
+       "mean": 2.4012738853503186,
+       "counts": [
+        36,
+        250,
+        145,
+        40
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 435,
+       "mean": 2.331034482758621,
+       "counts": [
+        4,
+        284,
+        146,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "key": "sign_efflorescence",
+     "label": "Efflorescence",
+     "group": "Associated signs",
+     "kind": "binary",
+     "how": "Associated signs include efflorescence.",
+     "n_nonmissing": 906,
+     "levels": [
+      {
+       "label": "No",
+       "n": 863,
+       "mean": 2.376593279258401,
+       "counts": [
+        40,
+        499,
+        283,
+        41
+       ]
+      },
+      {
+       "label": "Yes",
+       "n": 43,
+       "mean": 2.186046511627907,
+       "counts": [
+        0,
+        35,
+        8,
+        0
+       ]
+      }
+     ]
+    }
+   ],
+   "univariate": [
+    {
+     "feature": "percent",
+     "n": 34,
+     "rho": 0.5800805973687064,
+     "ci_low": 0.362545385734712,
+     "ci_high": 0.7851086235782077,
+     "p": 0.00032328107513865113
+    },
+    {
+     "feature": "depth_in",
+     "n": 41,
+     "rho": 0.5111512347586784,
+     "ci_low": 0.08403747514375112,
+     "ci_high": 0.7405390620855525,
+     "p": 0.0006372918825475681
+    },
+    {
+     "feature": "type_delamination",
+     "n": 906,
+     "rho": 0.3756128253696683,
+     "ci_low": 0.3309185008753169,
+     "ci_high": 0.4168206369499401,
+     "p": 9.808674039139261e-32
+    },
+    {
+     "feature": "batter_pile",
+     "n": 906,
+     "rho": 0.3503225136593657,
+     "ci_low": 0.2570274796203775,
+     "ci_high": 0.4282591916283076,
+     "p": 1.4896126361627016e-27
+    },
+    {
+     "feature": "cause_reinforcement_corrosion",
+     "n": 906,
+     "rho": -0.2945505408075884,
+     "ci_low": -0.36486782956485087,
+     "ci_high": -0.21446957775293762,
+     "p": 1.361602712677648e-19
+    },
+    {
+     "feature": "type_cracking",
+     "n": 906,
+     "rho": -0.2915119338296026,
+     "ci_low": -0.36525381848511157,
+     "ci_high": -0.21334103920965383,
+     "p": 3.317858340306665e-19
+    },
+    {
+     "feature": "type_corrosion",
+     "n": 906,
+     "rho": -0.29003435222423246,
+     "ci_low": -0.3571961488697807,
+     "ci_high": -0.23092725133297834,
+     "p": 5.096442823000231e-19
+    },
+    {
+     "feature": "type_section_loss",
+     "n": 906,
+     "rho": 0.28637699747178613,
+     "ci_low": 0.21178810869649323,
+     "ci_high": 0.35053901647613755,
+     "p": 1.4586798523747792e-18
+    },
+    {
+     "feature": "n_on_element",
+     "n": 906,
+     "rho": 0.2298205933187052,
+     "ci_low": 0.12751637276499994,
+     "ci_high": 0.32806200884562703,
+     "p": 2.5243769201730385e-12
+    },
+    {
+     "feature": "type_disconnection",
+     "n": 906,
+     "rho": 0.2100275430738504,
+     "ci_low": 0.1568320089996379,
+     "ci_high": 0.25623845193945155,
+     "p": 1.7206234045954273e-10
+    },
+    {
+     "feature": "type_spalling",
+     "n": 906,
+     "rho": 0.16087301846574695,
+     "ci_low": 0.07956499926645103,
+     "ci_high": 0.22531432289019476,
+     "p": 1.131322761050239e-06
+    },
+    {
+     "feature": "length_ft",
+     "n": 589,
+     "rho": 0.16036906899678316,
+     "ci_low": 0.0704064278310686,
+     "ci_high": 0.24247398856056884,
+     "p": 9.263705268686385e-05
+    },
+    {
+     "feature": "bent",
+     "n": 906,
+     "rho": -0.1368118262830348,
+     "ci_low": -0.2748712578721799,
+     "ci_high": 0.007439987758721846,
+     "p": 3.599796769130847e-05
+    },
+    {
+     "feature": "row",
+     "n": 906,
+     "rho": 0.08409177051443345,
+     "ci_low": -0.022706070487153878,
+     "ci_high": 0.1921077227377139,
+     "p": 0.01133687023918452
+    },
+    {
+     "feature": "sign_efflorescence",
+     "n": 906,
+     "rho": -0.06771585759735409,
+     "ci_low": -0.11524059495756368,
+     "ci_high": -0.012185028008287385,
+     "p": 0.04157379067142255
+    },
+    {
+     "feature": "exposed_reinforcement",
+     "n": 906,
+     "rho": 0.0672851586592847,
+     "ci_low": 0.03618662800739815,
+     "ci_high": 0.0998941921310452,
+     "p": 0.04289088405789951
+    },
+    {
+     "feature": "crack_width_in",
+     "n": 450,
+     "rho": 0.0628992952743301,
+     "ci_low": -0.040112516280484935,
+     "ci_high": 0.1550222279235754,
+     "p": 0.18289188376622514
+    },
+    {
+     "feature": "cause_structural",
+     "n": 906,
+     "rho": -0.05664853080174387,
+     "ci_low": -0.09674952796299946,
+     "ci_high": -0.005590827619811798,
+     "p": 0.08835756654805267
+    },
+    {
+     "feature": "area_sqft",
+     "n": 104,
+     "rho": 0.04753031423414585,
+     "ci_low": -0.07145339884172941,
+     "ci_high": 0.16572160386686327,
+     "p": 0.6318471755732764
+    },
+    {
+     "feature": "type_other",
+     "n": 906,
+     "rho": 0.03785337560264154,
+     "ci_low": -0.06687413545194643,
+     "ci_high": 0.13966527972998602,
+     "p": 0.25503060596799865
+    },
+    {
+     "feature": "sign_corrosion_stain",
+     "n": 906,
+     "rho": -0.03730081175660698,
+     "ci_low": -0.09922160406660101,
+     "ci_high": 0.01818306511973947,
+     "p": 0.2620374294439932
+    }
+   ],
+   "models": {
+    "all": {
+     "cv_mae": 0.2626210283155647,
+     "baseline_mae": 0.45584988962472406,
+     "n_groups": 173,
+     "bootstraps_used": 200,
+     "importance": [
+      {
+       "group": "Defect type",
+       "features": [
+        "type_cracking",
+        "type_corrosion",
+        "type_delamination",
+        "type_spalling",
+        "type_section_loss",
+        "type_disconnection",
+        "type_other"
+       ],
+       "mae_increase": 0.14206969227322425,
+       "median_rank": 1.0,
+       "rank_p10": 1.0,
+       "rank_p90": 1.0,
+       "top3_share": 1.0
+      },
+      {
+       "group": "Element kind",
+       "features": [
+        "batter_pile"
+       ],
+       "mae_increase": 0.10534679122335032,
+       "median_rank": 2.0,
+       "rank_p10": 2.0,
+       "rank_p90": 3.0999999999999943,
+       "top3_share": 0.9
+      },
+      {
+       "group": "Defects on the same element",
+       "features": [
+        "n_on_element"
+       ],
+       "mae_increase": 0.1005742090267063,
+       "median_rank": 3.0,
+       "rank_p10": 2.0,
+       "rank_p90": 3.0,
+       "top3_share": 0.92
+      },
+      {
+       "group": "Position in the structure",
+       "features": [
+        "bent",
+        "row"
+       ],
+       "mae_increase": 0.0596091481871697,
+       "median_rank": 4.0,
+       "rank_p10": 3.0,
+       "rank_p90": 4.0,
+       "top3_share": 0.18
+      },
+      {
+       "group": "Measurements",
+       "features": [
+        "crack_width_in",
+        "length_ft",
+        "area_sqft",
+        "depth_in",
+        "percent",
+        "exposed_reinforcement"
+       ],
+       "mae_increase": 0.02467524184281913,
+       "median_rank": 5.0,
+       "rank_p10": 5.0,
+       "rank_p90": 6.0,
+       "top3_share": 0.0
+      },
+      {
+       "group": "Associated signs",
+       "features": [
+        "sign_corrosion_stain",
+        "sign_efflorescence"
+       ],
+       "mae_increase": 0.005070683426519532,
+       "median_rank": 7.0,
+       "rank_p10": 6.0,
+       "rank_p90": 7.0,
+       "top3_share": 0.0
+      },
+      {
+       "group": "Cause",
+       "features": [
+        "cause_reinforcement_corrosion",
+        "cause_structural"
+       ],
+       "mae_increase": 0.003578599411380888,
+       "median_rank": 6.0,
+       "rank_p10": 5.0,
+       "rank_p90": 7.0,
+       "top3_share": 0.0
+      }
+     ]
+    },
+    "without_defect_type": {
+     "cv_mae": 0.29330706781976096,
+     "baseline_mae": 0.45584988962472406,
+     "n_groups": 173,
+     "bootstraps_used": 200,
+     "importance": [
+      {
+       "group": "Element kind",
+       "features": [
+        "batter_pile"
+       ],
+       "mae_increase": 0.11253996075872455,
+       "median_rank": 1.0,
+       "rank_p10": 1.0,
+       "rank_p90": 3.0,
+       "top3_share": 0.95
+      },
+      {
+       "group": "Defects on the same element",
+       "features": [
+        "n_on_element"
+       ],
+       "mae_increase": 0.0885237227074699,
+       "median_rank": 3.0,
+       "rank_p10": 1.0,
+       "rank_p90": 4.0,
+       "top3_share": 0.715
+      },
+      {
+       "group": "Position in the structure",
+       "features": [
+        "bent",
+        "row"
+       ],
+       "mae_increase": 0.08139254810117116,
+       "median_rank": 3.0,
+       "rank_p10": 1.0,
+       "rank_p90": 4.0,
+       "top3_share": 0.69
+      },
+      {
+       "group": "Measurements",
+       "features": [
+        "crack_width_in",
+        "length_ft",
+        "area_sqft",
+        "depth_in",
+        "percent",
+        "exposed_reinforcement"
+       ],
+       "mae_increase": 0.08071336533274996,
+       "median_rank": 3.0,
+       "rank_p10": 2.0,
+       "rank_p90": 5.0,
+       "top3_share": 0.515
+      },
+      {
+       "group": "Cause",
+       "features": [
+        "cause_reinforcement_corrosion",
+        "cause_structural"
+       ],
+       "mae_increase": 0.05282562950549979,
+       "median_rank": 5.0,
+       "rank_p10": 3.0,
+       "rank_p90": 5.0,
+       "top3_share": 0.13
+      },
+      {
+       "group": "Associated signs",
+       "features": [
+        "sign_corrosion_stain",
+        "sign_efflorescence"
+       ],
+       "mae_increase": 0.009299961394484009,
+       "median_rank": 6.0,
+       "rank_p10": 6.0,
+       "rank_p90": 6.0,
+       "top3_share": 0.0
+      }
+     ]
+    }
+   },
+   "notes": [
+    "One structure and one inspection firm (GHD): these patterns describe this report, not waterfront structures in general.",
+    "Severity is the inspector's rating for the pile, repeated on each of its defect rows: 254 of the 254 elements with several defects carry one rating throughout. A feature therefore shows which defects sit on worse-rated piles, not how severe that single defect is.",
+    "Rows from the same bent are held out and resampled together, so one pile cannot appear in both training and testing.",
+    "Defect type and severity are recorded side by side in the source tables. Use the 'Without defect type' variant to see what the remaining fields add.",
+    "12 of 938 Method B rows have been checked against the PDF; the rest are draft.",
+    "These are associations in the extracted rows, not causes of deterioration."
+   ]
+  }
+ ],
+ "withheld": [
+  {
+   "key": "dsny",
+   "name": "DSNY",
+   "status": "in review"
+  }
+ ]
+}
