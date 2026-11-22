@@ -82,7 +82,7 @@ def test_forecast_page_is_served_and_linked(tmp_path, monkeypatch):
     setup_web(tmp_path, monkeypatch)
     client = TestClient(web.app)
     for path in ("/forecast/", "/forecast/app.js", "/forecast/style.css", "/forecast/forecast_data.js",
-                 "/forecast/training_pairs.csv"):
+                 "/forecast/training_pairs.csv", "/forecast/brooklyn_method_a.json"):
         assert client.get(path).status_code == 200, path
     for page in PAGES:
         assert 'href="/forecast/"' in (STATIC / page).read_text(), page
@@ -95,18 +95,28 @@ def test_forecast_data_matches_method_b_rows():
     data = json.loads(text[len(prefix):].rstrip().rstrip(";"))
     rows = json.loads((STATIC / "method-b" / "data.json").read_text())["rows"]
     source = data["source"]
-    assert {a["key"] for a in data["assets"]} == {"alameda", "berkeley"}
+    assert [a["key"] for a in data["assets"]] == ["southwest-brooklyn-mts", "alameda", "berkeley"]
     assert [w["key"] for w in source["withheld"]] == ["dsny"]
     assert source["defect_rows"] == len(rows)
-    assert data["totals"]["defect_events"] + source["skipped_total"] == len(rows)
+    assert data["totals"]["method_b_defects"] + source["skipped_total"] == len(rows)
+    assert data["totals"]["current_defects"] == sum(len(a["current_defects"]) for a in data["assets"])
     # One inspection per report: the rates come from the saved training pairs, not from these rows.
     assert data["totals"]["fit_pairs"] > 20 and data["rates_source"]["kind"] == "training_pairs"
     grades = {"MN": 1, "MD": 2, "MJ": 3, "SV": 4, "S ": 4}
     for asset in data["assets"]:
         defects = asset["current_defects"]
-        assert asset["curve"]["n_defects"] == len(defects) == asset["coverage"]["defects"]
+        assert asset["curve"]["n_defects"] == len(defects)
         assert asset["curve"]["n_now"] == sum(d["repair_now"] for d in defects)
+        if asset["source"] == "method_b":
+            # One inspection, graded by the inspector's own code.
+            assert len(defects) == asset["coverage"]["defects"] and not asset["tracks"]
+        else:
+            # The saved Southwest Brooklyn structure: ten inspections, model-assigned grades, linked tracks.
+            assert asset["source"] == "method_a" and asset["latest_inspection_year"] == 2025
+            assert [r["inspection_year"] for r in asset["reports"]] == [2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025]
+            assert len(defects) == asset["reports"][-1]["n_defects"] and len(asset["tracks"]) > 20
         for d in defects:
-            assert d["grade"] == grades[d["severity_raw"][:2]]
+            if asset["source"] == "method_b":
+                assert d["grade"] == grades[d["severity_raw"][:2]]
             assert d["repair_now"] == (d["grade"] >= data["repair_threshold"])
             assert d["p_repair_1y"] <= d["p_repair_5y"] <= d["p_repair_10y"]

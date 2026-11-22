@@ -8,6 +8,9 @@ Run from `Method A/`:  uv run scripts/build_forecast.py
 Inputs:
   src/coastwise/static/method-b/data.json           Method B rows; the inspector's severity code is the grade
   src/coastwise/static/forecast/training_pairs.csv  linked grade transitions used to fit the rates
+  src/coastwise/static/forecast/brooklyn_method_a.json  Southwest Brooklyn (DSNY) 2015-2025: its inspections,
+                                                    2025 defects and linked tracks, saved from the earlier
+                                                    Method A library by the team's forecasting pipeline
 Output:
   src/coastwise/static/forecast/forecast_data.js    read by the Forecast page
 
@@ -534,33 +537,55 @@ def method_notes(source: dict, pairs: list[dict], events: list[dict]) -> list[st
     ]
 
 
-def build(method_b_path: Path, pairs_path: Path, output: Path) -> dict:
+def forecast_row(model: RateModel, defect: dict) -> dict:
+    """A defect plus its action-now label and repair-timing probabilities."""
+    fc = model.forecast(defect["grade"], defect["defect_class"])
+    rule = action_for(defect["grade"], defect["extent"])
+    return {
+        **{k: defect[k] for k in ROW_FIELDS},
+        "action_now": rule["label"], "action_key": rule["action"], "action_window": rule["window"],
+        "repair_now": fc["repair_now"],
+        "p_degrade_1y": None if fc["p_degrade_by"]["1"] is None else round(fc["p_degrade_by"]["1"], 3),
+        **{f"p_repair_{h}y": round(fc["p_repair_by"][str(h)], 3) for h in HORIZONS},
+        "median_years_to_repair": fc["median_years_to_repair"], "q10_years": fc["q10_years"],
+        "q90_years": fc["q90_years"],
+    }
+
+
+def saved_asset(model: RateModel, path: Path) -> dict:
+    """A structure with repeat inspections, saved from the earlier Method A library.
+
+    Its reports, latest defects and linked tracks are kept as saved; the repair-timing numbers are
+    recomputed here so every structure on the page uses the same fitted rates.
+    """
+    asset = json.loads(path.read_text(encoding="utf-8"))
+    current = [forecast_row(model, d) for d in asset["current_defects"]]
+    current.sort(key=lambda r: (-r["grade"], -r["p_repair_3y"], r["location"]))
+    return {**asset, "source": "method_a", "current_defects": current, "curve": model.asset_curve(current)}
+
+
+SAVED_NOTE = (
+    "Southwest Brooklyn (DSNY) is the one structure here with repeat inspections (2015-2025). Its defects and grades "
+    "come from the earlier Method A extraction, where a model assigned each damage grade, not from Method B. Its "
+    "linked tracks are part of the training pairs, so its forecast is partly fitted on its own history.")
+
+
+def build(method_b_path: Path, pairs_path: Path, output: Path, saved_path: Path | None = None) -> dict:
     pairs = load_pairs(pairs_path)
     model = RateModel().fit(pairs)
     events, reports, source = build_method_b_events(method_b_path)
 
-    assets = []
+    assets = [saved_asset(model, saved_path)] if saved_path else []
     for report in reports:
         rows = [e for e in events if e["asset_key"] == report["asset_key"]]
         year = report["inspection_year"]
         counts = Counter(e["grade"] for e in rows)
         worst = max((action_for(e["grade"], e["extent"]) for e in rows), key=lambda r: ACTION_RANK[r["action"]], default=None)
-        current = []
-        for e in rows:
-            fc = model.forecast(e["grade"], e["defect_class"])
-            rule = action_for(e["grade"], e["extent"])
-            current.append({
-                **{k: e[k] for k in ROW_FIELDS},
-                "action_now": rule["label"], "action_key": rule["action"], "action_window": rule["window"],
-                "repair_now": fc["repair_now"],
-                "p_degrade_1y": None if fc["p_degrade_by"]["1"] is None else round(fc["p_degrade_by"]["1"], 3),
-                **{f"p_repair_{h}y": round(fc["p_repair_by"][str(h)], 3) for h in HORIZONS},
-                "median_years_to_repair": fc["median_years_to_repair"], "q10_years": fc["q10_years"],
-                "q90_years": fc["q90_years"],
-            })
+        current = [forecast_row(model, e) for e in rows]
         current.sort(key=lambda r: (-r["grade"], -r["p_repair_3y"], r["location"]))
         assets.append({
             "key": report["asset_key"], "name": report["asset_name"], "latest_inspection_year": year,
+            "source": "method_b",
             "reports": [{
                 "filename": report["filename"], "inspection_year": year, "report_role": "inspection",
                 "repairs_since_previous": "unknown", "n_defects": len(rows),
@@ -595,8 +620,9 @@ def build(method_b_path: Path, pairs_path: Path, output: Path) -> dict:
         "grades": GRADES, "repair_threshold": REPAIR_THRESHOLD, "horizons": list(HORIZONS),
         "class_labels": CLASS_LABEL, "action_rules": ACTION_RULES,
         "totals": {
-            "reports": len(reports), "inspection_reports": len(reports), "assets": len(assets),
-            "defect_events": len(events), "element_keyed": sum(e["component_level"] == "element" for e in events),
+            "reports": sum(len(a["reports"]) for a in assets), "assets": len(assets),
+            "current_defects": sum(len(a["current_defects"]) for a in assets),
+            "method_b_reports": len(reports), "method_b_defects": len(events),
             "pairs": len(pairs), "fit_pairs": model.n_pairs,
             "pair_outcomes": dict(Counter(p["outcome"] for p in pairs)),
             "exclusions": dict(Counter(p["exclusion_reason"] for p in pairs if p["exclusion_reason"])),
@@ -606,7 +632,7 @@ def build(method_b_path: Path, pairs_path: Path, output: Path) -> dict:
                   "by_class": [m for m in model.multipliers.values() if m["group"] == "class"]},
         "assets": assets,
         "backtests": [{k: v for k, v in t.items() if k != "pairs"} for t in tests if t],
-        "method_notes": method_notes(source, pairs, events),
+        "method_notes": method_notes(source, pairs, events) + [SAVED_NOTE] * bool(saved_path),
     }
     output.write_text("window.FORECAST_DATA = " + json.dumps(result, separators=(",", ":"), allow_nan=False) + ";\n")
     return result
@@ -617,10 +643,12 @@ def main():
     parser.add_argument("--method-b", type=Path, default=STATIC / "method-b/data.json")
     parser.add_argument("--pairs", type=Path, default=STATIC / "forecast/training_pairs.csv")
     parser.add_argument("--output", type=Path, default=STATIC / "forecast/forecast_data.js")
+    parser.add_argument("--saved", type=Path, default=STATIC / "forecast/brooklyn_method_a.json",
+                        help="saved structure with repeat inspections")
     args = parser.parse_args()
-    result = build(args.method_b, args.pairs, args.output)
+    result = build(args.method_b, args.pairs, args.output, args.saved)
     t = result["totals"]
-    print(f"{t['defect_events']} defect rows from {t['reports']} reports; rates from {t['fit_pairs']} of {t['pairs']} pairs")
+    print(f"{t['current_defects']} current defects on {t['assets']} structures; rates from {t['fit_pairs']} of {t['pairs']} pairs")
     for asset in result["assets"]:
         c = asset["curve"]
         print(f"  {asset['key']}: {c['n_now']} of {c['n_defects']} at the repair threshold now; "

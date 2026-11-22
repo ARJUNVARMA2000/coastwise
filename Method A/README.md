@@ -21,7 +21,7 @@ Alameda and Berkeley were restored from their exact saved results without new mo
 
 ## Forecast page
 
-`/forecast/` shows a deterioration and repair-timing forecast for the Method B defect rows (Alameda 2016, Berkeley 2017), using the inspector's severity code as the grade. Rebuild its data with `uv run scripts/build_forecast.py`. Each of those reports holds one inspection, so the rates are fitted on `static/forecast/training_pairs.csv` (72 linked transitions from Southwest Brooklyn, Windmill Hill and Ocean Beach Pier, produced by the team's forecasting pipeline in the shared capstone repo) and applied unchanged; the page states this at the top.
+`/forecast/` shows a deterioration and repair-timing forecast for the Method B defect rows (Alameda 2016, Berkeley 2017), using the inspector's severity code as the grade. Rebuild its data with `uv run scripts/build_forecast.py`. Each of those reports holds one inspection, so the rates are fitted on `static/forecast/training_pairs.csv` (72 linked transitions from Southwest Brooklyn, Windmill Hill and Ocean Beach Pier, produced by the team's forecasting pipeline in the shared capstone repo) and applied unchanged; the page states this at the top. The page also shows Southwest Brooklyn (DSNY) 2015–2025, the one structure with repeat inspections, from `static/forecast/brooklyn_method_a.json`: its inspections, 2025 defects and linked tracks as saved from the earlier Method A library (model-assigned grades), with repair timing recomputed from the same rates.
 
 ## Method B and Answer key pages
 

@@ -1,0 +1,2756 @@
+{
+ "key": "southwest-brooklyn-mts",
+ "name": "Southwest Brooklyn Marine Transfer Station (DSNY)",
+ "latest_inspection_year": 2025,
+ "exported_from": {
+  "file": "msds-capstone Modeling_Forecasting/outputs/forecast.json",
+  "generated_at": "2026-11-09T17:04:34+00:00",
+  "grades": "Method A model-assigned damage grade",
+  "model": "deepseek/deepseek-v4.1-flash-1017"
+ },
+ "reports": [
+  {
+   "filename": "2015-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2015,
+   "report_role": "inspection",
+   "repairs_since_previous": "unknown",
+   "registry_notes": "",
+   "n_defects": 25,
+   "grade_counts": [
+    0,
+    1,
+    11,
+    10,
+    3
+   ],
+   "mean_grade": 2.6,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "complete",
+   "human": {
+    "rating_raw": "Overall: Fair. West Bulkhead: Poor. North Bulkhead: Fair. East Bulkhead: Fair. East Fender System: Serious (incidental observation).",
+    "rating_scale": "ASCE CAR: Good, Satisfactory, Fair, Poor, Serious, Critical.",
+    "urgency": "Overall: moderate, repairs needed within the following year. West Bulkhead: Poor (moderate urgency). East fender system: Serious, high proority urgency. North/East Bulkheads: Fair, low priority.",
+    "repairs_since_previous": "Unknown: cofferdam cells previously epoxy-coated (date not reported); North fender removed since previous inspection (remnants on mudline); West pile cap reported missing in previous inspection still missing; North inshore construction in progress (new concrete bulkhead ~3 ft inshore, shear bolts, threaded rods/brackets for planned partial encasement)"
+   }
+  },
+  {
+   "filename": "2016-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2016,
+   "report_role": "inspection",
+   "repairs_since_previous": "no",
+   "registry_notes": "",
+   "n_defects": 33,
+   "grade_counts": [
+    0,
+    2,
+    18,
+    9,
+    4
+   ],
+   "mean_grade": 2.45,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": "Overall: Fair. West Bulkhead: Poor. North Bulkhead: Fair. East Bulkhead: Fair. East Fender System: Serious (incidental observation).",
+    "rating_scale": "ASCE CAR: Good, Satisfactory, Fair, Poor, Serious, Critical; no numeric codes.",
+    "urgency": "Overall: moderate, repairs needed within the following year. West Bulkhead: Poor (moderate urgency). East fender system: Serious, high proority urgency. North/East Bulkheads: Fair, low priority.",
+    "repairs_since_previous": "No: 2015 West recommendations not carried out: hole unpatched and enlarged (~1 in. to ~6 in.), bracket still loose, pile cap still missing; North inshore concrete bulkhead and shear-bolt installation continued (new construction, not repair of reported defects)"
+   }
+  },
+  {
+   "filename": "2017-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2017,
+   "report_role": "inspection",
+   "repairs_since_previous": "partial",
+   "registry_notes": "North bulkhead encased; West/East defects persist",
+   "n_defects": 48,
+   "grade_counts": [
+    0,
+    6,
+    30,
+    8,
+    4
+   ],
+   "mean_grade": 2.21,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "complete",
+   "human": {
+    "rating_raw": "Overall: Fair.  West Bulkhead: Poor.  North Bulkhead: Fair.  East Bulkhead: Fair.  East Fender System: Serious",
+    "rating_scale": "ASCE CAR: Good, Satisfactory, Fair, Poor, Serious, Critical; no numeric codes.",
+    "urgency": "Overall: moderate, repairs needed within the following year; steel below North encasement deferred to a future maintenance project. West Bulkhead: Poor (moderate urgency). East fender system: Serious, high proority urgency. North/East Bulkheads: Fair, low priority.",
+    "repairs_since_previous": "Partial. Yes (North only): partial concrete encasement installed Sta. 3+25\u20130+30 covering sheets, wale and tie rods (extent includes Sta. 0+65 where 2016 wale damage was reported); annulus filled and new deck with new mooring hardware built; contractor repairing encasement defects at time of inspection. No (West): hole, bracket, cap defects persist. No (East): spall, coating loss persist."
+   }
+  },
+  {
+   "filename": "2018-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2018,
+   "report_role": "inspection",
+   "repairs_since_previous": "yes",
+   "registry_notes": "North bulkhead rehabilitated; new fender systems; naming of faces changes",
+   "n_defects": 7,
+   "grade_counts": [
+    0,
+    1,
+    3,
+    2,
+    1
+   ],
+   "mean_grade": 2.43,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "complete",
+   "human": {
+    "rating_raw": "Overall (New MTS): Satisfactory. Overall (Old MTS): Poor. North Bulkhead: Satisfactory. East Bulkhead: Satisfactory. North Fender System: Fair. East King Pile Fender System: Good. East Fender\n",
+    "rating_scale": "NYCEDC WFMMS CAR: 6 Good, 5 Satisfactory, 4 Fair, 3 Poor, 2 Serious, 1 Critical | Defect damage grades: Minor, Moderate, Advanced, Severe | Action categories: Immediate, Priority (1\u20133 yrs), Routine (3\u20135 yrs)",
+    "urgency": "New MTS: Low Priority, $0 Immediate/Priority/Routine; cautionary berthing until fender corrected; no load restrictions. Old MTS: Moderate, Priority (1\u20133 yrs), $11.3M.",
+    "repairs_since_previous": "Yes. North Bulkhead rehabilitated (per 2016 CH2M Hill inspection and June 2012 conformed drawings): concrete encasement over upper pre-existing steel sheet piles from top of bulkhead (El. 6.5 ft) to ~3 ft below MLW (El. \u22127.0 ft), now enclosing tie rods (El. 1.3 ft) and steel wale that were previously exposed and rated fair; encasement acts as part of cap/deck in places; runs from north corner to a few feet past the southeast corner. New North Fender System installed (incomplete). East King Pile Fender System newly built. East Bulkhead (South Face) not rehabilitated \u2014 unchanged from original construction; spall and steel perforation unrepaired"
+   }
+  },
+  {
+   "filename": "2020-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2020,
+   "report_role": "inspection",
+   "repairs_since_previous": "unknown",
+   "registry_notes": "North fender system only",
+   "n_defects": 11,
+   "grade_counts": [
+    0,
+    7,
+    4,
+    0,
+    0
+   ],
+   "mean_grade": 1.36,
+   "pipeline_action": "Routine repair",
+   "pipeline_action_key": "routine",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": "Timbers: Very good; inspected whalers: Excellent; inspected piles: Excellent",
+    "rating_scale": "No formal scale reported; narrative descriptors (Very good / Excellent)",
+    "urgency": "NR: no urgency or deadline stated; recommendations are maintenance-level; F5/F6 splits and F9 holes explicitly not a concern",
+    "repairs_since_previous": "Unknown. Repair history not reported. Correction of 2018 fender installation deficiencies (missing hardware, 4- vs 6-bolt connections) not documented; 2020 report describes 4-bolt whaler-to-pile connections as typical"
+   }
+  },
+  {
+   "filename": "2021-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2021,
+   "report_role": "inspection",
+   "repairs_since_previous": "yes",
+   "registry_notes": "North fender system only",
+   "n_defects": 6,
+   "grade_counts": [
+    0,
+    3,
+    3,
+    0,
+    0
+   ],
+   "mean_grade": 1.5,
+   "pipeline_action": "Routine repair",
+   "pipeline_action_key": "routine",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": "Timbers: Very good; Whalers: Excellent; Piles: Excellent, except F12 timber damaged/cracked/split from impact",
+    "rating_scale": "No formal scale; narrative descriptors (Very good / Excellent)",
+    "urgency": "Minor",
+    "repairs_since_previous": "Yes (described in table 3.2)"
+   }
+  },
+  {
+   "filename": "2022-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2022,
+   "report_role": "inspection",
+   "repairs_since_previous": "no",
+   "registry_notes": "",
+   "n_defects": 45,
+   "grade_counts": [
+    0,
+    14,
+    17,
+    9,
+    5
+   ],
+   "mean_grade": 2.11,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": "Timbers: Very good; Whalers: Excellent; Piles: Excellent (NC from 2020), except F12 timber damaged/cracked/split from impact per cover letter.",
+    "rating_scale": "No formal scale; narrative descriptors (Very good / Excellent)",
+    "urgency": "Minor",
+    "repairs_since_previous": "No"
+   }
+  },
+  {
+   "filename": "2023-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2023,
+   "report_role": "inspection",
+   "repairs_since_previous": "no",
+   "registry_notes": "50% sampling inspection",
+   "n_defects": 79,
+   "grade_counts": [
+    0,
+    19,
+    45,
+    11,
+    4
+   ],
+   "mean_grade": 2.0,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": " 124 Fair, 59 Poor, 1 Severe",
+    "rating_scale": "3-level: Fair (structurally sound, no repair needed) / Poor (deterioration, should be repaired or replaced) / Severe (significant deterioration, in need of repair or replacement)",
+    "urgency": "Severe",
+    "repairs_since_previous": "No"
+   }
+  },
+  {
+   "filename": "2024-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2024,
+   "report_role": "inspection",
+   "repairs_since_previous": "no",
+   "registry_notes": "",
+   "n_defects": 25,
+   "grade_counts": [
+    0,
+    11,
+    14,
+    0,
+    0
+   ],
+   "mean_grade": 1.56,
+   "pipeline_action": "Routine repair",
+   "pipeline_action_key": "routine",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": "Poor (North) and Poor (East)",
+    "rating_scale": "ASCE Waterfront Facilities Manual condition assessment scale",
+    "urgency": "Moderate Urgency",
+    "repairs_since_previous": "No"
+   }
+  },
+  {
+   "filename": "2025-southwest-brooklyn-mts-bulkhead-inspection.pdf",
+   "inspection_year": 2025,
+   "report_role": "inspection",
+   "repairs_since_previous": "yes",
+   "registry_notes": "Seawall repaired; fender hardware not",
+   "n_defects": 85,
+   "grade_counts": [
+    0,
+    32,
+    32,
+    17,
+    4
+   ],
+   "mean_grade": 1.92,
+   "pipeline_action": "Immediate repair",
+   "pipeline_action_key": "immediate",
+   "model": "deepseek/deepseek-v4.1-flash-1017",
+   "inventory_status": "partial",
+   "human": {
+    "rating_raw": "Poor (North) and Poor (East)",
+    "rating_scale": "ASCE Waterfront Facilities Manual condition assessment scale",
+    "urgency": "Priority, moderate urgency",
+    "repairs_since_previous": "Yes"
+   }
+  }
+ ],
+ "current_defects": [
+  {
+   "location": "",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "severely damaged and/or missing rubber fenders",
+   "defect_class": "rubber_fender",
+   "defect_class_label": "Rubber fender damage",
+   "material": "rubber",
+   "grade": 4,
+   "grade_label": "severe",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "severely damaged",
+   "measurement": "",
+   "description": "Three severely damaged and/or missing East Fender System rubber fenders.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "End Fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Missing arch fenders and timber supports",
+   "defect_class": "timber_decay",
+   "defect_class_label": "Timber decay / wear",
+   "material": "timber",
+   "grade": 4,
+   "grade_label": "severe",
+   "extent": "localized",
+   "model_confidence": "high",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Lowest two corner arch fenders and timber supports missing",
+   "pages": [
+    41
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Panel 12",
+   "component_key": "deck",
+   "system_key": "deck",
+   "defect_type_raw": "missing timber face panel",
+   "defect_class": "timber_decay",
+   "defect_class_label": "Timber decay / wear",
+   "material": "timber",
+   "grade": 4,
+   "grade_label": "severe",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "One timber face panel is missing at Panel 12.",
+   "pages": [
+    24
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Piles P5, P18, P15 and P20; top approximately 5 ft",
+   "component_key": "pile:5",
+   "system_key": "piles",
+   "defect_type_raw": "Buckling of web and rotation of inner flange",
+   "defect_class": "deformation_impact",
+   "defect_class_label": "Deformation / impact damage",
+   "material": "steel",
+   "grade": 4,
+   "grade_label": "severe",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "buckling",
+   "measurement": "Number of fender piles with buckling and flange rotation 4 piles",
+   "description": "Four fender piles exhibit buckling of web and rotation of inner flange in top approximately 5 ft.",
+   "pages": [
+    36
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "missing timber caps",
+   "defect_class": "timber_decay",
+   "defect_class_label": "Timber decay / wear",
+   "material": "timber",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Missing North Fender System timber caps.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Anchors to Seawall (East)",
+   "component_key": "bulkhead-wall",
+   "system_key": "bulkhead-wall",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Coating loss & corrosion, replace bottom bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Anchors to Seawall (West)",
+   "component_key": "bulkhead-wall",
+   "system_key": "bulkhead-wall",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Coating loss & corrosion, replace bottom bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to East Fender Pile",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and heavy corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "heavy",
+   "measurement": "",
+   "description": "Coating loss w/heavy corrosion",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to East Fender Pile",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss with heavy corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Poor",
+   "measurement": "",
+   "description": "Coating loss w/heavy corrosion",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - East Bottom",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion, missing washer, pulling through fender",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, missing washer, pulling through fender",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - West Side East Top",
+   "component_key": "west-side",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion, pulling through fender",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, pulling through fender",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to West Fender Pile",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and heavy corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "heavy",
+   "measurement": "",
+   "description": "Coating loss w/heavy corrosion",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to West Fender Pile",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss with heavy corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Poor",
+   "measurement": "",
+   "description": "Coating loss w/heavy corrosion",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Cap-to-timber bolts at each fender panel",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "loose, missing or broken bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "widespread",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Many of the fifteen bolts that connect each cap to timbers are loose, missing or have broken inside the timber.",
+   "pages": [
+    24
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender System End Fender",
+   "component_key": "east-fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "corner fenders and timber supports requiring replacement",
+   "defect_class": "timber_decay",
+   "defect_class_label": "Timber decay / wear",
+   "material": "timber",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bottom two corner fenders and associated timber supports of the East Fender System End Fender require replacement.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender System concrete cap base",
+   "component_key": "east-fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "scour exposing steel H-Pile foundation",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "concrete",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Scour at the base of the East Fender System concrete cap exposing the steel H-Pile foundation.",
+   "pages": [
+    4,
+    5
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "End Fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Scour exposing H-pile foundation",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "concrete",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Scour under concrete cap exposing one or potentially more steel H-pile foundations",
+   "pages": [
+    41
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender Chain Assembly - Chains, lower chain",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Corrosion and cracked chain link",
+   "defect_class": "crack",
+   "defect_class_label": "Crack",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "moderate",
+   "measurement": "Fender Chain Assembly cracked links 1 link",
+   "description": "Moderate corrosion. 1 link of lower chain has a crack",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender Chain Assembly, Shackles & Tensioners",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Corrosion and missing nut",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Poor",
+   "measurement": "Missing chain tensioner nuts 1 nut",
+   "description": "Minor to moderate corrosion. 1 nut of chain tensioner missing.",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fenders 3, 4 and 7",
+   "component_key": "fender:3",
+   "system_key": "fender-system",
+   "defect_type_raw": "missing cap",
+   "defect_class": "missing_component",
+   "defect_class_label": "Missing component",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Cap is in place except at Fenders 3, 4 and 7.",
+   "pages": [
+    24
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Throughout the fender system",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "loose or missing bolts and nuts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 3,
+   "grade_label": "advanced",
+   "extent": "widespread",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolts and nuts are loose or missing throughout the system.",
+   "pages": [
+    24
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Pile (P26), top 5 ft.",
+   "component_key": "pile:26",
+   "system_key": "piles",
+   "defect_type_raw": "coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "East Fender Pile (P26) affected length 5 ft",
+   "description": "Coating loss & corrosion at top 5 ft.",
+   "pages": [
+    69
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Pile (P4), top 5 ft",
+   "component_key": "pile:4",
+   "system_key": "piles",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "East Fender Pile (P4) coating loss and corrosion extent top 5 ft",
+   "description": "Coating loss & corrosion at top 5 ft.",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender System sheetpile",
+   "component_key": "east-fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "accelerated corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "not_applicable",
+   "model_confidence": "low",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Corrosion of the East Fender System sheetpile has accelerated and should be monitored.",
+   "pages": [
+    5
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Steel Sheetpiles 2, 10, 22, 31",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Section loss due to corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Moderate",
+   "measurement": "Steel Sheetpile 2 percent section loss below lower fender, face <5 %",
+   "description": "Moderate section loss due to corrosion below fenders in steel sheet piles",
+   "pages": [
+    40
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Pile (P3), top 5 ft",
+   "component_key": "pile:3",
+   "system_key": "piles",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Coating loss & corrosion at top 5 ft, light scouring",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Pile (P4), mudline",
+   "component_key": "pile:4",
+   "system_key": "piles",
+   "defect_type_raw": "Scour",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Scouring at Mudline",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fenders #8 and #13",
+   "component_key": "fender:8",
+   "system_key": "fender-system",
+   "defect_type_raw": "Torn rubber fender",
+   "defect_class": "rubber_fender",
+   "defect_class_label": "Rubber fender damage",
+   "material": "rubber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Rubber fenders torn at Fenders #8 and #13.",
+   "pages": [
+    15
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Concrete curb behind Fenders 15 through 20",
+   "component_key": "fender:15",
+   "system_key": "fender-system",
+   "defect_type_raw": "spalling, delamination and staining",
+   "defect_class": "spall",
+   "defect_class_label": "Spall / delamination",
+   "material": "concrete",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Spalling, delamination and staining of concrete curb.",
+   "pages": [
+    27
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Rubber Fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Loose fender",
+   "defect_class": "movement",
+   "defect_class_label": "Movement / displacement",
+   "material": "rubber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Poor",
+   "measurement": "East Rubber Fender gap from bulkhead 0.5 inch",
+   "description": "Loose fender, 0.5\" gap from bulkhead",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Rubber Fender, top",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Loose fender",
+   "defect_class": "movement",
+   "defect_class_label": "Movement / displacement",
+   "material": "rubber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "West Rubber Fender gap at top 0.5 in",
+   "description": "Loose fender w/0.5\" gap at top",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "loose hardware connections",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "widespread",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Loose hardware connections on timber fender panels; failure to tighten has resulted in missing features such as caps and fenders.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "loose chains",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "widespread",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Loose chains on the North Fender System.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - East Top",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion with loose washer and bolt",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, loose washer & bolt",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - West Bottom",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion with loose washer and bolt",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, loose washer & bolt",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - West Side East Bottom",
+   "component_key": "west-side",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion with missing washer",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, missing washer",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - West Side West Bottom",
+   "component_key": "west-side",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion with missing washer",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, missing washer",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - West Top",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion with loose washer and bolt",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion, loose washer & bolt",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bottom fender bolts",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Missing nuts and surface corrosion",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Poor",
+   "measurement": "",
+   "description": "Missing nut at both bottom bolts; all bolts have surface corrosion.",
+   "pages": [
+    84
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Rubber Fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Loose fender and damaged bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "rubber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "East Rubber Fender gap 0.5 in",
+   "description": "Loose fender w/0.5\" gap and damaged bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "End Fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Several bolts connecting Wales to fender piles remain loose",
+   "pages": [
+    41
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender #19",
+   "component_key": "fender:19",
+   "system_key": "fender-system",
+   "defect_type_raw": "strap repair failure due to bolt threading",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Strap repair failure at Fender #19 appears related to bolt threading.",
+   "pages": [
+    4,
+    5
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender #19",
+   "component_key": "fender:19",
+   "system_key": "fender-system",
+   "defect_type_raw": "strap repair failure",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Strap repair failure at Fender #19; missing strap.",
+   "pages": [
+    18
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender #19 and balance of fenders",
+   "component_key": "fender:19",
+   "system_key": "fender-system",
+   "defect_type_raw": "failed or incomplete strap repair",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "rubber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "widespread",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Rubber fenders not improved in September 2025 require strap improvements; Fender #19 was improved in September 2025 but still requires repair.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender 11",
+   "component_key": "fender:11",
+   "system_key": "fender-system",
+   "defect_type_raw": "protruding bolt",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Protruding bolt at Fender 11.",
+   "pages": [
+    4
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender Chain Assembly - Shackles & Tensioners",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Corrosion and loose lower chain",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor to moderate",
+   "measurement": "",
+   "description": "Minor to moderate corrosion. Tighten lower chain.",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender Chain Assembly, Chains",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Corrosion and sagging chain",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Poor",
+   "measurement": "",
+   "description": "Moderate corrosion. Lower chain sagging",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Frame Wales - Bottom Wale",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Heavy marine growth and loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "heavy",
+   "measurement": "",
+   "description": "Heavy marine growth. Loose bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Frame Wales - Middle Wale",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss, corrosion and loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion. Loose bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Frame Wales - Top Wale",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss, corrosion and loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion. Loose bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Lower fender chain at each fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "coating loss and surface corrosion",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Moderate to Major",
+   "measurement": "",
+   "description": "Lower fender chain and hardware exhibit Moderate to Major coating loss and surface corrosion.",
+   "pages": [
+    23
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Lower fender chain at each fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "sagging chain",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Lower chain is sagging.",
+   "pages": [
+    23
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Timber Fender Panel - Cap",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Loose and missing bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 2,
+   "grade_label": "moderate",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Loose & missing bolts",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Anchors to Seawall",
+   "component_key": "bulkhead-wall",
+   "system_key": "bulkhead-wall",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Coating loss & corrosion",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Anchors to Seawall",
+   "component_key": "bulkhead-wall",
+   "system_key": "bulkhead-wall",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Coating loss and corrosion",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Cross Bracing Members, top",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion at top",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Cross Bracing Members, top",
+   "component_key": "",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion at top",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Mounting Plate",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Mounting Plate",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Pile (P32), top 5 ft",
+   "component_key": "pile:32",
+   "system_key": "piles",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "East Fender Pile (P32) corrosion zone length 5 ft",
+   "description": "Coating loss & corrosion at top 5 ft.",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Fender Chain Assembly - Padeyes",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "King Piles 2, 10, 22, 31",
+   "component_key": "pile:2",
+   "system_key": "piles",
+   "defect_type_raw": "Coating loss",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "King Pile 2 percent section loss below lower fender 28 %",
+   "description": "Coating loss observed in tidal and splash zones on king piles; negligible section loss below water and near mudline",
+   "pages": [
+    40
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Padeye welds at each fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "coating loss and surface corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Minor",
+   "measurement": "",
+   "description": "Welds of padeyes exhibit Minor coating loss and surface corrosion.",
+   "pages": [
+    23
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Seawall curb behind Fenders 15 through 20",
+   "component_key": "fender:15",
+   "system_key": "fender-system",
+   "defect_type_raw": "surface corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Curved steel plate forming the top outer edge of curbs and outer top face of seawall exhibits surface corrosion.",
+   "pages": [
+    26
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Top approximately 5 ft of fender piles",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "widespread",
+   "model_confidence": "low",
+   "severity_raw": "coating loss and corrosion",
+   "measurement": "Extent of coating loss and corrosion on fender piles top approx. 5 ft",
+   "description": "Coating loss and corrosion in top approximately 5 ft of fender piles.",
+   "pages": [
+    36
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Mounting Plate",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Mounting Plate",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Pile (P31), top 5 ft",
+   "component_key": "pile:31",
+   "system_key": "piles",
+   "defect_type_raw": "Coating loss and corrosion",
+   "defect_class": "corrosion_section_loss",
+   "defect_class_label": "Corrosion / section loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "West Fender Pile (P31) corrosion zone length 5 ft",
+   "description": "Coating loss & corrosion at top 5 ft.",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Timber Fender Panel - Face Timbers",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Checking",
+   "defect_class": "timber_decay",
+   "defect_class_label": "Timber decay / wear",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "minor",
+   "measurement": "",
+   "description": "Minor checking",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Timber Fender Panel, Face Timbers",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Checking",
+   "defect_class": "timber_decay",
+   "defect_class_label": "Timber decay / wear",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Minor checking",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Pile (P32)",
+   "component_key": "pile:32",
+   "system_key": "piles",
+   "defect_type_raw": "Marine growth",
+   "defect_class": "biological_debris",
+   "defect_class_label": "Marine growth / vegetation / debris",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "Heavy",
+   "measurement": "",
+   "description": "Marine Growth Heavy",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "East Fender Pile (P32), mudline",
+   "component_key": "pile:32",
+   "system_key": "piles",
+   "defect_type_raw": "Scouring",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Scouring at Mudline",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Sheetpile Bulkhead",
+   "component_key": "bulkhead-wall",
+   "system_key": "bulkhead-wall",
+   "defect_type_raw": "Marine growth",
+   "defect_class": "biological_debris",
+   "defect_class_label": "Marine growth / vegetation / debris",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "Heavy",
+   "measurement": "",
+   "description": "Heavy marine growth",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Sheetpile Bulkhead, mudline",
+   "component_key": "bulkhead-wall",
+   "system_key": "bulkhead-wall",
+   "defect_type_raw": "Heavy marine growth",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "heavy",
+   "measurement": "",
+   "description": "Heavy marine growth. No scouring at Mudline",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Pile (P3), mudline",
+   "component_key": "pile:3",
+   "system_key": "piles",
+   "defect_type_raw": "Scour",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "light",
+   "measurement": "",
+   "description": "Scouring at Mudline",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Pile (P31)",
+   "component_key": "pile:31",
+   "system_key": "piles",
+   "defect_type_raw": "Marine growth",
+   "defect_class": "biological_debris",
+   "defect_class_label": "Marine growth / vegetation / debris",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "Heavy",
+   "measurement": "",
+   "description": "Marine Growth Heavy",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "West Fender Pile (P31), mudline",
+   "component_key": "pile:31",
+   "system_key": "piles",
+   "defect_type_raw": "Scouring",
+   "defect_class": "void_scour_fill_loss",
+   "defect_class_label": "Void / scour / fill loss",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Scouring at Mudline",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Outer surface of fender panels",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "checks, gouging and abrasion",
+   "defect_class": "spall",
+   "defect_class_label": "Spall / delamination",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Timbers exhibit checks, some gouging, and normal abrasion due to vessel contact.",
+   "pages": [
+    24
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Bolts to Mounting Plate - West Side West Top",
+   "component_key": "west-side",
+   "system_key": "fender-system",
+   "defect_type_raw": "Bolt corrosion",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "",
+   "measurement": "",
+   "description": "Bolt corrosion",
+   "pages": [
+    57
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Frame Wales, Bottom Wale",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Marine growth and loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "low",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Heavy marine growth. Loose bolts",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Frame Wales, Middle Wale",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss, corrosion and loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion. Loose bolts",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Frame Wales, Top Wale",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Coating loss, corrosion and loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Minor coating loss & corrosion. Loose bolts",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Timber Fender Panel, Cap",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "Loose bolts",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Fair",
+   "measurement": "",
+   "description": "Loose Bolts",
+   "pages": [
+    72
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Timber-to-wale bolts throughout the system",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "surface corrosion and coating loss",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "timber",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Minor to Moderate",
+   "measurement": "",
+   "description": "Bolts exhibit Minor to Moderate surface corrosion and coating loss but no significant section loss.",
+   "pages": [
+    24
+   ],
+   "inspection_year": 2025
+  },
+  {
+   "location": "Top fender chain at each fender",
+   "component_key": "fender-system",
+   "system_key": "fender-system",
+   "defect_type_raw": "coating loss and surface corrosion",
+   "defect_class": "hardware",
+   "defect_class_label": "Loose / missing hardware",
+   "material": "steel",
+   "grade": 1,
+   "grade_label": "minor",
+   "extent": "localized",
+   "model_confidence": "medium",
+   "severity_raw": "Minor to Moderate",
+   "measurement": "",
+   "description": "Top fender chain and hardware exhibit Minor to Moderate coating loss and surface corrosion.",
+   "pages": [
+    23
+   ],
+   "inspection_year": 2025
+  }
+ ],
+ "coverage": {
+  "defects": 379,
+  "years": [
+   2015,
+   2016,
+   2017,
+   2018,
+   2020,
+   2021,
+   2022,
+   2023,
+   2024,
+   2025
+  ],
+  "multi_year_tracks": 31,
+  "element_keyed": 129
+ },
+ "pairs_summary": {
+  "pairs": 53,
+  "fit_eligible": 28,
+  "worsened": 11,
+  "stable": 22,
+  "repaired": 7,
+  "improved_unexplained": 13
+ },
+ "tracks": [
+  {
+   "link_key": "cell:F-1",
+   "link_level": "element",
+   "defect_class": "corrosion_section_loss",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "Intermediate cell adjacent to Cell F-1, West Bulkhead"
+    },
+    {
+     "year": 2016,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "intermediate cell adjacent to Cell F-1"
+    },
+    {
+     "year": 2017,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Intermediate cell adjacent to Cell F-1, West Bulkhead"
+    }
+   ]
+  },
+  {
+   "link_key": "cell:F-1",
+   "link_level": "element",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Transition between West Bulkhead and intermediate cell adjacent to Cell F-1"
+    },
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Transition between West Bulkhead and intermediate cell adjacent to Cell F-1"
+    }
+   ]
+  },
+  {
+   "link_key": "fender:11",
+   "link_level": "element",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2020,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Timber Fender F11, timbers #6-#12"
+    },
+    {
+     "year": 2025,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Fender 11"
+    }
+   ]
+  },
+  {
+   "link_key": "fender:15",
+   "link_level": "element",
+   "defect_class": "spall",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2023,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Bulkhead, Fender #15"
+    },
+    {
+     "year": 2025,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Concrete curb behind Fenders 15 through 20"
+    }
+   ]
+  },
+  {
+   "link_key": "fender:5",
+   "link_level": "element",
+   "defect_class": "crack",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2020,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Timber Fender F5, Timber #1 from north"
+    },
+    {
+     "year": 2021,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Timber Fender F5, Timber #1 from north"
+    }
+   ]
+  },
+  {
+   "link_key": "fender:5",
+   "link_level": "element",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2020,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Timber Fender F5, 5th timber from north"
+    },
+    {
+     "year": 2021,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Timber Fender F5, 5th timber from north"
+    }
+   ]
+  },
+  {
+   "link_key": "fender:6",
+   "link_level": "element",
+   "defect_class": "crack",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2020,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Timber Fender F6, Timber #1 from north"
+    },
+    {
+     "year": 2021,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Timber Fender F6, Timber #1 from north, south outer corner"
+    }
+   ]
+  },
+  {
+   "link_key": "pile:25",
+   "link_level": "element",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2020,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Timber Fender F13, P25"
+    },
+    {
+     "year": 2023,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Pile 25, Fender #14"
+    }
+   ]
+  },
+  {
+   "link_key": "sta:0+66",
+   "link_level": "element",
+   "defect_class": "exposed_reinforcement",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Sta. 0+66"
+    },
+    {
+     "year": 2017,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Sta. 0+66"
+    }
+   ]
+  },
+  {
+   "link_key": "sta:0+96",
+   "link_level": "element",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Between Sta. 0+96 and 0+00"
+    },
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "between Sta. 0+96 and 0+00"
+    }
+   ]
+  },
+  {
+   "link_key": "bulkhead-wall",
+   "link_level": "system",
+   "defect_class": "biological_debris",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Port 5"
+    },
+    {
+     "year": 2025,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Sheetpile Bulkhead"
+    }
+   ]
+  },
+  {
+   "link_key": "bulkhead-wall",
+   "link_level": "system",
+   "defect_class": "corrosion_section_loss",
+   "n_inspections": 4,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "splash and tidal zones"
+    },
+    {
+     "year": 2017,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "tidal zone to splash zone, areas pending encasement"
+    },
+    {
+     "year": 2018,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "Localized areas"
+    },
+    {
+     "year": 2025,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Anchors to Seawall"
+    }
+   ]
+  },
+  {
+   "link_key": "bulkhead-wall",
+   "link_level": "system",
+   "defect_class": "crack",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2022,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Sheet 12 - 14"
+    },
+    {
+     "year": 2023,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Bulkhead concrete"
+    },
+    {
+     "year": 2024,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Concrete seawall, below water"
+    }
+   ]
+  },
+  {
+   "link_key": "bulkhead-wall",
+   "link_level": "system",
+   "defect_class": "hardware",
+   "n_inspections": 4,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": ""
+    },
+    {
+     "year": 2017,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "cell-to-bulkhead intersection"
+    },
+    {
+     "year": 2022,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Steel sheathing"
+    },
+    {
+     "year": 2025,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Anchors to Seawall (East)"
+    }
+   ]
+  },
+  {
+   "link_key": "bulkhead-wall",
+   "link_level": "system",
+   "defect_class": "spall",
+   "n_inspections": 6,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "concrete curb"
+    },
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "concrete cap"
+    },
+    {
+     "year": 2018,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Base of concrete cap, one location"
+    },
+    {
+     "year": 2022,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Bulkhead"
+    },
+    {
+     "year": 2023,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Bulkhead"
+    },
+    {
+     "year": 2024,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Concrete seawall, below water, bottom outer edge and face"
+    }
+   ]
+  },
+  {
+   "link_key": "bulkhead-wall",
+   "link_level": "system",
+   "defect_class": "void_scour_fill_loss",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2024,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Concrete seawall"
+    },
+    {
+     "year": 2025,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Sheetpile Bulkhead, mudline"
+    }
+   ]
+  },
+  {
+   "link_key": "east-bulkhead",
+   "link_level": "system",
+   "defect_class": "corrosion_section_loss",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "East Bulkhead steel sheet piles"
+    },
+    {
+     "year": 2022,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "H-Piles, East Bulkhead"
+    }
+   ]
+  },
+  {
+   "link_key": "east-bulkhead",
+   "link_level": "system",
+   "defect_class": "movement",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "East Bulkhead Station 0+14"
+    },
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "East Bulkhead Station 0+14"
+    }
+   ]
+  },
+  {
+   "link_key": "east-bulkhead",
+   "link_level": "system",
+   "defect_class": "spall",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "East Bulkhead, Station 0+66"
+    },
+    {
+     "year": 2016,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "East Bulkhead Station 0+66"
+    },
+    {
+     "year": 2017,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "East Bulkhead Station 0+66"
+    }
+   ]
+  },
+  {
+   "link_key": "east-bulkhead",
+   "link_level": "system",
+   "defect_class": "timber_decay",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "East Bulkhead fender system, upper wale and top foot of timber planks"
+    },
+    {
+     "year": 2016,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "East Bulkhead"
+    }
+   ]
+  },
+  {
+   "link_key": "fender-system",
+   "link_level": "system",
+   "defect_class": "corrosion_section_loss",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "external double channel wale"
+    },
+    {
+     "year": 2024,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Top, mid and bottom threaded rods"
+    },
+    {
+     "year": 2025,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Bolts to East Fender Pile"
+    }
+   ]
+  },
+  {
+   "link_key": "fender-system",
+   "link_level": "system",
+   "defect_class": "crack",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2022,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "H-Pile, fender and timbers"
+    },
+    {
+     "year": 2023,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Bottom of one 10\u201dx12\u201d board"
+    },
+    {
+     "year": 2025,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Fender Chain Assembly - Chains, lower chain"
+    }
+   ]
+  },
+  {
+   "link_key": "fender-system",
+   "link_level": "system",
+   "defect_class": "hardware",
+   "n_inspections": 6,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": ""
+    },
+    {
+     "year": 2017,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": ""
+    },
+    {
+     "year": 2022,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "Between fender and base plate"
+    },
+    {
+     "year": 2023,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Timber to Whaler Connection"
+    },
+    {
+     "year": 2024,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Wale-to-pile bolts at top, mid and lower wales"
+    },
+    {
+     "year": 2025,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Throughout the fender system"
+    }
+   ]
+  },
+  {
+   "link_key": "fender-system",
+   "link_level": "system",
+   "defect_class": "spall",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2024,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Concrete curb behind Fender #s 15 thru 20"
+    },
+    {
+     "year": 2025,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Outer surface of fender panels"
+    }
+   ]
+  },
+  {
+   "link_key": "fender-system",
+   "link_level": "system",
+   "defect_class": "timber_decay",
+   "n_inspections": 5,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "upper wale and top foot of the timber planks"
+    },
+    {
+     "year": 2017,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "upper wale and top foot of timber planks"
+    },
+    {
+     "year": 2022,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "Fender No. 9"
+    },
+    {
+     "year": 2024,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Top 18 to 24 inches of typical fender pile, extending to mid-wale along flanges"
+    },
+    {
+     "year": 2025,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "End Fender"
+    }
+   ]
+  },
+  {
+   "link_key": "mooring",
+   "link_level": "system",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": ""
+    },
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": ""
+    }
+   ]
+  },
+  {
+   "link_key": "north-bulkhead",
+   "link_level": "system",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "North Bulkhead steel anchor tie-backs"
+    },
+    {
+     "year": 2024,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Typical rubber fenders, North Bulkhead Fender System"
+    }
+   ]
+  },
+  {
+   "link_key": "pile-caps",
+   "link_level": "system",
+   "defect_class": "missing_component",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "Western edge of Z-shape steel sheet pile bulkhead"
+    },
+    {
+     "year": 2016,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "western edge of the Z-shape steel sheet pile bulkhead"
+    },
+    {
+     "year": 2017,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "western edge of Z-shape steel sheet pile bulkhead"
+    }
+   ]
+  },
+  {
+   "link_key": "piles",
+   "link_level": "system",
+   "defect_class": "corrosion_section_loss",
+   "n_inspections": 3,
+   "points": [
+    {
+     "year": 2016,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "steel sheet pile cellular cofferdams"
+    },
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "below partial concrete encasement"
+    },
+    {
+     "year": 2022,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "H-piles"
+    }
+   ]
+  },
+  {
+   "link_key": "piles",
+   "link_level": "system",
+   "defect_class": "hardware",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2017,
+     "grade": 2,
+     "grade_label": "moderate",
+     "location": "Interface between steel sheet pile bulkhead and steel sheet pile cell"
+    },
+    {
+     "year": 2022,
+     "grade": 1,
+     "grade_label": "minor",
+     "location": "Top of H-Pile and around bolts"
+    }
+   ]
+  },
+  {
+   "link_key": "west-bulkhead",
+   "link_level": "system",
+   "defect_class": "corrosion_section_loss",
+   "n_inspections": 2,
+   "points": [
+    {
+     "year": 2015,
+     "grade": 3,
+     "grade_label": "advanced",
+     "location": "West Bulkhead steel sheet pile cells"
+    },
+    {
+     "year": 2017,
+     "grade": 4,
+     "grade_label": "severe",
+     "location": "West Bulkhead"
+    }
+   ]
+  }
+ ]
+}

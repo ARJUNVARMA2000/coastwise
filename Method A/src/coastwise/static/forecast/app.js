@@ -45,24 +45,31 @@
 
   /* ----------------------------------------------------------------- header */
   const T = D.totals;
-  // Method B mode: the defects are Method B rows, the rates were fitted on the Method A library.
+  // Each structure says where its defects come from: Method B rows (inspector's severity code, one
+  // inspection) or the earlier Method A library (model-assigned grades, repeat inspections).
   const RS = D.rates_source;
   const num = n => Number(n).toLocaleString("en-US");
-  $("#source-line").textContent = `${D.source.kind.replace(/_/g, " ")} · ${D.source.path} · ${T.reports} reports, ${num(T.defect_events)} ${RS ? "defect rows with a severity code" : "extracted defects"} · built ${D.generated_at.slice(0, 16).replace("T", " ")} UTC`;
-  if (RS) {
-    $("#eyebrow").textContent = "Method B defect rows · one row = one defect";
-    $("#timeline-sub").textContent = "Inspector's severity code on every Method B defect row, per report";
-    $("#links-sub").textContent = "The same element and defect class seen in consecutive reports. Method B's reports hold one inspection each, so there are none here; the training pairs come from the Method A library.";
-    $("#human-block").hidden = true;
-    const notice = $("#rates-notice");
-    notice.hidden = false;
-    notice.textContent = `Each of these reports holds one inspection, so deterioration rates cannot be fitted on them. The rates below were fitted on ${T.fit_pairs} linked pairs from ${RS.assets_with_repeat_inspections} other structures in the Method A library and are applied here unchanged. Read the repair years as a what-if under those rates, not as a calibrated forecast for these piers.`;
-  }
+  $("#source-line").textContent = `${T.assets} structures · ${T.reports} inspection reports · ${num(T.current_defects)} current defects · built ${D.generated_at.slice(0, 16).replace("T", " ")} UTC`;
+  $("#eyebrow").textContent = "One row = one defect";
+  const SOURCE_TEXT = {
+    method_b: {
+      timeline: "Inspector's severity code on every Method B defect row, per report",
+      links: "The same element and defect class seen in consecutive reports. This report holds one inspection, so there are none here; the training pairs come from other structures.",
+      notice: `This report holds one inspection, so deterioration rates cannot be fitted on it. The rates were fitted on ${T.fit_pairs} linked pairs from ${RS.assets_with_repeat_inspections} other structures and are applied here unchanged. Read the repair years as a what-if under those rates, not as a calibrated forecast for this pier.`,
+      defects: year => `Every Method B defect row with a severity code from the ${year} inspection.`,
+    },
+    method_a: {
+      timeline: "Method A's model-assigned damage grade for every extracted defect, per report",
+      links: "The same element (or named sub-structure) and defect class seen in consecutive reports. These pairs are part of the model's training data.",
+      notice: "This is the one structure here with repeat inspections, so the same elements can be followed from year to year. Its defects and grades come from the earlier Method A extraction (model-assigned grades), not from Method B, and its own history is part of what the rates were fitted on.",
+      defects: year => `Every defect Method A extracted from the ${year} inspection.`,
+    },
+  };
   const repeatAssets = D.assets.filter(a => a.coverage && a.coverage.multi_year_tracks > 0);
   const kpis = [
-    ["Inspection reports", T.inspection_reports, `${T.reports} documents, ${T.assets} structures`],
-    [RS ? "Defect rows" : "Defect events", num(T.defect_events), RS ? `of ${num(D.source.defect_rows)} Method B rows · ${num(T.element_keyed)} on a numbered element` : `${T.element_keyed} tied to a numbered element`],
-    ["Linked transitions", T.fit_pairs, `${RS ? "from the Method A library · " : ""}${T.pairs} pairs · ${T.pair_outcomes.worsened || 0} worsened, ${T.pair_outcomes.stable || 0} stable`],
+    ["Inspection reports", T.reports, `${T.assets} structures · ${repeatAssets.length} with repeat inspections shown`],
+    ["Current defects", num(T.current_defects), `${num(T.method_b_defects)} from Method B rows (of ${num(D.source.defect_rows)})`],
+    ["Linked transitions", T.fit_pairs, `used to fit the rates · ${T.pairs} pairs · ${T.pair_outcomes.worsened || 0} worsened, ${T.pair_outcomes.stable || 0} stable`],
     ["Years per grade step", fmtN(D.rates.pooled.median_years_per_step), `pooled median · ${RS ? RS.assets_with_repeat_inspections : repeatAssets.length} structures with repeat inspections`],
   ];
   $("#kpi-row").append(...kpis.map(([l, v, sub]) => el("div", { class: "tile" }, [
@@ -94,7 +101,7 @@
     const W = 560, H = 240, m = { t: 14, r: 12, b: 44, l: 36 };
     const iw = W - m.l - m.r, ih = H - m.t - m.b;
     const maxN = Math.max(...reports.map(r => r.n_defects));
-    const unit = maxN > 100 ? 250 : 5;  // keep the five gridlines on round numbers for large counts
+    const unit = maxN > 100 ? 250 : maxN > 50 ? 25 : 5;  // keep the five gridlines on round numbers
     const yMax = Math.ceil(maxN / unit) * unit || 5;
     const y = v => m.t + ih - (v / yMax) * ih;
     const band = iw / reports.length, bw = Math.min(44, band * 0.62);
@@ -153,7 +160,7 @@
     );
     const W = 560, H = 220, m = { t: 14, r: 16, b: 34, l: 40 };
     const iw = W - m.l - m.r, ih = H - m.t - m.b;
-    const top = Math.max(...c.q95), unit = top > 100 ? 250 : 5;
+    const top = Math.max(...c.q95), unit = top > 100 ? 250 : top > 50 ? 25 : 5;
     const yMax = Math.max(1, Math.ceil(top / unit) * unit);
     const x = t => m.l + (t / 10) * iw, y = v => m.t + ih - (v / yMax) * ih;
     const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Expected defects needing priority repair over the next ten years" });
@@ -326,6 +333,12 @@
     const asset = D.assets.find(a => a.key === key);
     if (!asset) return;
     showAll = false;
+    const text = SOURCE_TEXT[asset.source] || SOURCE_TEXT.method_b;
+    $("#timeline-sub").textContent = text.timeline;
+    $("#links-sub").textContent = text.links;
+    $("#rates-notice").hidden = false;
+    $("#rates-notice").textContent = text.notice;
+    $("#human-block").hidden = asset.source !== "method_a";
     $("#asset-title").textContent = asset.name;
     const years = (asset.coverage && asset.coverage.years) || [];
     $("#asset-subtitle").textContent = years.length ? `Inspections: ${years.join(", ")} · forecasts start from the ${asset.latest_inspection_year ?? "–"} inspection` : "No extracted defects.";
@@ -346,7 +359,7 @@
     classes.forEach(k => fc.append(el("option", { value: k, text: D.class_labels[k] || k })));
     $("#filter-grade").value = "0"; $("#filter-search").value = "";
     $("#defects-subtitle").textContent = asset.current_defects.length
-      ? `${RS ? "Every Method B defect row with a severity code" : "Every defect Method A extracted"} from the ${asset.latest_inspection_year} inspection. P(repair) = probability of reaching grade 3 (advanced) by that horizon; the likely repair year is the median of the simulated time to reach it.`
+      ? `${text.defects(asset.latest_inspection_year)} P(repair) = probability of reaching grade 3 (advanced) by that horizon; the likely repair year is the median of the simulated time to reach it.`
       : "No inspection report with extracted defects for this structure.";
     defectsTable(asset);
     tracksTable(asset);
