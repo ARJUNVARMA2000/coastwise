@@ -338,6 +338,7 @@ class RateModel:
         self.pooled: dict = {}
         self.n_pairs = 0
         self._ttr_cache: dict[tuple[int, str], np.ndarray] = {}
+        self._dist_cache: dict[tuple[int, str, float], list[float]] = {}
 
     # ------------------------------------------------------------------ fitting
     def fit(self, pairs: list[dict]) -> "RateModel":
@@ -409,6 +410,18 @@ class RateModel:
                     samples += rng.exponential(1.0 / self.rate_samples(g, defect_class))
             self._ttr_cache[key] = samples
         return self._ttr_cache[key]
+
+    def grade_distribution(self, grade: int, defect_class: str, years: float) -> list[float]:
+        """Severity forecast: P(grade = k) after ``years``, k = 0..TOP_GRADE (grades never go down here)."""
+        key = (grade, defect_class, years)
+        if key not in self._dist_cache:
+            rng = np.random.default_rng(self.seed + 7 * grade + zlib.crc32(f"{defect_class}/{years}".encode()) % 991)
+            t, g = np.zeros(self.draws), np.full(self.draws, grade)
+            for step in range(grade, TOP_GRADE):
+                t = t + rng.exponential(1.0 / self.rate_samples(step, defect_class))
+                g = np.where((g == step) & (t <= years), step + 1, g)
+            self._dist_cache[key] = [float(np.mean(g == k)) for k in range(TOP_GRADE + 1)]
+        return self._dist_cache[key]
 
     # --------------------------------------------------------------- forecasts
     def forecast(self, grade: int, defect_class: str, horizons=HORIZONS) -> dict:
@@ -488,6 +501,154 @@ def backtest(pairs: list[dict], holdout_name: str, holdout) -> dict | None:
     }
 
 
+# --------------------------------------------------------------------------- area priority scoring
+#
+# Capstone's platform rolls the individual defects up into a score for each area of the structure
+# rather than forecasting every defect on its own. Three forecasts are offered:
+#   priority score         one 0-100 score per area, now and at the next inspection (the lead view)
+#   severity forecast      the grade each defect is expected to have at the next inspection
+#   time to intervention   years until an area (or a defect) reaches the repair threshold
+# Areas are bands of BENT_BAND consecutive bents / pile lines for the pile-by-pile reports, and the
+# named sub-structure (fender system, bulkhead, deck ...) otherwise.
+
+NEXT_INSPECTION_YEARS = 5
+BENT_BAND = 10
+AREA_DRAWS = 1000
+# score = 100 × (worst × worst grade / 4 + share × share of elements at grade ≥ 3 + mean × mean grade / 4)
+SCORE_WEIGHTS = {"worst": 0.5, "share": 0.3, "mean": 0.2}
+SCORE_BANDS = [  # lower bound, action key (same keys as ACTION_RULES), label
+    (75, "immediate", "Critical"), (50, "priority", "High"), (25, "routine", "Medium"), (0, "monitor", "Low")]
+SYSTEM_LABEL = {
+    "piles": "Piles", "pile-caps": "Pile caps", "fender-system": "Fender system", "deck": "Deck",
+    "bulkhead-wall": "Bulkhead / wall", "substructure": "Substructure", "mooring": "Mooring hardware",
+    "utilities": "Utilities", "roof-building": "Buildings", "": "Area not stated",
+}
+BENT_RE = re.compile(r"(?:\bbent\s+(\d+)|\bpile\s+(\d+)(?:\.\d+)?-[A-H])", re.I)
+
+
+def area_for(row: dict) -> tuple[str, str, str]:
+    """(area_key, area_label, area_kind) for a forecast row. area_kind is ``bents`` or ``sub-structure``."""
+    location, system = row.get("location") or "", row.get("system_key") or ""
+    match = BENT_RE.search(location) if system == "piles" else None
+    if match:
+        bent = int(match.group(1) or match.group(2))
+        lo = (bent - 1) // BENT_BAND * BENT_BAND + 1
+        prefix = re.match(r"\s*(PIER\s+\d+|DOLPHIN)", location, re.I)
+        name = re.sub(r"\s+", " ", prefix.group(1)).title() if prefix else ""
+        if name == "Dolphin":  # a handful of piles, not a run of bents
+            return "dolphin", "Dolphin", "sub-structure"
+        label = f"{name + ' · ' if name else ''}bents {lo}–{lo + BENT_BAND - 1}"
+        return f"{name.lower().replace(' ', '-') or 'bents'}:{lo:04d}", label, "bents"
+    if system == "fender-system":
+        side = next((s for s in ("east", "west") if re.search(rf"\b{s}", location + " " + row.get("component_key", ""), re.I)), "")
+        if side:
+            return f"fender-system:{side}", f"{side.title()} fender system", "sub-structure"
+    return system or "unassigned", SYSTEM_LABEL.get(system, system.replace("-", " ").title()), "sub-structure"
+
+
+def element_units(rows: list[dict]) -> list[dict]:
+    """Collapse defect rows to rated units.
+
+    An inspector rates a whole pile and repeats the rating on each of its rows, so rows on the same
+    numbered element count once, at their worst grade. A row with no element number is its own unit.
+    """
+    units: dict[str, dict] = {}
+    for i, row in enumerate(rows):
+        key = row["component_key"] if ":" in (row.get("component_key") or "") else f"row:{i}"
+        unit = units.get(key)
+        if unit is None or row["grade"] > unit["grade"]:
+            units[key] = {"key": key, "grade": row["grade"], "defect_class": row["defect_class"],
+                          "rows": (unit["rows"] if unit else 0) + 1}
+        else:
+            unit["rows"] += 1
+    return list(units.values())
+
+
+def score_parts(grades: np.ndarray) -> np.ndarray:
+    """grades: (n_units, draws) → (3, draws): worst/4, share ≥ threshold, mean/4."""
+    return np.stack([grades.max(axis=0) / TOP_GRADE, (grades >= REPAIR_THRESHOLD).mean(axis=0),
+                     grades.mean(axis=0) / TOP_GRADE])
+
+
+def score_from_parts(parts, weights=SCORE_WEIGHTS):
+    return 100 * (weights["worst"] * parts[0] + weights["share"] * parts[1] + weights["mean"] * parts[2])
+
+
+def score_band(score: float) -> tuple[str, str]:
+    for lower, key, label in SCORE_BANDS:
+        if score >= lower:
+            return key, label
+    return SCORE_BANDS[-1][1:]
+
+
+def simulate_arrivals(model: RateModel, units: list[dict], rng: np.random.Generator, draws: int = AREA_DRAWS) -> np.ndarray:
+    """Years until each unit reaches each grade: (n_units, TOP_GRADE + 1, draws), 0 at or below its grade.
+
+    Posterior rate draws are shared across units (column i uses rate draw i), sojourns are independent.
+    """
+    arrivals = np.zeros((len(units), TOP_GRADE + 1, draws))
+    for u, unit in enumerate(units):
+        t = np.zeros(draws)
+        for g in range(unit["grade"], TOP_GRADE):
+            t = t + rng.exponential(1.0 / model.rate_samples(g, unit["defect_class"])[:draws])
+            arrivals[u, g + 1] = t
+    return arrivals
+
+
+def grades_at(units: list[dict], arrivals: np.ndarray, t: float) -> np.ndarray:
+    start = np.array([u["grade"] for u in units])[:, None]
+    later = np.arange(TOP_GRADE + 1)[None, :, None] > start[:, :, None]
+    return start + ((arrivals <= t) & later).sum(axis=1)
+
+
+def area_scores(model: RateModel, rows: list[dict], asset_key: str) -> list[dict]:
+    """Group a structure's current defects into areas and score each one now and over the next ten years."""
+    groups: dict[str, dict] = {}
+    for row in rows:
+        key, label, kind = area_for(row)
+        row["area_key"] = key
+        groups.setdefault(key, {"key": key, "label": label, "kind": kind, "rows": []})["rows"].append(row)
+    out = []
+    for key, group in sorted(groups.items()):
+        units = element_units(group["rows"])
+        rng = np.random.default_rng(model.seed + zlib.crc32(f"{asset_key}/{key}".encode()) % 100_000)
+        arrivals = simulate_arrivals(model, units, rng)
+        parts = [score_parts(grades_at(units, arrivals, t)) for t in CURVE_YEARS]
+        scores = [score_from_parts(p) for p in parts]
+        now = float(scores[0][0])
+        nxt = scores[CURVE_YEARS.index(NEXT_INSPECTION_YEARS)]
+        # time to intervention: first unit not already at the threshold reaches it
+        pending = [i for i, u in enumerate(units) if u["grade"] < REPAIR_THRESHOLD]
+        first = arrivals[pending, REPAIR_THRESHOLD].min(axis=0) if pending else None
+        grade_counts = Counter(u["grade"] for u in units)
+        band_key, band_label = score_band(now)
+        next_key, next_label = score_band(float(nxt.mean()))
+        out.append({
+            "key": key, "label": group["label"], "kind": group["kind"],
+            "n_defects": len(group["rows"]), "n_units": len(units),
+            "grade_counts": [grade_counts.get(g, 0) for g in range(len(GRADES))],
+            "worst_grade": max(u["grade"] for u in units),
+            "units_at_threshold": sum(u["grade"] >= REPAIR_THRESHOLD for u in units),
+            "parts_now": [round(float(v[0]), 4) for v in parts[0]],
+            "score_now": round(now, 1), "band_key": band_key, "band": band_label,
+            "score_next": round(float(nxt.mean()), 1), "score_next_q05": round(float(np.quantile(nxt, 0.05)), 1),
+            "score_next_q95": round(float(np.quantile(nxt, 0.95)), 1), "next_band_key": next_key, "next_band": next_label,
+            "expected_at_threshold_next": round(float((grades_at(units, arrivals, NEXT_INSPECTION_YEARS) >= REPAIR_THRESHOLD).sum(axis=0).mean()), 1),
+            "intervention_now": len(pending) < len(units),
+            "years_to_intervention": None if first is None else round(float(np.median(first)), 1),
+            "years_to_intervention_q10": None if first is None else round(float(np.quantile(first, 0.1)), 1),
+            "years_to_intervention_q90": None if first is None else round(float(np.quantile(first, 0.9)), 1),
+            "p_new_repair_by_next": None if first is None else round(float(np.mean(first <= NEXT_INSPECTION_YEARS)), 3),
+            # mean score parts per year, so the page can re-weight the score without the draws
+            "parts_curve": [[round(float(v.mean()), 4) for v in p] for p in parts],
+            "score_curve": {"mean": [round(float(s.mean()), 1) for s in scores],
+                            "q05": [round(float(np.quantile(s, 0.05)), 1) for s in scores],
+                            "q95": [round(float(np.quantile(s, 0.95)), 1) for s in scores]},
+        })
+    out.sort(key=lambda a: (-a["score_now"], -a["score_next"], a["key"]))
+    return out
+
+
 # --------------------------------------------------------------------------- build
 
 PAIR_INTS = ("year0", "year1", "dt", "grade0", "grade1", "delta")
@@ -541,7 +702,12 @@ def forecast_row(model: RateModel, defect: dict) -> dict:
     """A defect plus its action-now label and repair-timing probabilities."""
     fc = model.forecast(defect["grade"], defect["defect_class"])
     rule = action_for(defect["grade"], defect["extent"])
+    dist = model.grade_distribution(defect["grade"], defect["defect_class"], NEXT_INSPECTION_YEARS)
     return {
+        "next_grade_probs": [round(p, 3) for p in dist],
+        "next_grade_likely": int(np.argmax(dist)),
+        "next_grade_mean": round(sum(k * p for k, p in enumerate(dist)), 2),
+        "p_worse_by_next": round(1 - dist[defect["grade"]], 3),
         **{k: defect[k] for k in ROW_FIELDS},
         "action_now": rule["label"], "action_key": rule["action"], "action_window": rule["window"],
         "repair_now": fc["repair_now"],
@@ -561,8 +727,26 @@ def saved_asset(model: RateModel, path: Path) -> dict:
     asset = json.loads(path.read_text(encoding="utf-8"))
     current = [forecast_row(model, d) for d in asset["current_defects"]]
     current.sort(key=lambda r: (-r["grade"], -r["p_repair_3y"], r["location"]))
-    return {**asset, "source": "method_a", "current_defects": current, "curve": model.asset_curve(current)}
+    areas = area_scores(model, current, asset["key"])
+    return {**asset, "source": "method_a", "current_defects": current, "curve": model.asset_curve(current),
+            "areas": areas}
 
+
+SCORING_NOTES = [
+    "Priority score (the lead forecast): defects are rolled up into areas of the structure and each area gets one "
+    f"0-100 score. Areas are bands of {BENT_BAND} consecutive bents for the pile-by-pile reports (Alameda, Berkeley) "
+    "and the named sub-structure otherwise (fender system east / west, piles, bulkhead, deck, mooring hardware).",
+    "Rows on the same numbered element count once, at their worst grade, because the inspector repeats one "
+    "rating on each row of a pile. Score = 100 × (" + " + ".join(f"{w} × {k}" for k, w in SCORE_WEIGHTS.items())
+    + "), where worst = worst grade / 4, share = share of elements at grade 3 or worse, mean = mean grade / 4. "
+    "Bands: " + ", ".join(f"{lab} ≥ {lo}" for lo, _, lab in SCORE_BANDS[:-1]) + ", Low below. The weights and "
+    "bands are placeholders to agree with Capstone; the page lets you change the weights.",
+    f"Severity forecast: each element's grade is simulated forward to the next inspection, taken as "
+    f"{NEXT_INSPECTION_YEARS} years after the latest one, with the same fitted rates; posterior rate draws are "
+    "shared across an area's elements and sojourns are independent. Repairs are not modelled, so scores only rise.",
+    "Time to intervention: for an area, the median years until its first element not already at grade 3 reaches "
+    "it ('now' when an element is already there); for a defect, the median years until it reaches grade 3.",
+]
 
 SAVED_NOTE = (
     "Southwest Brooklyn (DSNY) is the one structure here with repeat inspections (2015-2025). Its defects and grades "
@@ -595,6 +779,7 @@ def build(method_b_path: Path, pairs_path: Path, output: Path, saved_path: Path 
                 "human": None,
             }],
             "current_defects": current, "curve": model.asset_curve(current),
+            "areas": area_scores(model, current, report["asset_key"]),
             "coverage": {"defects": len(rows), "years": [year], "multi_year_tracks": 0,
                          "element_keyed": sum(e["component_level"] == "element" for e in rows)},
             "pairs_summary": {"pairs": 0, "fit_eligible": 0, "worsened": 0, "stable": 0, "repaired": 0,
@@ -619,6 +804,9 @@ def build(method_b_path: Path, pairs_path: Path, output: Path, saved_path: Path 
                          "assets_with_repeat_inspections": len({p["asset_key"] for p in pairs})},
         "grades": GRADES, "repair_threshold": REPAIR_THRESHOLD, "horizons": list(HORIZONS),
         "class_labels": CLASS_LABEL, "action_rules": ACTION_RULES,
+        "scoring": {"next_inspection_years": NEXT_INSPECTION_YEARS, "bent_band": BENT_BAND,
+                    "weights": SCORE_WEIGHTS, "bands": [{"min": lo, "key": k, "label": lab} for lo, k, lab in SCORE_BANDS],
+                    "area_draws": AREA_DRAWS, "curve_years": CURVE_YEARS},
         "totals": {
             "reports": sum(len(a["reports"]) for a in assets), "assets": len(assets),
             "current_defects": sum(len(a["current_defects"]) for a in assets),
@@ -632,7 +820,7 @@ def build(method_b_path: Path, pairs_path: Path, output: Path, saved_path: Path 
                   "by_class": [m for m in model.multipliers.values() if m["group"] == "class"]},
         "assets": assets,
         "backtests": [{k: v for k, v in t.items() if k != "pairs"} for t in tests if t],
-        "method_notes": method_notes(source, pairs, events) + [SAVED_NOTE] * bool(saved_path),
+        "method_notes": SCORING_NOTES + method_notes(source, pairs, events) + [SAVED_NOTE] * bool(saved_path),
     }
     output.write_text("window.FORECAST_DATA = " + json.dumps(result, separators=(",", ":"), allow_nan=False) + ";\n")
     return result
@@ -651,7 +839,10 @@ def main():
     print(f"{t['current_defects']} current defects on {t['assets']} structures; rates from {t['fit_pairs']} of {t['pairs']} pairs")
     for asset in result["assets"]:
         c = asset["curve"]
-        print(f"  {asset['key']}: {c['n_now']} of {c['n_defects']} at the repair threshold now; "
+        top = asset["areas"][0] if asset["areas"] else None
+        print(f"  {asset['key']}: {len(asset['areas'])} areas"
+              + (f", top {top['label']} {top['score_now']:.0f} now -> {top['score_next']:.0f} in {NEXT_INSPECTION_YEARS} y" if top else ""))
+        print(f"    {c['n_now']} of {c['n_defects']} at the repair threshold now; "
               f"{c['mean'][3]:.0f} expected in 3 years, {c['mean'][10]:.0f} in 10")
     print(f"-> {args.output}")
 

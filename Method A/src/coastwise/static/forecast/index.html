@@ -23,8 +23,8 @@
 <main id="main" class="page viz-root">
   <header class="masthead">
     <div>
-      <p class="eyebrow" id="eyebrow">Method B defect rows · one row = one defect</p>
-      <h1>Deterioration &amp; repair-timing forecast</h1>
+      <p class="eyebrow" id="eyebrow">Defects rolled up into areas of the structure</p>
+      <h1>Area priority scores &amp; deterioration forecast</h1>
       <p class="lede" id="source-line"></p>
     </div>
     <div class="masthead-actions">
@@ -36,6 +36,52 @@
 
   <p class="notice" id="rates-notice" hidden></p>
   <section class="kpi-row" id="kpi-row" aria-label="Dataset summary"></section>
+
+  <section class="card" id="areas-card">
+    <div class="card-head">
+      <div>
+        <p class="eyebrow">Forecast 1 · priority score</p>
+        <h2>Priority score by area</h2>
+        <p class="muted" id="areas-subtitle"></p>
+      </div>
+    </div>
+    <div class="forecast-strip" aria-label="The three forecasts on this page">
+      <div><strong>Priority score</strong><span>One 0–100 score per area, now and at the next inspection. Rolls the area's defects up the way Capstone's platform presents them.</span></div>
+      <div><strong>Severity at next inspection</strong><span id="strip-severity">The grade each defect is expected to have at the next inspection.</span></div>
+      <div><strong>Time to intervention</strong><span>Years until an area, or a defect, reaches grade 3 (advanced) and needs repair.</span></div>
+    </div>
+    <div class="areas-layout">
+      <div class="table-wrap">
+        <table class="data" id="areas-table">
+          <thead><tr>
+            <th>Area</th>
+            <th class="num" title="Rated elements (rows on the same numbered element count once) · defect rows">Elements</th>
+            <th title="Elements by their worst grade">Grades</th>
+            <th>Score now</th>
+            <th id="areas-next-head">Score at next inspection</th>
+            <th class="num" title="Median years until the first element not already at grade 3 reaches it">Time to intervention</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <figure class="chart-block">
+        <figcaption>
+          <strong id="area-chart-title">Projected score</strong>
+          <span class="muted" id="area-chart-sub">Mean with 90% band · no repairs assumed · click an area to change</span>
+        </figcaption>
+        <div id="area-chart" class="chart"></div>
+        <div class="legend" id="band-legend" aria-label="Score bands"></div>
+        <fieldset class="weights" id="weights" aria-describedby="weights-note">
+          <legend>Score weights</legend>
+          <label class="field"><span>Worst grade</span><input type="number" id="w-worst" min="0" max="1" step="0.05"></label>
+          <label class="field"><span>Share at grade 3+</span><input type="number" id="w-share" min="0" max="1" step="0.05"></label>
+          <label class="field"><span>Mean grade</span><input type="number" id="w-mean" min="0" max="1" step="0.05"></label>
+          <button class="ghost" id="w-reset" type="button">Reset</button>
+          <span class="muted small" id="weights-note"></span>
+        </fieldset>
+      </figure>
+    </div>
+  </section>
 
   <section class="card" id="asset-card">
     <div class="card-head">
@@ -56,7 +102,7 @@
       </figure>
       <figure class="chart-block">
         <figcaption>
-          <strong>Defects expected to need priority repair</strong>
+          <strong>Time to intervention · defects expected to need priority repair</strong>
           <span class="muted">Reached grade 3 (advanced) or worse · mean with 90% band · from the latest inspection</span>
         </figcaption>
         <div class="hero-row" id="outlook-heroes"></div>
@@ -68,10 +114,12 @@
   <section class="card">
     <div class="card-head">
       <div>
-        <h2>Current defects and when repair is likely to be needed</h2>
+        <p class="eyebrow">Forecasts 2 and 3 · per defect</p>
+        <h2>Current defects: severity at the next inspection and time to intervention</h2>
         <p class="muted" id="defects-subtitle"></p>
       </div>
       <div class="filters">
+        <label class="field"><span>Area</span><select id="filter-area"></select></label>
         <label class="field"><span>Defect class</span><select id="filter-class"></select></label>
         <label class="field"><span>Grade at least</span><select id="filter-grade">
           <option value="0">any</option><option value="1">minor</option><option value="2">moderate</option>
@@ -82,11 +130,11 @@
     <div class="table-wrap">
       <table class="data" id="defects-table">
         <thead><tr>
-          <th>Location</th><th>Defect</th><th>Class · material</th><th>Grade</th><th>Action now</th>
-          <th class="num" title="Probability the grade worsens by at least one step within 1 year">P(worse, 1 y)</th>
+          <th>Location</th><th>Area</th><th>Defect</th><th>Class · material</th><th>Grade</th><th>Action now</th>
+          <th class="num" id="next-grade-head" title="Most likely grade at the next inspection, and the probability it is worse than now">Grade at next inspection</th>
           <th class="num" title="Probability of reaching grade 3 or worse within 3 years">P(repair, 3 y)</th>
           <th class="num" title="Probability of reaching grade 3 or worse within 5 years">P(repair, 5 y)</th>
-          <th class="num">Likely repair year</th><th>Pages</th>
+          <th class="num" title="Median year the defect reaches grade 3 (advanced)">Time to intervention</th><th>Pages</th>
         </tr></thead>
         <tbody></tbody>
       </table>

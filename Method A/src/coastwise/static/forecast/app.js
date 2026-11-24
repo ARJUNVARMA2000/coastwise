@@ -1,4 +1,4 @@
-/* Deterioration forecast UI. Reads window.FORECAST_DATA (written by `python -m forecasting build`). */
+/* Area priority scores and deterioration forecast UI. Reads window.FORECAST_DATA (written by `python -m forecasting build`). */
 (function () {
   "use strict";
   const D = window.FORECAST_DATA;
@@ -50,7 +50,7 @@
   const RS = D.rates_source;
   const num = n => Number(n).toLocaleString("en-US");
   $("#source-line").textContent = `${T.assets} structures · ${T.reports} inspection reports · ${num(T.current_defects)} current defects · built ${D.generated_at.slice(0, 16).replace("T", " ")} UTC`;
-  $("#eyebrow").textContent = "One row = one defect";
+  $("#eyebrow").textContent = "Defects rolled up into areas of the structure";
   const SOURCE_TEXT = {
     method_b: {
       timeline: "Inspector's severity code on every Method B defect row, per report",
@@ -69,6 +69,8 @@
   const kpis = [
     ["Inspection reports", T.reports, `${T.assets} structures · ${repeatAssets.length} with repeat inspections shown`],
     ["Current defects", num(T.current_defects), `${num(T.method_b_defects)} from Method B rows (of ${num(D.source.defect_rows)})`],
+    ["Areas scored", D.assets.reduce((n, a) => n + a.areas.length, 0),
+      `${D.assets.reduce((n, a) => n + a.areas.filter(x => x.band_key === "immediate").length, 0)} critical now · ${D.assets.reduce((n, a) => n + a.areas.filter(x => x.next_band_key === "immediate").length, 0)} at the next inspection`],
     ["Linked transitions", T.fit_pairs, `used to fit the rates · ${T.pairs} pairs · ${T.pair_outcomes.worsened || 0} worsened, ${T.pair_outcomes.stable || 0} stable`],
     ["Years per grade step", fmtN(D.rates.pooled.median_years_per_step), `pooled median · ${RS ? RS.assets_with_repeat_inspections : repeatAssets.length} structures with repeat inspections`],
   ];
@@ -246,8 +248,9 @@
   let showAll = false;
   function defectsTable(asset) {
     const tbody = $("#defects-table tbody"); tbody.innerHTML = "";
-    const cls = $("#filter-class").value, minG = Number($("#filter-grade").value), q = $("#filter-search").value.trim().toLowerCase();
-    let rows = asset.current_defects.filter(r => (!cls || r.defect_class === cls) && r.grade >= minG &&
+    const area = $("#filter-area").value, cls = $("#filter-class").value, minG = Number($("#filter-grade").value), q = $("#filter-search").value.trim().toLowerCase();
+    const areaLabel = Object.fromEntries(asset.areas.map(a => [a.key, a.label]));
+    let rows = asset.current_defects.filter(r => (!area || r.area_key === area) && (!cls || r.defect_class === cls) && r.grade >= minG &&
       (!q || [r.location, r.defect_type_raw, r.material, r.description, r.defect_class_label].join(" ").toLowerCase().includes(q)));
     const total = rows.length;
     if (!showAll) rows = rows.slice(0, 40);
@@ -257,11 +260,13 @@
           el("span", { class: "sub", text: r.q10_years == null ? "" : `10–90%: ${Math.round(r.inspection_year + r.q10_years)}–${Math.round(r.inspection_year + r.q90_years)}` })]);
       tbody.append(el("tr", {}, [
         el("td", { class: "loc" }, [document.createTextNode(r.location || "(location not stated)"), el("span", { class: "sub", text: r.component_key ? `element ${r.component_key}` : (r.system_key ? `sub-structure ${r.system_key}` : "") })]),
+        el("td", { text: areaLabel[r.area_key] || "–" }),
         el("td", {}, [document.createTextNode(r.defect_type_raw || "(unnamed)"), el("span", { class: "sub", text: (r.measurement ? r.measurement + " · " : "") + (r.description || "").slice(0, 110) + ((r.description || "").length > 110 ? "…" : "") })]),
         el("td", {}, [document.createTextNode(r.defect_class_label), el("span", { class: "sub", text: `${cap(r.material)}${r.extent ? " · " + r.extent : ""}${r.model_confidence ? " · " + r.model_confidence + " confidence" : ""}` })]),
         el("td", {}, [gradeBadge(r.grade, r.grade_label), r.severity_raw ? el("span", { class: "sub", text: `report: ${r.severity_raw}` }) : ""]),
         el("td", {}, [statusBadge(r.action_key, r.action_now, r.action_window)]),
-        el("td", { class: "num", text: r.grade >= 4 ? "top grade" : fmtP(r.p_degrade_1y) }),
+        el("td", { class: "num" }, r.grade >= 4 ? [el("span", { text: "4 severe" }), el("span", { class: "sub", text: "top grade" })] : [
+          gradeBadge(r.next_grade_likely), el("span", { class: "sub", text: `${fmtP(r.p_worse_by_next)} worse than now · mean ${fmtN(r.next_grade_mean, 1)}` })]),
         el("td", { class: "num", text: fmtP(r.p_repair_3y) }),
         el("td", { class: "num", text: fmtP(r.p_repair_5y) }),
         el("td", { class: "num" }, [likely]),
@@ -273,7 +278,7 @@
     $("#show-all").textContent = showAll ? "Show fewer rows" : `Show all ${total} rows`;
   }
   $("#show-all").addEventListener("click", () => { showAll = !showAll; defectsTable(current()); });
-  ["#filter-class", "#filter-grade"].forEach(id => $(id).addEventListener("change", () => defectsTable(current())));
+  ["#filter-area", "#filter-class", "#filter-grade"].forEach(id => $(id).addEventListener("change", () => defectsTable(current())));
   $("#filter-search").addEventListener("input", () => defectsTable(current()));
 
   function tracksTable(asset) {
@@ -327,6 +332,147 @@
   $("#method-notes").append(...D.method_notes.map(n => el("li", { text: n })));
   $("#footer").textContent = `Repair threshold: grade ${D.repair_threshold} (${GRADES[D.repair_threshold]}). Posterior draws: ${D.rates.draws}. Exclusions from fitting: ${Object.entries(T.exclusions).map(([k, v]) => `${k.replace(/_/g, " ")} ${v}`).join(", ") || "none"}.`;
 
+
+  /* ------------------------------------------------------ area priority scores */
+  const SC = D.scoring;
+  const NEXT = SC.next_inspection_years, NEXT_I = SC.curve_years.indexOf(SC.next_inspection_years);
+  const BAND_COLOR = { monitor: "var(--status-good)", routine: "var(--status-warning)", priority: "var(--status-serious)", immediate: "var(--status-critical)" };
+  const W_KEYS = ["worst", "share", "mean"];
+  const weightInputs = { worst: $("#w-worst"), share: $("#w-share"), mean: $("#w-mean") };
+  const setWeights = w => W_KEYS.forEach(k => { weightInputs[k].value = w[k]; });
+  setWeights(SC.weights);
+  function weights() {
+    const raw = W_KEYS.map(k => Math.max(0, Number(weightInputs[k].value) || 0));
+    const sum = raw.reduce((a, b) => a + b, 0) || 1;
+    return Object.fromEntries(W_KEYS.map((k, i) => [k, raw[i] / sum]));
+  }
+  const isDefault = () => W_KEYS.every(k => Math.abs(weights()[k] - SC.weights[k]) < 1e-6);
+  const scoreOf = (parts, w) => 100 * (w.worst * parts[0] + w.share * parts[1] + w.mean * parts[2]);
+  const bandOf = score => SC.bands.find(b => score >= b.min) || SC.bands[SC.bands.length - 1];
+  function scored(area) {
+    const w = weights(), def = isDefault();
+    const now = def ? area.score_now : scoreOf(area.parts_now, w);
+    const curve = def ? area.score_curve.mean : area.parts_curve.map(p => scoreOf(p, w));
+    return { now, next: curve[NEXT_I], curve, band: def ? area.score_curve : null };
+  }
+  $("#band-legend").append(...[...SC.bands].reverse().map(b => el("span", { class: "key" }, [
+    el("span", { class: "swatch", style: `background:${BAND_COLOR[b.key]}` }),
+    el("span", { text: `${b.label}${b.min ? " ≥ " + b.min : ""}` })])));
+
+  const scoreCell = (score, prev) => {
+    const b = bandOf(score);
+    const cell = el("div", { class: "score-cell" }, [
+      el("span", { class: "score-bar" }, [el("span", { style: `width:${Math.min(100, score)}%;background:${BAND_COLOR[b.key]}` })]),
+      el("span", { class: "score-n", text: Math.round(score) }),
+      el("span", { class: `status ${b.key}` }, [el("span", { class: "ico", "aria-hidden": "true" }), el("span", { text: b.label })]),
+    ]);
+    if (prev != null && Math.round(score) > Math.round(prev)) cell.append(el("span", { class: "delta", text: `+${Math.round(score - prev)}` }));
+    return cell;
+  };
+  const gradeStrip = counts => {
+    const total = counts.reduce((a, b) => a + b, 0) || 1;
+    const wrap = el("span", { class: "grade-strip", title: counts.map((n, g) => n ? `${g} ${GRADES[g]}: ${n}` : "").filter(Boolean).join(" · ") });
+    counts.forEach((n, g) => { if (n) wrap.append(el("span", { style: `width:${(n / total) * 100}%;background:${GRADE_COLORS[g]}` })); });
+    return wrap;
+  };
+
+  let selectedArea = null;
+  function areasTable(asset) {
+    const tbody = $("#areas-table tbody"); tbody.innerHTML = "";
+    const y0 = asset.latest_inspection_year;
+    const rows = asset.areas.map(a => ({ a, sc: scored(a) })).sort((p, q) => q.sc.now - p.sc.now || q.sc.next - p.sc.next);
+    if (!rows.length) { tbody.append(el("tr", {}, [el("td", { colspan: 6, class: "muted", text: "No defects to score." })])); return rows; }
+    rows.forEach(({ a, sc }, i) => {
+      const tti = a.intervention_now ? el("span", { class: "status immediate" }, [el("span", { class: "ico" }), el("span", { text: "now" }),
+          el("span", { class: "win", text: ` · ${a.units_at_threshold} of ${a.n_units} at grade 3+` })])
+        : el("span", {}, [document.createTextNode(String(Math.round(y0 + a.years_to_intervention))),
+          el("span", { class: "sub", text: `10–90%: ${Math.round(y0 + a.years_to_intervention_q10)}–${Math.round(y0 + a.years_to_intervention_q90)} · ${fmtP(a.p_new_repair_by_next)} by next inspection` })]);
+      const tr = el("tr", { class: "clickable" + (a.key === selectedArea ? " selected" : ""), tabindex: "0",
+        "aria-selected": String(a.key === selectedArea),
+        onclick: () => selectArea(asset, a.key), onkeydown: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectArea(asset, a.key); } } }, [
+        el("td", {}, [el("span", { class: "rank", text: String(i + 1) }), document.createTextNode(a.label),
+        ]),
+        el("td", { class: "num" }, [document.createTextNode(String(a.n_units)), el("span", { class: "sub", text: `${a.n_defects} rows` })]),
+        el("td", {}, [gradeStrip(a.grade_counts), el("span", { class: "sub", text: `worst ${a.worst_grade} ${GRADES[a.worst_grade]}` })]),
+        el("td", {}, [scoreCell(sc.now)]),
+        el("td", {}, [scoreCell(sc.next, sc.now), sc.band ? el("span", { class: "sub", text: `90%: ${Math.round(a.score_next_q05)}–${Math.round(a.score_next_q95)} · ~${fmtN(a.expected_at_threshold_next, 0)} at grade 3+` }) : ""]),
+        el("td", { class: "num" }, [tti]),
+      ]);
+      tbody.append(tr);
+    });
+    return rows;
+  }
+
+  function areaChart(asset, area) {
+    const container = $("#area-chart"); container.innerHTML = "";
+    if (!area) { container.append(el("p", { class: "empty", text: "No area selected." })); return; }
+    const sc = scored(area), y0 = asset.latest_inspection_year, years = SC.curve_years;
+    $("#area-chart-title").textContent = `Projected score · ${area.label}`;
+    $("#area-chart-sub").textContent = (sc.band ? "Mean with 90% band" : "Mean (band shown at the default weights only)") +
+      ` · no repairs assumed · next inspection taken as ${y0 + NEXT} · click an area to change`;
+    const W = 560, H = 250, m = { t: 12, r: 16, b: 32, l: 36 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b, tMax = years[years.length - 1];
+    const x = t => m.l + (t / tMax) * iw, y = v => m.t + ih - (v / 100) * ih;
+    const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Projected priority score for ${area.label} over ten years` });
+    // score bands as faint horizontal regions
+    SC.bands.forEach((b, i) => {
+      const hi = i ? SC.bands[i - 1].min : 100;
+      svg.append(s("rect", { x: m.l, y: y(hi), width: iw, height: y(b.min) - y(hi), fill: BAND_COLOR[b.key], opacity: 0.08 }));
+      svg.append(s("text", { x: m.l + 6, y: y(b.min) - 5, class: "annot", text: b.label }));
+    });
+    const grid = s("g", { class: "grid" });
+    [0, 25, 50, 75, 100].forEach(v => { grid.append(s("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }));
+      svg.append(s("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end", text: String(v) })); });
+    svg.append(grid);
+    years.forEach(t => { if (t % 2 === 0) svg.append(s("text", { x: x(t), y: H - m.b + 16, "text-anchor": "middle", class: "axis-label", text: String(y0 + t) })); });
+    svg.append(s("line", { x1: x(NEXT), x2: x(NEXT), y1: m.t, y2: m.t + ih, stroke: "var(--text-muted)", "stroke-dasharray": "4 3" }));
+    svg.append(s("text", { x: x(NEXT) + 4, y: m.t + ih - 6, class: "annot", text: "next inspection" }));
+    if (sc.band) {
+      const b = sc.band;
+      const d = years.map((t, i) => `${i ? "L" : "M"}${x(t)},${y(b.q95[i])}`).join(" ") + " " +
+        [...years].reverse().map((t, j) => `L${x(t)},${y(b.q05[years.length - 1 - j])}`).join(" ") + " Z";
+      svg.append(s("path", { d, fill: "var(--series-1-soft)" }));
+    }
+    svg.append(s("path", { d: years.map((t, i) => `${i ? "L" : "M"}${x(t)},${y(sc.curve[i])}`).join(" "), fill: "none", stroke: "var(--series-1)", "stroke-width": 2.5, "stroke-linejoin": "round" }));
+    [[0, sc.curve[0], "now"], [NEXT, sc.curve[NEXT_I], "next"]].forEach(([t, v, k]) => {
+      svg.append(s("circle", { cx: x(t), cy: y(v), r: 5, fill: "var(--series-1)", stroke: "var(--surface-1)", "stroke-width": 2 }));
+      svg.append(s("text", { x: x(t) + (k === "now" ? 8 : -8), y: y(v) - 9, "text-anchor": k === "now" ? "start" : "end", class: "direct-label", text: `${Math.round(v)}` }));
+    });
+    svg.append(s("line", { class: "baseline", x1: m.l, x2: W - m.r, y1: y(0), y2: y(0) }));
+    svg.append(s("rect", { class: "hit", x: m.l, y: m.t, width: iw, height: ih, style: "fill:transparent",
+      onmousemove: e => {
+        const rect = svg.getBoundingClientRect();
+        const t = Math.max(0, Math.min(tMax, Math.round((((e.clientX - rect.left) / rect.width) * W - m.l) / iw * tMax)));
+        const i = years.indexOf(t), v = sc.curve[i];
+        showTip(e, `<div class="tt-title">${y0 + t}${t ? ` (+${t} y)` : " (latest inspection)"}</div>` + ttRows([
+          ["score", `${fmtN(v, 0)} · ${bandOf(v).label}`], ...(sc.band ? [["90% band", `${fmtN(sc.band.q05[i], 0)} – ${fmtN(sc.band.q95[i], 0)}`]] : []),
+          ["share of elements at grade 3+", fmtP(area.parts_curve[i][1])]]));
+      }, onmouseleave: hideTip }));
+    container.append(svg);
+  }
+
+  function renderAreas(asset) {
+    const rows = areasTable(asset);
+    if (!rows.length) { areaChart(asset, null); return; }
+    if (!asset.areas.some(a => a.key === selectedArea)) selectedArea = rows[0].a.key;
+    $("#areas-table tbody").querySelectorAll("tr").forEach((tr, i) => {
+      const on = rows[i].a.key === selectedArea; tr.classList.toggle("selected", on); tr.setAttribute("aria-selected", String(on)); });
+    areaChart(asset, asset.areas.find(a => a.key === selectedArea));
+    const crit = side => rows.filter(r => bandOf(side(r.sc)).key === "immediate").length;
+    $("#areas-subtitle").textContent = `${asset.areas.length} areas · ${crit(sc => sc.now)} ${SC.bands[0].label.toLowerCase()} now, ` +
+      `${crit(sc => sc.next)} at the next inspection (${asset.latest_inspection_year + NEXT}). Ranked by score now; click an area to see its projection and filter the defects below.`;
+    $("#weights-note").textContent = isDefault() ? "Placeholder weights · to agree with Capstone" : "Custom weights (normalised to sum to 1)";
+  }
+  function selectArea(asset, key) {
+    selectedArea = key; renderAreas(asset);
+    $("#filter-area").value = key; showAll = false; defectsTable(asset);
+  }
+  Object.values(weightInputs).forEach(inp => inp.addEventListener("input", () => renderAreas(current())));
+  $("#w-reset").addEventListener("click", () => { setWeights(SC.weights); renderAreas(current()); });
+  $("#areas-next-head").textContent = `Score at next inspection (+${NEXT} y)`;
+  $("#next-grade-head").textContent = `Grade at next inspection (+${NEXT} y)`;
+  $("#strip-severity").textContent = `The grade each defect is expected to have at the next inspection, taken as ${NEXT} years after the latest one.`;
+
   /* ----------------------------------------------------------- render */
   const current = () => D.assets.find(a => a.key === select.value);
   function renderAsset(key) {
@@ -354,12 +500,16 @@
     stackedTimeline($("#timeline-chart"), asset);
     outlookChart($("#outlook-chart"), $("#outlook-heroes"), asset);
 
+    const fa = $("#filter-area"); fa.innerHTML = ""; fa.append(el("option", { value: "", text: "all areas" }));
+    asset.areas.forEach(a => fa.append(el("option", { value: a.key, text: a.label })));
+    selectedArea = null;
+    renderAreas(asset);
     const fc = $("#filter-class"); fc.innerHTML = ""; fc.append(el("option", { value: "", text: "all classes" }));
     const classes = [...new Set(asset.current_defects.map(r => r.defect_class))].sort();
     classes.forEach(k => fc.append(el("option", { value: k, text: D.class_labels[k] || k })));
     $("#filter-grade").value = "0"; $("#filter-search").value = "";
     $("#defects-subtitle").textContent = asset.current_defects.length
-      ? `${text.defects(asset.latest_inspection_year)} P(repair) = probability of reaching grade 3 (advanced) by that horizon; the likely repair year is the median of the simulated time to reach it.`
+      ? `${text.defects(asset.latest_inspection_year)} Grade at next inspection = most likely grade ${NEXT} years on (severity forecast). P(repair) = probability of reaching grade 3 (advanced) by that horizon; time to intervention is the median year it gets there.`
       : "No inspection report with extracted defects for this structure.";
     defectsTable(asset);
     tracksTable(asset);

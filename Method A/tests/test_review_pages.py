@@ -120,3 +120,15 @@ def test_forecast_data_matches_method_b_rows():
                 assert d["grade"] == grades[d["severity_raw"][:2]]
             assert d["repair_now"] == (d["grade"] >= data["repair_threshold"])
             assert d["p_repair_1y"] <= d["p_repair_5y"] <= d["p_repair_10y"]
+            # Severity forecast: a distribution over grades at the next inspection, never below today's grade.
+            assert abs(sum(d["next_grade_probs"]) - 1) < 0.01 and sum(d["next_grade_probs"][:d["grade"]]) == 0
+        # Priority scoring: every defect belongs to exactly one scored area of its structure.
+        areas = {a["key"]: a for a in asset["areas"]}
+        assert sum(a["n_defects"] for a in areas.values()) == len(defects)
+        assert all(d["area_key"] in areas for d in defects)
+        for area in areas.values():
+            assert 0 <= area["score_now"] <= area["score_next"] <= 100
+            assert area["score_curve"]["mean"][0] == area["score_now"]
+            assert area["intervention_now"] == (area["units_at_threshold"] > 0)
+            assert area["n_units"] <= area["n_defects"]
+    assert data["scoring"]["next_inspection_years"] in data["scoring"]["curve_years"]
