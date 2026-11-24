@@ -247,8 +247,12 @@ def build_method_b_events(path: Path) -> tuple[list[dict], list[dict], dict]:
     withheld = []
     for report in data["reports"]:
         rows = [r for r in data["rows"] if r["r"] == report["key"]]
-        if report.get("withheld") or not rows:
-            withheld.append({"key": report["key"], "name": report["name"], "status": report.get("status", "no rows")})
+        if report.get("withheld") or report.get("groups") or not rows:
+            # A multi-inspection series (DSNY 2020-2025) is left out: these methods use one inspection per report,
+            # and Southwest Brooklyn is already forecast from the saved Method A series.
+            status = "multi-year series, shown on the Method B page" if report.get("groups") and rows \
+                else report.get("status", "no rows")
+            withheld.append({"key": report["key"], "name": report["name"], "status": status})
             continue
         year = inspection_year(report)
         filename = f"{report['title']} ({report['edition']})"

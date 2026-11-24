@@ -83,7 +83,7 @@ function renderSummary() {
     : `The same fenders and piles are inspected every year, so a defect can be followed over time.`;
   const status = r.status === "in review"
     ? `<span class="tag wait">In review</span>`
-    : `<span class="tag ok">Spot-checked</span> 10 random rows were checked against the PDF on 15 November; fixes were applied to the whole report.`;
+    : `<span class="tag ok">Spot-checked</span> ${esc(r.status_note || "")}`;
   $("d-sub").innerHTML = `${esc(where)}<br>${status}`;
 
   $("d-years-wrap").hidden = !r.groups.length;

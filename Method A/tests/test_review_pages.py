@@ -97,6 +97,8 @@ def test_forecast_data_matches_method_b_rows():
     source = data["source"]
     assert [a["key"] for a in data["assets"]] == ["southwest-brooklyn-mts", "alameda", "berkeley"]
     assert [w["key"] for w in source["withheld"]] == ["dsny"]
+    # The DSNY 2020-2025 series is on the Method B page but not forecast here (one inspection per report).
+    rows = [r for r in rows if r["r"] not in {w["key"] for w in source["withheld"]}]
     assert source["defect_rows"] == len(rows)
     assert data["totals"]["method_b_defects"] + source["skipped_total"] == len(rows)
     assert data["totals"]["current_defects"] == sum(len(a["current_defects"]) for a in data["assets"])
