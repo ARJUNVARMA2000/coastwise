@@ -606,8 +606,8 @@ $('x-search').oninput = renderSide;
     if (privateRun) {
       $('x-private').hidden = false;
       document.querySelector('h1').textContent = 'Incognito results';
-      document.querySelector('.cw-context').textContent = 'Method A · Private session';
       const job = await getJson(`/api/runs/${encodeURIComponent(privateRun)}`);
+      document.querySelector('.cw-context').textContent = `${job.method === 'B' ? 'Method B · Layout-aware' : 'Method A'} · Private session`;
       $('x-private-expiry').textContent = `Incognito · Temporary files expire ${new Date(job.expires_at * 1000).toLocaleString()}.`;
       document.querySelector('.snapshot a').href = scopedUrl('/api/extraction/download?scope=method_a_one_shot');
       $('x-private-delete').onclick = async () => {

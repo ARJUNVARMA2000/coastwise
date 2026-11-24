@@ -57,8 +57,11 @@ class OneShotConfig:
     max_output_tokens: int = 12000
     max_usd: float = 2.0
     max_requests: int = 100
+    reader: str = "native"  # "native" = Method A; "layout" = Method B (tables by position, OCR, form marks)
 
     def __post_init__(self):
+        if self.reader not in {"native", "layout"}:
+            raise ValueError("Reader must be native (Method A) or layout (Method B)")
         if not self.model.startswith("deepseek/"):
             raise ValueError("Method A requires the configured DeepSeek model")
         if not 2000 <= self.chunk_chars <= 100000 or not 0 <= self.context_chars <= 4000:
@@ -192,7 +195,7 @@ def evidence_record(raw: dict, chunk: dict, pages: list[dict]) -> dict:
                             and quote_in(raw["quote"], u["text"]) for u in chunk["primary"])
     return {**raw, "id": f'c{chunk["index"] + 1}:{raw["id"]}', "verified": valid, "primary": primary,
             "paragraph": paragraph.get("n"), "paragraph_text": paragraph.get("text", ""),
-            "bbox": paragraph.get("bbox", []), "tag": f'p{raw["page"]}.{paragraph["n"]}' if valid else ""}
+            "bbox": paragraph.get("bbox", []), "origin": paragraph.get("origin", "native_text"), "tag": f'p{raw["page"]}.{paragraph["n"]}' if valid else ""}
 
 
 def numeric_value(value: str) -> dict:
@@ -406,7 +409,12 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
         raise ValueError("This run already has a checkpoint. Reopen its saved result; do not repeat paid work.")
     output.mkdir(parents=True, exist_ok=True)
     progress = progress or (lambda **kwargs: None)
-    pages = native_pages(pdf)
+    layout_stats = None
+    if config.reader == "layout":
+        from . import method_b_layout
+        pages, layout_stats = method_b_layout.layout_pages(pdf)
+    else:
+        pages = native_pages(pdf)
     all_pages = {p["page"] for p in pages}
     selected = set(body_pages) if body_pages else all_pages
     if not selected <= all_pages:
@@ -415,7 +423,11 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     if len(chunks) > config.max_requests:
         raise ValueError(f"This report needs {len(chunks)} chunks, exceeding the {config.max_requests}-request cap")
     prompt = system_prompt()
-    provenance = {"schema_version": VERSION, "source_id": source_id, "source_filename": source_name or pdf.name,
+    if config.reader == "layout":
+        prompt += method_b_layout.PROMPT_NOTE
+    provenance = {"method": "B" if config.reader == "layout" else "A", "reader_version":
+                  method_b_layout.VERSION if config.reader == "layout" else "native-text",
+                  "schema_version": VERSION, "source_id": source_id, "source_filename": source_name or pdf.name,
                   "input_sha256": digest(pdf.read_bytes()), "config": asdict(config),
                   "started_utc": datetime.now(UTC).isoformat(), "prompt_sha256": digest(prompt),
                   "schema_sha256": digest(json.dumps(SCHEMA, sort_keys=True)), "text_extractor": f"PyMuPDF {pymupdf.VersionBind}",
@@ -477,6 +489,9 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     failures.extend({"chunk": e["chunk"]["index"], "pages": e["chunk"]["pages"], "message": e["failure"]}
                     for e in entries if "failure" in e)
     combined = merge_chunks(entries, pages)
+    if config.reader == "layout":
+        combined["limitations"] = [method_b_layout.LIMITATION if x == LAYOUT_LIMIT else x
+                                   for x in combined["limitations"]]
     valid = sum(e["payload"] is not None for e in entries)
     low_text = [p["page"] for p in pages if p["page"] in selected
                 and sum(len(q["text"].strip()) for q in p["paragraphs"]) < 50]
@@ -503,6 +518,11 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
               "coverage": {"pdf_pages": len(pages), "selected_pdf_pages": sorted(selected) if selected != all_pages else [],
                            "complete": complete, "failed_pages": failed_pages, "low_text_pages": low_text,
                            "chunks_skipped": len(chunks) if preview else len(chunks) - len(entries)}, "metrics": metrics}
+    if layout_stats is not None:
+        result["layout"] = layout_stats
+        if layout_stats["ocr_skipped"]:
+            result["limitations"].append("Pages treated as images (no usable OCR text): " + ", ".join(
+                str(p["page"]) for p in layout_stats["ocr_skipped"]))
     if not chunks:
         result["limitations"].append("No usable embedded text; this PDF may be scanned/image-only. No model call was made.")
     if low_text:
@@ -545,8 +565,8 @@ def to_tables(result: dict) -> dict:
             tables["citations"].append({"table": table, "row_id": identity, "field": field, "value": value or e["quote"],
                 "page": e["page"], "paragraph": e["paragraph"] or 0, "match": "exact" if e["verified"] else "not_found",
                 "paragraph_text": e["paragraph_text"], "bbox": e["bbox"], "source_file": source, "evidence_id": eid,
-                "tag": e["tag"], "verified_quote": e["quote"] if e["verified"] else "", "text_origin": "native_text",
-                "quote_basis": "literal_native_text", "raw_value": e["quote"]})
+                "tag": e["tag"], "verified_quote": e["quote"] if e["verified"] else "",
+                "text_origin": e.get("origin", "native_text"), "quote_basis": "literal_" + e.get("origin", "native_text"), "raw_value": e["quote"]})
             identities.append(eid)
         return identities
 
@@ -660,5 +680,5 @@ def to_tables(result: dict) -> dict:
         "match_exact": sum(c["match"] == "exact" for c in tables["citations"]), "match_partial": 0,
         "match_not_found": sum(c["match"] != "exact" for c in tables["citations"]), "billed_usd": metrics["billed_usd"],
         "model": metrics["model"], "selected_pdf_pages": result["coverage"]["selected_pdf_pages"],
-        "body_coverage_gaps": result["failures"], "schema_version": VERSION, "reviewed_overrides": False})
+        "body_coverage_gaps": result["failures"], "schema_version": VERSION, "method": result.get("method", "A"), "reviewed_overrides": False})
     return tables
