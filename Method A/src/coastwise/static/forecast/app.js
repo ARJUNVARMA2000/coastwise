@@ -8,12 +8,13 @@
   const el = (tag, attrs, children) => {
     const node = document.createElement(tag);
     if (attrs) for (const [k, v] of Object.entries(attrs)) {
-      if (k === "class") node.className = v; else if (k === "text") node.textContent = v;
+      if (k === "class") node.className = v; else if (k === "text") node.textContent = v; else if (k === "html") node.innerHTML = v;
       else if (k.startsWith("on")) node.addEventListener(k.slice(2), v); else node.setAttribute(k, v);
     }
     (children || []).forEach(c => node.append(c));
     return node;
   };
+  const esc = v => String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const svgNS = "http://www.w3.org/2000/svg";
   const s = (tag, attrs, children) => {
     const node = document.createElementNS(svgNS, tag);
@@ -453,25 +454,210 @@
 
   function renderAreas(asset) {
     const rows = areasTable(asset);
-    if (!rows.length) { areaChart(asset, null); return; }
+    if (!rows.length) { areaChart(asset, null); renderAreaDetail(asset, null); return; }
     if (!asset.areas.some(a => a.key === selectedArea)) selectedArea = rows[0].a.key;
     $("#areas-table tbody").querySelectorAll("tr").forEach((tr, i) => {
       const on = rows[i].a.key === selectedArea; tr.classList.toggle("selected", on); tr.setAttribute("aria-selected", String(on)); });
     areaChart(asset, asset.areas.find(a => a.key === selectedArea));
+    renderAreaDetail(asset, asset.areas.find(a => a.key === selectedArea));
     const crit = side => rows.filter(r => bandOf(side(r.sc)).key === "immediate").length;
     $("#areas-subtitle").textContent = `${asset.areas.length} areas · ${crit(sc => sc.now)} ${SC.bands[0].label.toLowerCase()} now, ` +
-      `${crit(sc => sc.next)} at the next inspection (${asset.latest_inspection_year + NEXT}). Ranked by score now; click an area to see its projection and filter the defects below.`;
+      `${crit(sc => sc.next)} at the next inspection (${asset.latest_inspection_year + NEXT}). Ranked by score now; click an area for its breakdown and defect-by-defect forecast.`;
     $("#weights-note").textContent = isDefault() ? "Placeholder weights · to agree with Capstone" : "Custom weights (normalised to sum to 1)";
   }
   function selectArea(asset, key) {
-    selectedArea = key; renderAreas(asset);
-    $("#filter-area").value = key; showAll = false; defectsTable(asset);
+    selectedArea = key; adShowAll = false; renderAreas(asset);
+    $("#area-detail").scrollIntoView({ behavior: "smooth", block: "start" });
   }
   Object.values(weightInputs).forEach(inp => inp.addEventListener("input", () => renderAreas(current())));
   $("#w-reset").addEventListener("click", () => { setWeights(SC.weights); renderAreas(current()); });
   $("#areas-next-head").textContent = `Score at next inspection (+${NEXT} y)`;
   $("#next-grade-head").textContent = `Grade at next inspection (+${NEXT} y)`;
   $("#strip-severity").textContent = `The grade each defect is expected to have at the next inspection, taken as ${NEXT} years after the latest one.`;
+
+
+  /* ------------------------------------------------------ area breakdown */
+  const PARTS = [
+    { k: "worst", label: "Worst grade", color: "var(--part-worst)" },
+    { k: "share", label: "Share at grade 3+", color: "var(--part-share)" },
+    { k: "mean", label: "Mean grade", color: "var(--part-mean)" },
+  ];
+  const REPAIRED_GRADE = 1;  // what-if: a repaired element is taken back to grade 1 (minor)
+  const TH = 3;               // repair threshold grade
+  const partsOfGrades = gs => gs.length ? [Math.max(...gs) / 4, gs.filter(g => g >= TH).length / gs.length, gs.reduce((a, b) => a + b, 0) / gs.length / 4] : [0, 0, 0];
+  const pointsOf = (parts, w) => PARTS.map((p, i) => 100 * w[p.k] * parts[i]);
+  const unitLabel = u => u.label;
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + "s")}`;
+  const listNames = (units, k = 3) => units.slice(0, k).map(u => esc(unitLabel(u))).join(", ") + (units.length > k ? ` +${units.length - k} more` : "");
+
+  const probBar = probs => {
+    const wrap = el("span", { class: "prob-bar", title: probs.map((p, g) => p >= 0.005 ? `${g} ${GRADES[g]}: ${fmtP(p)}` : "").filter(Boolean).join(" · ") });
+    probs.forEach((p, g) => { if (p >= 0.005) wrap.append(el("span", { style: `width:${p * 100}%;background:${GRADE_COLORS[g]}` })); });
+    return wrap;
+  };
+
+  function decompChart(rows) {
+    // rows: [{label, points:[3], total}]
+    const W = 560, rowH = 30, m = { t: 18, r: 40, b: 22, l: 128 }, H = m.t + rows.length * (rowH + 12) + m.b;
+    const iw = W - m.l - m.r, x = v => m.l + (v / 100) * iw;
+    const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Score broken down by component" });
+    SC.bands.slice(0, -1).forEach(b => {
+      svg.append(s("line", { x1: x(b.min), x2: x(b.min), y1: m.t - 6, y2: H - m.b + 2, stroke: BAND_COLOR[b.key], "stroke-dasharray": "3 3" }));
+      svg.append(s("text", { x: x(b.min), y: m.t - 8, "text-anchor": "middle", class: "annot", text: `${b.label} ${b.min}` }));
+    });
+    rows.forEach((r, i) => {
+      const y = m.t + i * (rowH + 12) + 4;
+      svg.append(s("text", { x: m.l - 10, y: y + rowH / 2 + 4, "text-anchor": "end", class: "axis-label", text: r.label }));
+      let acc = 0;
+      r.points.forEach((v, j) => {
+        if (v <= 0) return;
+        const rect = s("rect", { x: x(acc), y, width: Math.max(0, x(acc + v) - x(acc) - 1), height: rowH, rx: 3, fill: PARTS[j].color,
+          onmousemove: e => showTip(e, `<div class="tt-title">${r.label} · ${PARTS[j].label}</div>` + ttRows([["points", fmtN(v, 1)], ["share of score", fmtP(v / (r.total || 1))]])),
+          onmouseleave: hideTip });
+        svg.append(rect);
+        if (x(acc + v) - x(acc) > 26) svg.append(s("text", { x: x(acc + v / 2), y: y + rowH / 2 + 4, "text-anchor": "middle", class: "on-fill", text: Math.round(v) }));
+        acc += v;
+      });
+      svg.append(s("text", { x: x(acc) + 6, y: y + rowH / 2 + 5, class: "direct-label", text: Math.round(r.total) }));
+    });
+    svg.append(s("line", { class: "baseline", x1: x(0), x2: x(0), y1: m.t - 2, y2: H - m.b + 2 }));
+    const legend = el("div", { class: "legend" }, PARTS.map(p => el("span", { class: "key" }, [el("span", { class: "swatch", style: `background:${p.color}` }), el("span", { text: p.label })])));
+    return [svg, legend];
+  }
+
+  let adShowAll = false;
+  function renderAreaDetail(asset, area) {
+    const card = $("#area-detail");
+    card.hidden = !area;
+    if (!area) return;
+    const w = weights(), y0 = asset.latest_inspection_year, nextYear = y0 + NEXT;
+    const units = area.units, grades = units.map(u => u.grade), N = units.length;
+    const defects = asset.current_defects.filter(r => r.area_key === area.key);
+    const partsNow = partsOfGrades(grades), ptsNow = pointsOf(partsNow, w), scoreNow = ptsNow.reduce((a, b) => a + b, 0);
+    const partsNext = area.parts_curve[NEXT_I], ptsNext = pointsOf(partsNext, w), scoreNext = ptsNext.reduce((a, b) => a + b, 0);
+    const bNow = bandOf(scoreNow), bNext = bandOf(scoreNext);
+
+    $("#ad-title").textContent = area.label;
+    $("#ad-subtitle").textContent = `${plural(N, "rated element")} · ${plural(defects.length, "defect row")} · inspected ${y0} · next inspection taken as ${nextYear}`;
+    const sc = $("#ad-scores"); sc.innerHTML = "";
+    [["Score now", scoreNow, null], [`At next inspection (${nextYear})`, scoreNext, scoreNow]].forEach(([lab, v, prev]) => sc.append(
+      el("div", { class: "ad-score" }, [el("span", { class: "muted small", text: lab }), scoreCell(v, prev)])));
+    $("#ad-band-word").textContent = bNow.label;
+    $("#ad-band-word").className = `status ${bNow.key}`;
+
+    // --- why: decomposition + plain-language drivers
+    const dec = $("#ad-decomp"); dec.innerHTML = "";
+    dec.append(...decompChart([{ label: `Now (${y0})`, points: ptsNow, total: scoreNow }, { label: `Next (${nextYear})`, points: ptsNext, total: scoreNext }]));
+    const drivers = $("#ad-drivers"); drivers.innerHTML = "";
+    const top = ptsNow.indexOf(Math.max(...ptsNow));
+    const worstG = Math.max(...grades), worstUnits = units.filter(u => u.grade === worstG).sort((a, b) => b.rows - a.rows);
+    const atTh = units.filter(u => u.grade >= TH), sev = units.filter(u => u.grade >= 4);
+    const li = (html, cls = "") => drivers.append(el("li", { class: cls, html }));
+    li(`<strong>Main driver: ${PARTS[top].label.toLowerCase()}</strong>, ${Math.round(ptsNow[top])} of ${Math.round(scoreNow)} points.`);
+    li(`<span class="swatch-inline" style="background:var(--part-worst)"></span>Worst grade is <strong>${worstG} ${esc(GRADES[worstG])}</strong>, on ${plural(worstUnits.length, "element")} (${listNames(worstUnits)}). One element at this grade is enough for these ${Math.round(ptsNow[0])} points.`);
+    li(`<span class="swatch-inline" style="background:var(--part-share)"></span><strong>${atTh.length} of ${N}</strong> elements (${fmtP(atTh.length / (N || 1))}) are at grade 3 or worse now, ${Math.round(ptsNow[1])} points. About ${fmtN(area.expected_at_threshold_next, 0)} are expected by ${nextYear}, ${Math.round(ptsNext[1])} points.`);
+    li(`<span class="swatch-inline" style="background:var(--part-mean)"></span>Average element grade is <strong>${fmtN(partsNow[2] * 4, 1)}</strong>, ${Math.round(ptsNow[2])} points.`);
+    // what-ifs with the current weights
+    const whatIf = (fix, text) => {
+      const gs = units.map(u => fix(u) ? REPAIRED_GRADE : u.grade);
+      const v = pointsOf(partsOfGrades(gs), w).reduce((a, b) => a + b, 0), b = bandOf(v);
+      li(`${text} would bring the score to <strong>${Math.round(v)}</strong> <span class="status ${b.key}"><span class="ico"></span>${b.label}</span> (from ${Math.round(scoreNow)}).`, "what-if");
+    };
+    if (sev.length) whatIf(u => u.grade >= 4, `Repairing the ${plural(sev.length, "severe element")} (to grade ${REPAIRED_GRADE})`);
+    if (atTh.length && atTh.length !== sev.length) whatIf(u => u.grade >= TH, `Repairing all ${plural(atTh.length, "element")} at grade 3+`);
+    if (scoreNext - scoreNow >= 1) {
+      const gain = ptsNext.map((v, i) => v - ptsNow[i]), gi = gain.indexOf(Math.max(...gain));
+      li(`By ${nextYear} the score rises ${Math.round(scoreNext - scoreNow)} points, mostly from <strong>${PARTS[gi].label.toLowerCase()}</strong> (+${Math.round(gain[gi])}), assuming no repairs.`);
+    }
+
+    // --- severity table
+    const sevBody = $("#ad-severity tbody"); sevBody.innerHTML = "";
+    const rowsByGrade = [0, 1, 2, 3, 4].map(g => defects.filter(d => d.grade === g).length);
+    [4, 3, 2, 1, 0].forEach(g => {
+      if (!area.grade_counts[g] && area.grade_counts_next[g] < 0.05 && !rowsByGrade[g]) return;
+      sevBody.append(el("tr", { class: g >= TH ? "hot" : "" }, [
+        el("td", {}, [gradeBadge(g)]),
+        el("td", { class: "num", text: String(area.grade_counts[g]) }),
+        el("td", { class: "num", text: fmtN(area.grade_counts_next[g], area.grade_counts_next[g] < 10 ? 1 : 0) }),
+        el("td", { class: "num", text: String(rowsByGrade[g]) }),
+      ]));
+    });
+$("#ad-sev-next-head").textContent = `Next (${nextYear})`;
+    $("#ad-sev-note").textContent = `An element counts once, at the worst grade on any of its defect rows. Next-inspection counts are expected values, assuming no repairs.`;
+
+    // --- causes by defect class
+    const byClass = {};
+    defects.forEach(d => {
+      const c = byClass[d.defect_class] ||= { label: d.defect_class_label, rows: 0, sev: 0, adv: 0, units: new Set(), newTh: 0 };
+      c.rows++; c.units.add(d.unit_key);
+      if (d.grade >= 4) c.sev++; else if (d.grade === 3) c.adv++;
+      else c.newTh += d.p_repair_5y == null ? 0 : (NEXT === 5 ? d.p_repair_5y : (d.next_grade_probs || []).slice(TH).reduce((a, b) => a + b, 0));
+    });
+    const clsBody = $("#ad-classes tbody"); clsBody.innerHTML = "";
+    Object.values(byClass).sort((a, b) => (b.sev - a.sev) || (b.adv - a.adv) || (b.rows - a.rows)).forEach(c => clsBody.append(el("tr", {}, [
+      el("td", { text: c.label }), el("td", { class: "num", text: String(c.rows) }),
+      el("td", { class: "num" + (c.sev ? " strong" : ""), text: String(c.sev) }), el("td", { class: "num", text: String(c.adv) }),
+      el("td", { class: "num", text: String(c.units.size) }), el("td", { class: "num", text: c.rows - c.sev - c.adv ? `~${fmtN(c.newTh, c.newTh < 10 ? 1 : 0)}` : "–" }),
+    ])));
+
+    // --- elements driving the score
+    const ub = $("#ad-units tbody"); ub.innerHTML = "";
+    const ranked = [...units].sort((a, b) => b.grade - a.grade || b.p_threshold_next - a.p_threshold_next || b.rows - a.rows);
+    const topUnits = ranked.slice(0, 10);
+    const classesOn = key => [...new Set(defects.filter(d => d.unit_key === key).map(d => d.defect_class_label))].join(", ");
+    topUnits.forEach(u => ub.append(el("tr", {}, [
+      el("td", { title: classesOn(u.key) }, [document.createTextNode(unitLabel(u)), el("span", { class: "sub", text: plural(u.rows, "defect row") })]),
+      el("td", {}, [gradeBadge(u.grade)]),
+      el("td", {}, u.grade >= 4 ? [el("span", { class: "muted small", text: "top grade" })] : [probBar(u.next_grade_probs),
+        el("span", { class: "sub", text: `most likely ${u.next_grade_probs.indexOf(Math.max(...u.next_grade_probs))}` })]),
+      el("td", { class: "num", text: u.grade >= TH ? "already" : fmtP(u.p_threshold_next) }),
+    ])));
+    $("#ad-units-note").textContent = N > topUnits.length ? `Top ${topUnits.length} of ${N} elements, by grade now and then by chance of reaching grade 3 by ${nextYear}.` : "";
+
+    adShowAll = adShowAll && card.dataset.area === area.key;
+    card.dataset.area = area.key;
+    areaDefects(asset, area, defects);
+  }
+
+  function areaDefects(asset, area, defects) {
+    const mode = $("#ad-sort").value, gf = Number($("#ad-grade").value);
+    let rows = defects.filter(d => gf === 0 || (gf > 0 ? d.grade >= gf : d.grade < -gf));
+    const ttr = d => d.repair_now ? -1 : (d.median_years_to_repair == null ? 99 : d.median_years_to_repair);
+    const sorters = {
+      risk: (a, b) => b.grade - a.grade || (b.p_repair_5y || 0) - (a.p_repair_5y || 0) || ttr(a) - ttr(b),
+      soonest: (a, b) => (a.repair_now === b.repair_now ? 0 : a.repair_now ? 1 : -1) || ttr(a) - ttr(b) || b.grade - a.grade,
+      worsen: (a, b) => (b.p_worse_by_next || 0) - (a.p_worse_by_next || 0) || b.grade - a.grade,
+      location: (a, b) => (a.location || "").localeCompare(b.location || "", undefined, { numeric: true }),
+    };
+    rows = [...rows].sort(sorters[mode]);
+    const total = rows.length, limit = 25;
+    if (!adShowAll) rows = rows.slice(0, limit);
+    const worstG = Math.max(...area.units.map(u => u.grade));
+    const worstKeys = new Set(area.units.filter(u => u.grade === worstG).map(u => u.key));
+    const tb = $("#ad-defects tbody"); tb.innerHTML = "";
+    if (!rows.length) tb.append(el("tr", {}, [el("td", { colspan: 9, class: "muted", text: "No defects match." })]));
+    rows.forEach(d => {
+      const tti = d.repair_now ? el("span", { class: "status immediate" }, [el("span", { class: "ico" }), el("span", { text: "now" })]) :
+        el("span", {}, [document.createTextNode(d.median_years_to_repair == null ? "–" : String(Math.round(d.inspection_year + d.median_years_to_repair))),
+          el("span", { class: "sub", text: d.q10_years == null ? "" : `10–90%: ${Math.round(d.inspection_year + d.q10_years)}–${Math.round(d.inspection_year + d.q90_years)}` })]);
+      tb.append(el("tr", {}, [
+        el("td", { class: "loc" }, [document.createTextNode(d.location || "(location not stated)"),
+          worstKeys.has(d.unit_key) && d.grade === worstG ? el("span", { class: "chip", text: "sets worst grade" }) : ""]),
+        el("td", {}, [document.createTextNode(d.defect_type_raw || "(unnamed)"), el("span", { class: "sub", text: d.defect_class_label + (d.material ? " · " + cap(d.material) : "") })]),
+        el("td", {}, [gradeBadge(d.grade, d.grade_label)]),
+        el("td", {}, [statusBadge(d.action_key, d.action_now, d.action_window)]),
+        el("td", {}, d.grade >= 4 ? [el("span", { class: "muted small", text: "4 severe · top grade" })] : [probBar(d.next_grade_probs),
+          el("span", { class: "sub", text: `likely ${d.next_grade_likely} ${GRADES[d.next_grade_likely]} · ${fmtP(d.p_worse_by_next)} worse than now` })]),
+        el("td", { class: "num", text: fmtP(d.p_repair_1y) }), el("td", { class: "num", text: fmtP(d.p_repair_3y) }), el("td", { class: "num", text: fmtP(d.p_repair_5y) }),
+        el("td", { class: "num" }, [tti]),
+      ]));
+    });
+    $("#ad-defects-note").textContent = `${rows.length} of ${total} shown · P(repair) = probability the defect is at grade 3 or worse by then (1 if it already is) · bars: chance of each grade at ${asset.latest_inspection_year + NEXT}`;
+    const more = $("#ad-more"); more.hidden = total <= limit; more.textContent = adShowAll ? `Show top ${limit}` : `Show all ${total}`;
+  }
+  $("#ad-more").addEventListener("click", () => { adShowAll = !adShowAll; const a = current(); renderAreaDetail(a, a.areas.find(x => x.key === selectedArea)); });
+  ["#ad-sort", "#ad-grade"].forEach(id => $(id).addEventListener("change", () => { const a = current(); renderAreaDetail(a, a.areas.find(x => x.key === selectedArea)); }));
+  $("#ad-next-head").textContent = `Grade at next inspection (+${NEXT} y)`;
 
   /* ----------------------------------------------------------- render */
   const current = () => D.assets.find(a => a.key === select.value);

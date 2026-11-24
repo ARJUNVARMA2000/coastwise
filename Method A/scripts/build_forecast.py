@@ -559,9 +559,11 @@ def element_units(rows: list[dict]) -> list[dict]:
     units: dict[str, dict] = {}
     for i, row in enumerate(rows):
         key = row["component_key"] if ":" in (row.get("component_key") or "") else f"row:{i}"
+        row["unit_key"] = key
         unit = units.get(key)
         if unit is None or row["grade"] > unit["grade"]:
-            units[key] = {"key": key, "grade": row["grade"], "defect_class": row["defect_class"],
+            label = key.replace(":", " ") if not key.startswith("row:") else (row.get("location") or f"{row.get('defect_type_raw') or 'defect'} (location not stated)")
+            units[key] = {"key": key, "label": label, "grade": row["grade"], "defect_class": row["defect_class"],
                           "rows": (unit["rows"] if unit else 0) + 1}
         else:
             unit["rows"] += 1
@@ -625,12 +627,20 @@ def area_scores(model: RateModel, rows: list[dict], asset_key: str) -> list[dict
         pending = [i for i, u in enumerate(units) if u["grade"] < REPAIR_THRESHOLD]
         first = arrivals[pending, REPAIR_THRESHOLD].min(axis=0) if pending else None
         grade_counts = Counter(u["grade"] for u in units)
+        g_next = grades_at(units, arrivals, NEXT_INSPECTION_YEARS)  # (n_units, draws)
+        next_probs = np.stack([(g_next == k).mean(axis=1) for k in range(TOP_GRADE + 1)], axis=1)
         band_key, band_label = score_band(now)
         next_key, next_label = score_band(float(nxt.mean()))
         out.append({
             "key": key, "label": group["label"], "kind": group["kind"],
             "n_defects": len(group["rows"]), "n_units": len(units),
             "grade_counts": [grade_counts.get(g, 0) for g in range(len(GRADES))],
+            # expected number of elements at each grade at the next inspection
+            "grade_counts_next": [round(float(v), 1) for v in next_probs.sum(axis=0)],
+            # the rated elements behind the score, each with its own severity forecast at the next inspection
+            "units": [{**u, "next_grade_probs": [round(float(p), 3) for p in next_probs[i]],
+                       "p_threshold_next": round(float(next_probs[i, REPAIR_THRESHOLD:].sum()), 3)}
+                      for i, u in enumerate(units)],
             "worst_grade": max(u["grade"] for u in units),
             "units_at_threshold": sum(u["grade"] >= REPAIR_THRESHOLD for u in units),
             "parts_now": [round(float(v[0]), 4) for v in parts[0]],

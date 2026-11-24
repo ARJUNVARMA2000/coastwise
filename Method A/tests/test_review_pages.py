@@ -133,4 +133,12 @@ def test_forecast_data_matches_method_b_rows():
             assert area["score_curve"]["mean"][0] == area["score_now"]
             assert area["intervention_now"] == (area["units_at_threshold"] > 0)
             assert area["n_units"] <= area["n_defects"]
+            # Area breakdown: the rated elements behind the score, each with its own next-inspection forecast.
+            assert len(area["units"]) == area["n_units"]
+            assert [sum(u["grade"] == g for u in area["units"]) for g in range(5)] == area["grade_counts"]
+            assert abs(sum(area["grade_counts_next"]) - area["n_units"]) < 0.5
+            for u in area["units"]:
+                assert abs(sum(u["next_grade_probs"]) - 1) < 0.01 and sum(u["next_grade_probs"][:u["grade"]]) == 0
+        unit_keys = {(a["key"], u["key"]) for a in areas.values() for u in a["units"]}
+        assert all((d["area_key"], d["unit_key"]) in unit_keys for d in defects)
     assert data["scoring"]["next_inspection_years"] in data["scoring"]["curve_years"]

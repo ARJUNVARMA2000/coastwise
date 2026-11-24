@@ -83,6 +83,88 @@
     </div>
   </section>
 
+  <section class="card area-detail" id="area-detail" aria-live="polite">
+    <div class="card-head">
+      <div>
+        <p class="eyebrow">Area breakdown · click any area above</p>
+        <h2 id="ad-title">Area</h2>
+        <p class="muted" id="ad-subtitle"></p>
+      </div>
+      <div class="ad-scores" id="ad-scores"></div>
+    </div>
+
+    <div class="ad-grid">
+      <div class="ad-block">
+        <h3>Why it scores <span id="ad-band-word"></span></h3>
+        <div id="ad-decomp"></div>
+        <ul class="ad-drivers" id="ad-drivers"></ul>
+      </div>
+      <div class="ad-block">
+        <h3>Severity: elements by grade, now and at the next inspection</h3>
+        <table class="data compact" id="ad-severity">
+          <thead><tr><th>Grade</th><th class="num">Elements now</th><th class="num" id="ad-sev-next-head">At next inspection</th><th class="num" title="Defect rows on this area's elements">Rows now</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="muted small" id="ad-sev-note"></p>
+      </div>
+    </div>
+
+    <div class="ad-grid">
+      <div class="ad-block">
+        <h3>What is causing it: defect classes in this area</h3>
+        <div class="table-wrap">
+          <table class="data compact" id="ad-classes">
+            <thead><tr><th>Defect class</th><th class="num">Rows</th><th class="num" title="Defect rows at grade 4 (severe)">Severe</th><th class="num" title="Defect rows at grade 3 (advanced)">Advanced</th><th class="num" title="Distinct elements with this defect class">Elements</th><th class="num" title="Defect rows below grade 3 expected to reach it by the next inspection">Expected new 3+</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ad-block">
+        <h3>Elements driving the score</h3>
+        <div class="table-wrap">
+          <table class="data compact" id="ad-units">
+            <thead><tr><th>Element</th><th>Grade now</th><th title="Probability of each grade at the next inspection">Grade at next inspection</th><th class="num">P(grade 3+ by next)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted small" id="ad-units-note"></p>
+      </div>
+    </div>
+
+    <div class="ad-block">
+      <div class="table-toolbar">
+        <h3>Defect-by-defect forecast</h3>
+        <label class="field"><span>Sort by</span>
+          <select id="ad-sort">
+            <option value="risk">Highest risk first</option>
+            <option value="soonest">Soonest intervention</option>
+            <option value="worsen">Most likely to worsen</option>
+            <option value="location">Location</option>
+          </select>
+        </label>
+        <label class="field"><span>Show</span>
+          <select id="ad-grade">
+            <option value="0">all grades</option>
+            <option value="3">grade 3+ only</option>
+            <option value="-3">below grade 3 only</option>
+          </select>
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table class="data" id="ad-defects">
+          <thead><tr>
+            <th>Location</th><th>Defect</th><th>Grade now</th><th>Action now</th>
+            <th id="ad-next-head" title="Probability of each grade at the next inspection; label = most likely grade">Grade at next inspection</th>
+            <th class="num">P(repair) 1 y</th><th class="num">3 y</th><th class="num">5 y</th>
+            <th class="num" title="Median year the defect reaches grade 3 (advanced)">Time to intervention</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="table-foot"><span class="muted small" id="ad-defects-note"></span><button class="ghost" id="ad-more" type="button" hidden>Show all</button></div>
+    </div>
+  </section>
+
   <section class="card" id="asset-card">
     <div class="card-head">
       <div>
