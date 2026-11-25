@@ -96,19 +96,32 @@ def native_pages(pdf: Path) -> list[dict]:
     return pages
 
 
-def chunk_text(pages: list[dict], limit: int, context_chars: int) -> list[dict]:
-    """Bound primary text and each adjacent context tail, splitting huge blocks losslessly."""
+def is_row(unit: dict) -> bool:
+    return unit["text"].startswith(("[TABLE ROW]", "[FORM MARK]"))
+
+
+def chunk_text(pages: list[dict], limit: int, context_chars: int, max_rows: int | None = None) -> list[dict]:
+    """Bound primary text and each adjacent context tail, splitting huge blocks losslessly.
+
+    ``max_rows`` (Method B) also caps the table rows per chunk, so a dense table is sent in short slices.
+    """
     units = [{"page": p["page"], "n": q["n"], "text": q["text"][start:start + limit]}
              for p in pages for q in p["paragraphs"] for start in range(0, len(q["text"]), limit)]
-    groups, group, size = [], [], 0
+    groups, group, size, rows = [], [], 0, 0
     for unit in units:
-        if group and size + len(unit["text"]) > limit:
+        row = is_row(unit)
+        if group and (size + len(unit["text"]) > limit or (max_rows and row and rows >= max_rows)):
             groups.append(group)
-            group, size = [], 0
+            group, size, rows = [], 0, 0
         group.append(unit)
         size += len(unit["text"])
+        rows += row
     if group:
         groups.append(group)
+    return with_context(groups, context_chars)
+
+
+def with_context(groups: list[list[dict]], context_chars: int, start: int = 0) -> list[dict]:
 
     def tail(values, reverse=False):
         selected, remaining = [], context_chars
@@ -120,7 +133,7 @@ def chunk_text(pages: list[dict], limit: int, context_chars: int) -> list[dict]:
             remaining -= len(text)
         return list(reversed(selected)) if reverse else selected
 
-    return [{"index": i, "primary": primary,
+    return [{"index": start + i, "primary": primary,
              "before": tail([u for g in groups[:i] for u in g], True),
              "after": tail([u for g in groups[i + 1:] for u in g]),
              "pages": sorted({u["page"] for u in primary})} for i, primary in enumerate(groups)]
@@ -157,8 +170,9 @@ def messages_for(chunk: dict, prompt: str, source_id: str) -> list[dict]:
                          for u in units)
     text = "\n".join([render("CONTEXT", chunk["before"]), render("PRIMARY", chunk["primary"]),
                        render("CONTEXT", chunk["after"])])
+    note = f"{chunk['note']}\n" if chunk.get("note") else ""
     return [{"role": "system", "content": prompt}, {"role": "user", "content":
-            f"Report {source_id}, chunk {chunk['index'] + 1}. Absolute PDF page numbers are in the tags.\n{text}"}]
+            f"Report {source_id}, chunk {chunk['index'] + 1}. Absolute PDF page numbers are in the tags.\n{note}{text}"}]
 
 
 def normalized(text: str) -> str:
@@ -336,6 +350,36 @@ def _assessment(defect, context, evidence):
             "evidence": [e["id"] for e in finding]}, measurements
 
 
+async def method_b_followups(extract, followups, entries, pages, selected, next_index, request_cap, deadline, preview):
+    """Method B only: send split halves until none remain, then re-ask once for table rows no evidence cites."""
+    async def drain():
+        while followups and time.monotonic() < deadline:
+            room = request_cap - len(entries)
+            if room <= 0:
+                break
+            batch = followups[:room]
+            del followups[:room]
+            await asyncio.gather(*(extract(chunk) for chunk in batch))
+
+    await drain()
+    if preview or time.monotonic() >= deadline:
+        return
+    quotes = [(e["page"], e["quote"]) for entry in entries if entry.get("payload")
+              for e in entry["payload"]["evidence"]]
+    sent = {(u["page"], u["n"]) for entry in entries if entry.get("payload") for u in entry["chunk"]["primary"]}
+    missed = [{"page": p["page"], "n": q["n"], "text": q["text"]} for p in pages if p["page"] in selected
+              for q in p["paragraphs"] if q["text"].startswith("[TABLE ROW]") and (p["page"], q["n"]) in sent
+              and not any(page == p["page"] and quote_in(quote, q["text"]) for page, quote in quotes)]
+    from .method_b_layout import ROWS_PER_CHUNK
+    groups = [missed[i:i + ROWS_PER_CHUNK] for i in range(0, len(missed), ROWS_PER_CHUNK)]
+    retry = with_context(groups, 0, next_index[0])
+    next_index[0] += len(retry)
+    note = ("RE-CHECK: an earlier pass cited none of these table rows. Extract every damage finding they record, "
+            "one record per row; skip rows that record no damage.")
+    followups.extend({**chunk, "note": note, "retry_of_uncited_rows": True} for chunk in retry)
+    await drain()
+
+
 def merge_chunks(entries: list[dict], pages: list[dict]) -> dict:
     """Merge exact same-scope repeats; uncertain identity stays as distinct records."""
     evidence, contexts, defects, limitations = {}, {}, [], []
@@ -427,9 +471,12 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
         selected = set(body_pages) if body_pages else all_pages
         if not selected <= all_pages:
             raise ValueError("Selected pages are outside this PDF")
-    chunks = chunk_text([p for p in pages if p["page"] in selected], config.chunk_chars, config.context_chars)
-    if len(chunks) > config.max_requests:
-        raise ValueError(f"This report needs {len(chunks)} chunks, exceeding the {config.max_requests}-request cap")
+    layout = config.reader == "layout"
+    request_cap = method_b_layout.MAX_REQUESTS if layout else config.max_requests
+    chunks = chunk_text([p for p in pages if p["page"] in selected], config.chunk_chars, config.context_chars,
+                        method_b_layout.ROWS_PER_CHUNK if layout else None)
+    if len(chunks) > request_cap:
+        raise ValueError(f"This report needs {len(chunks)} chunks, exceeding the {request_cap}-request cap")
     prompt = system_prompt()
     if config.reader == "layout":
         prompt += method_b_layout.PROMPT_NOTE
@@ -447,6 +494,17 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     client = None if preview or not chunks else client or make_client(config)
     entries, failures = [], []
     semaphore = asyncio.Semaphore(config.concurrency)
+    followups, next_index = [], [len(chunks)]
+
+    def split(chunk):
+        """Method B: a chunk whose answer ran out of output is re-sent as two halves."""
+        half = len(chunk["primary"]) // 2
+        parts = []
+        for primary in (chunk["primary"][:half], chunk["primary"][half:]):
+            parts.append({**chunk, "index": next_index[0], "primary": primary,
+                          "pages": sorted({u["page"] for u in primary}), "split_from": chunk["index"]})
+            next_index[0] += 1
+        return parts
 
     async def extract(chunk):
         async with semaphore:
@@ -473,6 +531,9 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
                 entry["payload"] = payload
             except (ModelError, ValueError, httpx.HTTPError, TimeoutError) as exc:
                 entry["failure"] = str(exc) or "Request failed or timed out; no automatic retry."
+                if layout and "with length" in entry["failure"] and len(chunk["primary"]) > 1:
+                    entry["split"] = True
+                    followups.extend(split(chunk))
             finally:
                 save_json(output / f"chunk-{index + 1}-result.json", entry)
                 entries.append(entry)
@@ -488,12 +549,17 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
             await asyncio.wait_for(client.preflight(), timeout=max(0.001, deadline - time.monotonic()))
             save_json(output / "pricing.json", getattr(client, "pricing", None))
             await asyncio.gather(*(extract(chunk) for chunk in chunks))
+            if layout:
+                await method_b_followups(extract, followups, entries, pages, selected, next_index,
+                                         request_cap, deadline, preview)
     except (ModelError, ValueError, httpx.HTTPError, TimeoutError) as exc:
         failures.append({"chunk": None, "pages": sorted(selected), "message": str(exc) or "Preflight failed"})
     finally:
         if owned and client:
             await client.close()
     entries.sort(key=lambda e: e["chunk"]["index"])
+    # A chunk that was split is replaced by its halves; only the pieces that were finally sent count.
+    entries = [e for e in entries if not e.get("split")]
     failures.extend({"chunk": e["chunk"]["index"], "pages": e["chunk"]["pages"], "message": e["failure"]}
                     for e in entries if "failure" in e)
     combined = merge_chunks(entries, pages)
@@ -504,13 +570,13 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     low_text = [p["page"] for p in pages if p["page"] in selected
                 and sum(len(q["text"].strip()) for q in p["paragraphs"]) < 50]
     failed_pages = sorted({p for f in failures for p in f["pages"]})
-    complete = bool(chunks) and valid == len(chunks) and not failures and not low_text
+    complete = bool(chunks) and valid == len(entries) and not failures and not low_text
     status = "preview" if preview else "complete" if complete else "partial" if valid else "failed"
     logs = getattr(client, "logs", []) if client else []
     costs = [entry.get("usage", {}).get("cost") for entry in logs]
     billed = sum(float(c) for c in costs if c is not None) if costs and all(c is not None for c in costs) else (0.0 if not logs else None)
     metrics = {"model": config.model, "requests": len(logs), "request_count": len(logs),
-               "chunks_total": len(chunks), "chunks_valid": valid, "runtime_seconds": round(time.monotonic() - started, 3),
+               "chunks_total": len(entries), "chunks_valid": valid, "runtime_seconds": round(time.monotonic() - started, 3),
                "billed_usd": billed, "known_billed_usd": sum(float(c) for c in costs if c is not None),
                "cost_unknown": any(c is None for c in costs), "reserved_usd": getattr(client, "reserved", 0) if client else 0,
                "prompt_tokens": sum(e.get("usage", {}).get("prompt_tokens", 0) or 0 for e in logs),
