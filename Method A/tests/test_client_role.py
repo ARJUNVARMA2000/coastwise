@@ -53,10 +53,45 @@ def test_client_upload_is_forced_private_and_never_saved(signed):
     # The form asks for a saved upload; the client role makes it private anyway.
     identity = upload(client, pdf, private=False)
     assert identity in manager.entries and web.JOBS[identity].get("incognito")
-    run = start(client, identity)
+    run = start_with_key(client, identity)
     assert wait(client, run)["status"] in {"complete", "partial"}
     assert run in manager.entries
     assert snapshot(durable) == before
+
+
+MIRA_KEY = "sk-or-mira-own-key-for-tests"
+
+
+def start_with_key(client, identity, key=MIRA_KEY):
+    response = client.post(f"/api/runs/{identity}", headers=HEADERS,
+                           data={"config": '{"workflow": "scoring"}', "api_key": key})
+    assert response.status_code == 200, response.text
+    return response.json()["id"]
+
+
+def test_client_runs_use_own_key_never_the_server_key(signed, monkeypatch):
+    login, manager, durable, pdf = signed
+    from coastwise import method_a_one_shot
+    from test_method_a_one_shot_web import OneShotModel
+    used = []
+    monkeypatch.setattr(method_a_one_shot, "make_client", lambda config, key=None: used.append(key) or OneShotModel())
+    monkeypatch.setattr(web, "server_key", lambda: "team-server-key-for-tests")
+    client = login(CLIENT)
+    settings = client.get("/api/settings").json()
+    assert settings["own_key_required"] is True and settings["has_server_key"] is False
+    identity = upload(client, pdf, private=False)
+    # No key: refused rather than falling back to the team's server key.
+    response = client.post(f"/api/runs/{identity}", headers=HEADERS, data={"config": '{"workflow": "scoring"}'})
+    assert response.status_code == 400 and "own OpenRouter" in response.text
+    run = start_with_key(client, identity)
+    assert wait(client, run)["status"] in {"complete", "partial"}
+    assert used == [MIRA_KEY]
+    # The key is never written to the private run files or the shared library.
+    files = [p for root in (manager.base, durable) for p in root.rglob("*") if p.is_file()]
+    assert files and not any(MIRA_KEY.encode() in p.read_bytes() for p in files)
+    # The team sign-in still uses the server key and needs none from the browser.
+    team = login(TEAM)
+    assert team.get("/api/settings").json()["own_key_required"] is False
 
 
 def test_client_cannot_run_or_update_a_shared_upload(signed):
