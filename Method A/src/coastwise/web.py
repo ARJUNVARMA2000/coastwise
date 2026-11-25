@@ -56,7 +56,15 @@ def client_store() -> client_access.AccessStore:
 
 
 auth.client_store = client_store
-FORM_POSTS = {"/login", "/client-setup", "/client-password", "/client-access/link"}
+FORM_POSTS = {"/login", "/client-setup", "/client-password", "/client-access/link",
+              "/library-admin/hide", "/library-admin/restore"}
+
+
+def release_sources() -> set[str]:
+    """PDF hashes of the curated release reports shown in the shared library."""
+    reports = extraction_workspace.release_metadata().get("reports", {})
+    entries = reports.values() if isinstance(reports, dict) else reports
+    return {r.get("source_sha256") for r in entries if isinstance(r, dict) and r.get("source_sha256")}
 JOBS: dict[str, dict] = {}
 TASKS: set = set()
 PRIVATE = incognito.PrivateRuns(on_remove=lambda identity: JOBS.pop(identity, None))
@@ -356,6 +364,74 @@ def client_password(request: Request, current: str = Form(""), password: str = F
     return sign_in(request, RedirectResponse("/", status_code=303), "client:" + version)
 
 
+def admin_row(row: dict, action: str) -> str:
+    when = time.strftime("%d %b %Y %H:%M UTC", time.gmtime(row.get("created_at") or 0))
+    return (f'<li style="margin:10px 0"><strong>{escape(row.get("filename", ""))}</strong><br>'
+            f'<span class="hint">Run {escape(row["id"][:8])} · {escape(str(row.get("method") or "A"))} · '
+            f'{escape(str(row.get("status")))} · saved {when}</span>{action}</li>')
+
+
+@app.get("/library-admin", include_in_schema=False)
+def library_admin(request: Request, message: str = ""):
+    if not auth.is_team(request):
+        return simple_page("Team only", '<p class="intro">Only the team sign-in can manage the shared library.</p>', 403)
+    library = bulk.ledger()
+    rows = [r for r in library.rows() if r.get("status") in {"complete", "partial"} and not r.get("incognito")]
+    by_pdf: dict[str, list[dict]] = {}
+    for row in rows:
+        by_pdf.setdefault(row.get("source_sha256") or row["id"], []).append(row)
+    releases = release_sources()
+    items = []
+    for sha, group in by_pdf.items():
+        group.sort(key=lambda r: (r.get("created_at") or 0, r["id"]))
+        if len(group) < 2:
+            continue
+        newest = group[-1]
+        tag = " (replaces a release report)" if sha in releases else ""
+        items.append(admin_row(newest, f'<form method="post" action="/library-admin/hide" style="margin-top:6px">'
+                                       f'<input type="hidden" name="run_id" value="{escape(newest["id"], quote=True)}">'
+                                       f'<button class="primary-button">Hide this run and show the previous one{tag}</button></form>'))
+    hidden = []
+    for m in library.hidden_runs():
+        when = time.strftime("%d %b %Y %H:%M UTC", time.gmtime(m["archived_at"]))
+        hidden.append(f'<li style="margin:10px 0"><strong>{escape(m.get("filename", ""))}</strong><br>'
+                      f'<span class="hint">Run {escape(m["hidden_run_id"][:8])} hidden {when}; showing '
+                      f'{escape(m["shown_run_id"][:8])}</span><form method="post" action="/library-admin/restore" '
+                      f'style="margin-top:6px"><input type="hidden" name="archive_id" value="{escape(m["archive_id"], quote=True)}">'
+                      f'<button>Undo</button></form></li>')
+    note = f'<p class="intro">{escape(message)}</p>' if message else ""
+    return simple_page("Shared library", note +
+        '<p class="intro">The library shows only the newest saved run of each PDF. Hiding a run shows the previous '
+        'one again; no files are deleted and Undo brings it back.</p>'
+        '<h2 style="font-size:1.1em;margin-top:24px">PDFs with more than one saved run</h2>'
+        + (f'<ul style="padding-left:18px">{"".join(items)}</ul>' if items else '<p class="hint">None.</p>') +
+        '<h2 style="font-size:1.1em;margin-top:24px">Hidden runs</h2>'
+        + (f'<ul style="padding-left:18px">{"".join(hidden)}</ul>' if hidden else '<p class="hint">None.</p>'))
+
+
+@app.post("/library-admin/hide", include_in_schema=False)
+def library_admin_hide(request: Request, run_id: str = Form("")):
+    if not auth.is_team(request):
+        return simple_page("Team only", '<p class="intro">Only the team sign-in can manage the shared library.</p>', 403)
+    try:
+        manifest = bulk.ledger().hide_run(run_id, "hidden from /library-admin")
+    except ValueError as exc:
+        return library_admin(request, str(exc))
+    return library_admin(request, f"Hidden run {manifest['hidden_run_id'][:8]}; the library now shows "
+                                  f"run {manifest['shown_run_id'][:8]} for this PDF.")
+
+
+@app.post("/library-admin/restore", include_in_schema=False)
+def library_admin_restore(request: Request, archive_id: str = Form("")):
+    if not auth.is_team(request):
+        return simple_page("Team only", '<p class="intro">Only the team sign-in can manage the shared library.</p>', 403)
+    library = bulk.ledger()
+    if archive_id not in {m["archive_id"] for m in library.hidden_runs()}:
+        return library_admin(request, "That hidden run was not found.")
+    library.restore_archive(archive_id)
+    return library_admin(request, "Undone: the hidden run is back in the library.")
+
+
 @app.post("/api/logout")
 def logout():
     response = Response(status_code=204)
@@ -551,6 +627,10 @@ async def start_run(job_id: str, request: Request, config: str = Form(...), api_
     method_b = getattr(run_config, "reader", "native") == "layout"
     if not private and auth.private_only(request):
         raise HTTPException(403, "This sign-in can only run its own private uploads")
+    if not private and not preview and upload_info.get("sha256") in release_sources():
+        # The shared library shows the newest saved run per PDF, so a test run would replace the release report.
+        raise HTTPException(409, "This PDF is a release report in the shared library. Run it as an incognito upload "
+                                 "so the release version stays on the site.")
     if method_b and not private:
         # Method B is the internal comparison path: its results never enter the saved Method A library.
         raise HTTPException(400, "Method B runs only as an incognito upload")

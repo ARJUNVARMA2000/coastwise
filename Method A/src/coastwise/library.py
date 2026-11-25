@@ -239,6 +239,49 @@ class Library:
                            [(old, collection_id, archive_id, archived_at) for old in batch_ids])
         return manifest
 
+    def hide_run(self, run_id, reason=""):
+        """Hide one saved run from the shared library so the previous saved run of the same PDF shows again.
+
+        Reversible with restore_archive(archive_id); no result, job or PDF file is changed or removed.
+        """
+        rows = self.rows()
+        by_id = {r["id"]: r for r in rows}
+        row = by_id.get(run_id)
+        if row is None:
+            raise ValueError("This run is not in the active library")
+        if row.get("incognito"):
+            raise ValueError("Private runs are never in the shared library")
+        sha = row.get("source_sha256")
+        earlier = [r for r in rows if r["id"] != run_id and sha and r.get("source_sha256") == sha
+                   and r.get("status") in {"complete", "partial"} and not r.get("preview_only")
+                   and (r.get("created_at") or 0) < (row.get("created_at") or 0)]
+        if not earlier:
+            raise ValueError("No earlier saved run of this PDF exists to show instead")
+        previous = max(earlier, key=lambda r: (r.get("created_at") or 0, r["id"]))
+        archive_id = str(uuid.uuid4())
+        folder = self.root / "_archives" / archive_id
+        folder.mkdir(parents=True)
+        archived_at = time.time()
+        manifest = {"kind": "hide_run", "archive_id": archive_id, "archived_at": archived_at,
+                    "hidden_run_id": run_id, "shown_run_id": previous["id"], "source_sha256": sha,
+                    "filename": row.get("filename", ""), "reason": reason[:500], "files_removed": False,
+                    "restore": "Library(root).restore_archive(archive_id)"}
+        (folder / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+        with self.connect() as db:
+            db.execute("INSERT INTO archived_runs VALUES(?,?,?,?)", (run_id, previous["id"], archive_id, archived_at))
+        return manifest
+
+    def hidden_runs(self):
+        """Manifests of single-run hides that are still in effect, newest first."""
+        with self.connect() as db:
+            active = {r["archive_id"] for r in db.execute("SELECT archive_id FROM archived_runs")}
+        out = []
+        for path in (self.root / "_archives").glob("*/manifest.json"):
+            data = json.loads(path.read_text())
+            if data.get("kind") == "hide_run" and data.get("archive_id") in active:
+                out.append(data)
+        return sorted(out, key=lambda m: -m["archived_at"])
+
     def restore_archive(self, archive_id):
         """Restore archive visibility without rewriting any saved result or job."""
         with self.connect() as db:
