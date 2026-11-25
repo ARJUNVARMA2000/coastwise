@@ -283,7 +283,7 @@ def client_access_link(request: Request):
     base = (os.getenv("COASTWISE_PUBLIC_URL") or str(request.base_url)).rstrip("/")
     link = f"{base}/client-setup?{urlencode({'token': token})}"
     return simple_page("Setup link created", (
-        '<p class="intro">Send this link to the client. It works once and expires in 24 hours. '
+        '<p class="intro">Send this link to the client. It works once and expires in 7 days. '
         'It is shown only now.</p>'
         f'<input readonly value="{escape(link, quote=True)}" onclick="this.select()" aria-label="Setup link" style="width:100%">'
         '<p class="hint">Anyone with the link can set the client password, so send it to the client only.</p>'))
