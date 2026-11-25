@@ -52,7 +52,7 @@ ROOT.mkdir(parents=True, exist_ok=True)
 
 def client_store() -> client_access.AccessStore:
     # Next to the runs directory (the release installer manages that directory), on the same volume.
-    return client_access.AccessStore(Path(os.getenv("COASTWISE_CLIENT_ACCESS_FILE") or ROOT.parent / "client-access.json"))
+    return client_access.AccessStore(Path(os.getenv("COASTWISE_CLIENT_ACCESS_FILE") or ROOT.parent / "client-access" / "client-access.json"))
 
 
 auth.client_store = client_store
