@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 LOG = logging.getLogger("coastwise.client_access")
-LINK_SECONDS = 24 * 3600
+LINK_SECONDS = 7 * 24 * 3600  # one week, so a link sent before a holiday still works
 MIN_LENGTH = 12
 _SCRYPT = {"n": 2**14, "r": 8, "p": 1, "dklen": 32}
 _LOCK = threading.Lock()
@@ -63,7 +63,7 @@ class AccessStore:
             state["link"] = {"token_sha256": hashlib.sha256(token.encode()).hexdigest(),
                              "created_at": time.time(), "expires_at": time.time() + LINK_SECONDS}
             self._write(state)
-        LOG.warning("Client setup link created (expires in 24 h); any earlier unused link is void")
+        LOG.warning("Client setup link created (expires in 7 days); any earlier unused link is void")
         return token
 
     def link_valid(self, token: str) -> bool:
