@@ -228,3 +228,30 @@ def test_uncited_rows_are_asked_again_once(tmp_path):
     rechecks = [c for c in client.calls if "RE-CHECK" in c]
     assert len(rechecks) == 1 and "FACE 7" in rechecks[0] and "FACE 41" in rechecks[0]
     assert len(result["defects"]) == 60 and result["status"] == "complete"
+
+
+
+def test_no_damage_rows_are_not_rechecked_or_kept(tmp_path):
+    assert method_b_layout.no_damage_row("[TABLE ROW] STRUCTURE: PIER 2; PILE: 24-A; RATING: ND; COMMENTS: MJ ABOVE WATER")
+    assert method_b_layout.no_damage_row("[TABLE ROW] Location: 314 B; Pile Condition Rating: X")
+    assert not method_b_layout.no_damage_row("[TABLE ROW] PILE: 24-C; RATING: SV; DEFECT TYPE: CHEM DET")
+    assert not method_b_layout.no_damage_row("[TABLE ROW] Location: 314 C (continued); Comments: VC 1/16'X1.8' W FACE")
+    assert method_b_layout.is_no_damage_record({"rating": " nd "}) and not method_b_layout.is_no_damage_record({"rating": "MD"})
+    rows = [("Pile", "Rating", "Comments")] + [(f"{i}-A", "ND" if i % 2 else "MD", f"NOTE {i}") for i in range(10)]
+    pdf = grid_pdf(tmp_path / "nd.pdf", rows, widths=(80, 60, 260))
+
+    class NoDamageModel(RowModel):
+        """Cites nothing on the first pass, then (wrongly) writes every re-checked row with its own rating."""
+        async def call(self, messages, schema):
+            answer = json.loads((await super().call(messages, schema))["content"])
+            if "RE-CHECK" not in messages[1]["content"]:
+                answer = {"evidence": [], "contexts": [], "defects": [], "limitations": []}
+            for d in answer["defects"]:
+                d["rating"] = "ND" if re.search(r"Rating: ND", d["finding"]) else "MD"
+            return {"content": json.dumps(answer)}
+
+    client = NoDamageModel()
+    result = run_b(tmp_path, client, pdf)
+    recheck = [c for c in client.calls if "RE-CHECK" in c]
+    assert len(recheck) == 1 and "Rating: ND" not in recheck[0] and "Rating: MD" in recheck[0]
+    assert len(result["defects"]) == 5 and all(d["rating"] == "MD" for d in result["defects"])

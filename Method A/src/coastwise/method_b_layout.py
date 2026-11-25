@@ -28,7 +28,7 @@ from pathlib import Path
 
 import pymupdf
 
-VERSION = "method-b-layout-3"
+VERSION = "method-b-layout-4"
 LOW_TEXT_CHARS = 50
 OCR_DPI = 200
 OCR_MIN_CONFIDENCE = 50  # mean tesseract word confidence (0–100); below this the page is treated as an image
@@ -55,7 +55,24 @@ PROMPT_NOTE = (
     "inspection form; the code is the form's own rating, keep its scale as the form's code list. "
     "Every '[TABLE ROW]' that records damage (a comment, defect code or condition worse than none) is its own "
     "defect record: list every such row and never summarise several rows into one finding. A row with no damage "
-    "needs no record.")
+    "needs no record: a rating of ND (no deterioration/damage) or NI (not inspected), or a row with only an "
+    "identity and a rating, is never a defect.")
+
+NO_DAMAGE_CODES = {"ND", "NI"}
+
+
+def no_damage_row(text: str) -> bool:
+    """A table row that cannot hold a finding: rated ND/NI, or nothing beyond an identity and short codes."""
+    cells = [c.split(":", 1)[-1].strip() for c in text.removeprefix("[TABLE ROW]").split(";") if c.strip()]
+    if any(c.upper() in NO_DAMAGE_CODES for c in cells):
+        return True
+    # Only an identity plus short codes (e.g. "314 B; Rating: X"): no words that could describe damage.
+    return all(len(c) <= 3 for c in cells[1:])
+
+
+def is_no_damage_record(defect: dict) -> bool:
+    """A record whose own source rating says no damage or not inspected (ND/NI) is not a defect."""
+    return str(defect.get("rating") or "").strip().upper() in NO_DAMAGE_CODES
 
 
 def _clean(cell) -> str:
