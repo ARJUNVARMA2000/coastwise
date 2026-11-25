@@ -1,4 +1,6 @@
 """A client (Mira) sign-in can only make private uploads; the team sign-in keeps its choice."""
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 from test_incognito import private_app, snapshot, start, upload, wait  # noqa: F401  (fixture re-export)
@@ -228,3 +230,29 @@ def test_expired_link_is_rejected(linked, monkeypatch):
     monkeypatch.setattr(client_access.time, "time", lambda: later)
     team.cookies.clear()
     assert team.get(link).status_code == 404
+
+
+def test_client_runs_are_locked_to_method_b_with_fixed_settings(signed, monkeypatch):
+    login, manager, durable, pdf = signed
+    from coastwise import method_a_one_shot
+    from test_method_a_one_shot_web import OneShotModel
+    seen = []
+    monkeypatch.setattr(method_a_one_shot, "make_client", lambda config, key=None: seen.append(config) or OneShotModel())
+    client = login(CLIENT)
+    settings = client.get("/api/settings").json()
+    assert settings["client_run_settings"]["reader"] == "layout"
+    identity = upload(client, pdf, private=False)
+    # The request asks for Method A with tiny limits; the server ignores everything but the page range and key.
+    response = client.post(f"/api/runs/{identity}", headers=HEADERS, data={"api_key": MIRA_KEY, "config": json.dumps(
+        {"workflow": "scoring", "reader": "native", "max_output_tokens": 500, "max_usd": 0.01, "chunk_chars": 2000,
+         "pages": "1"})})
+    assert response.status_code == 200, response.text
+    run = response.json()["id"]
+    job = wait(client, run)
+    assert job["method"] == "B" and job["status"] in {"complete", "partial"}
+    config = seen[-1]
+    assert config.reader == "layout" and config.max_output_tokens == 24000 and config.max_usd == 5.0
+    assert config.chunk_chars == 24000
+    # The team sign-in keeps its own choices.
+    team = login(TEAM)
+    assert team.get("/api/settings").json()["client_run_settings"] is None
