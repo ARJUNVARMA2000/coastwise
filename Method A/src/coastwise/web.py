@@ -411,7 +411,8 @@ def settings(request: Request):
                                  "extraction_mode": "method_a_one_shot"},
             "full_schema_defaults": {"chunk_chars": 1000000, "max_output_tokens": 32000,
                                      "max_usd": 0.5, "max_requests": 2},
-            "has_server_key": bool(server_key()),
+            "has_server_key": bool(server_key()) and not auth.private_only(request),
+            "own_key_required": auth.private_only(request),
             "default_model": "deepseek/deepseek-v4.1-flash-1017",
             "default_provider": os.getenv("OPENROUTER_PROVIDER", ""),
             "hosted": auth.hosted() or bool(cloud_store()),
@@ -526,9 +527,21 @@ async def start_run(job_id: str, request: Request, config: str = Form(...), api_
         contract = None if isinstance(run_config, ScoringWebConfig) else load_contract(os.getenv("COASTWISE_CONTRACT") or None)
     except (ValueError, TypeError, KeyError) as exc:
         raise HTTPException(400, str(exc)) from exc
-    if (store or auth.hosted()) and api_key.strip():
-        raise HTTPException(400, "Hosted runs use the server API key; per-run keys are not saved in the queue")
-    key = api_key.strip() or server_key()
+    if auth.private_only(request):
+        # Client (Mira) runs are billed to the client's own OpenRouter key, never the team's server key.
+        # The key is used in memory for this run only: client runs are incognito and filesystem-hosted, so it
+        # is never written to the queue or to run files.
+        if store:
+            raise HTTPException(400, "Client runs require filesystem hosting")
+        if job_id not in PRIVATE.entries:
+            raise HTTPException(403, "This sign-in can only run its own private uploads")
+        key = api_key.strip()
+        if not preview and not key:
+            raise HTTPException(400, "Enter your own OpenRouter API key under Connection and run settings")
+    else:
+        if (store or auth.hosted()) and api_key.strip():
+            raise HTTPException(400, "Hosted runs use the server API key; per-run keys are not saved in the queue")
+        key = api_key.strip() or server_key()
     if not preview and (not key or not run_config.model.strip()):
         raise HTTPException(400, "Select a model and provide an OpenRouter key before extraction")
     if sum(j.get("status") == "running" for j in list(JOBS.values())) >= 2:

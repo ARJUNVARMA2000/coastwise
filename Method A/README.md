@@ -39,6 +39,8 @@ Incognito uses temporary server files outside the persistent report directory. *
 
 **Client-chosen password.** Instead of the variable, the client can choose their own password. Signed in with the team password, open `/client-access` and create a one-time setup link (valid 24 hours; a new link voids any unused one) and send it to the client only. The client opens it, chooses a password of at least 12 characters, and is signed in with the same private-only rules. Only a salted scrypt hash is stored, in `client-access/client-access.json` next to the runs directory (`/data/client-access/` on Railway, created and handed to the app user by the container entrypoint; override with `COASTWISE_CLIENT_ACCESS_FILE`). The client can change it at `/client-password`. Using a new link replaces the client password and ends earlier client sessions, so a reset is never silent. Link creation and password changes are logged without the token or password.
 
+**Client runs use the client's own OpenRouter key.** A client session never uses the team's server key: the client enters their own OpenRouter API key under *Connection and run settings* for each run, so client runs are billed to the client. The key is used in memory for that run only and is never written to run files, the queue or the browser's storage. Without a key, a client run is refused rather than falling back to the server key. Team runs are unchanged.
+
 Report text is still sent to the configured model provider. Incognito does not promise zero-retention inference. This option supports the current single-process filesystem Railway deployment; cloud object-storage/queue hosting rejects private uploads rather than saving them. Multiple application processes do not share private session state.
 
 ## Run locally
