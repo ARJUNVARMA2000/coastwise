@@ -351,7 +351,9 @@ def _assessment(defect, context, evidence):
 
 
 async def method_b_followups(extract, followups, entries, pages, selected, next_index, request_cap, deadline, preview):
-    """Method B only: send split halves until none remain, then re-ask once for table rows no evidence cites."""
+    """Method B only: send split halves until none remain, then re-ask once for table rows no evidence cites
+    (rows that cannot hold damage, e.g. rated ND/NI, are not re-asked)."""
+    from .method_b_layout import no_damage_row
     async def drain():
         while followups and time.monotonic() < deadline:
             room = request_cap - len(entries)
@@ -369,6 +371,7 @@ async def method_b_followups(extract, followups, entries, pages, selected, next_
     sent = {(u["page"], u["n"]) for entry in entries if entry.get("payload") for u in entry["chunk"]["primary"]}
     missed = [{"page": p["page"], "n": q["n"], "text": q["text"]} for p in pages if p["page"] in selected
               for q in p["paragraphs"] if q["text"].startswith("[TABLE ROW]") and (p["page"], q["n"]) in sent
+              and not no_damage_row(q["text"])
               and not any(page == p["page"] and quote_in(quote, q["text"]) for page, quote in quotes)]
     from .method_b_layout import ROWS_PER_CHUNK
     groups = [missed[i:i + ROWS_PER_CHUNK] for i in range(0, len(missed), ROWS_PER_CHUNK)]
@@ -563,9 +566,13 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     failures.extend({"chunk": e["chunk"]["index"], "pages": e["chunk"]["pages"], "message": e["failure"]}
                     for e in entries if "failure" in e)
     combined = merge_chunks(entries, pages)
+    dropped_no_damage = 0
     if config.reader == "layout":
         combined["limitations"] = [method_b_layout.LIMITATION if x == LAYOUT_LIMIT else x
                                    for x in combined["limitations"]]
+        kept = [d for d in combined["defects"] if not method_b_layout.is_no_damage_record(d)]
+        dropped_no_damage = len(combined["defects"]) - len(kept)
+        combined["defects"] = kept
     valid = sum(e["payload"] is not None for e in entries)
     low_text = [p["page"] for p in pages if p["page"] in selected
                 and sum(len(q["text"].strip()) for q in p["paragraphs"]) < 50]
@@ -576,7 +583,7 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     costs = [entry.get("usage", {}).get("cost") for entry in logs]
     billed = sum(float(c) for c in costs if c is not None) if costs and all(c is not None for c in costs) else (0.0 if not logs else None)
     metrics = {"model": config.model, "requests": len(logs), "request_count": len(logs),
-               "chunks_total": len(entries), "chunks_valid": valid, "runtime_seconds": round(time.monotonic() - started, 3),
+               "chunks_total": len(entries), "chunks_valid": valid, "dropped_no_damage_records": dropped_no_damage, "runtime_seconds": round(time.monotonic() - started, 3),
                "billed_usd": billed, "known_billed_usd": sum(float(c) for c in costs if c is not None),
                "cost_unknown": any(c is None for c in costs), "reserved_usd": getattr(client, "reserved", 0) if client else 0,
                "prompt_tokens": sum(e.get("usage", {}).get("prompt_tokens", 0) or 0 for e in logs),
