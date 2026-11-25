@@ -412,13 +412,21 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
     layout_stats = None
     if config.reader == "layout":
         from . import method_b_layout
-        pages, layout_stats = method_b_layout.layout_pages(pdf)
+        with pymupdf.open(pdf) as document:
+            page_count = len(document)
+        all_pages = set(range(1, page_count + 1))
+        selected = set(body_pages) if body_pages else all_pages
+        if not selected <= all_pages:
+            raise ValueError("Selected pages are outside this PDF")
+        # Method B's OCR and table rebuilding are slow; do them only for the pages that will be read.
+        pages, layout_stats = method_b_layout.layout_pages(pdf, None if selected == all_pages else selected)
     else:
         pages = native_pages(pdf)
-    all_pages = {p["page"] for p in pages}
-    selected = set(body_pages) if body_pages else all_pages
-    if not selected <= all_pages:
-        raise ValueError("Selected pages are outside this PDF")
+        page_count = len(pages)
+        all_pages = {p["page"] for p in pages}
+        selected = set(body_pages) if body_pages else all_pages
+        if not selected <= all_pages:
+            raise ValueError("Selected pages are outside this PDF")
     chunks = chunk_text([p for p in pages if p["page"] in selected], config.chunk_chars, config.context_chars)
     if len(chunks) > config.max_requests:
         raise ValueError(f"This report needs {len(chunks)} chunks, exceeding the {config.max_requests}-request cap")
@@ -515,7 +523,7 @@ async def run_report(pdf: Path, source_id: str, output: Path, config: OneShotCon
                "target_seconds": 120, "target_measured": False}
     result = {**provenance, **combined, "source_sha256": provenance["input_sha256"], "status": status,
               "document_kind": "inspection_report", "context_pages": [], "failures": failures,
-              "coverage": {"pdf_pages": len(pages), "selected_pdf_pages": sorted(selected) if selected != all_pages else [],
+              "coverage": {"pdf_pages": page_count, "selected_pdf_pages": sorted(selected) if selected != all_pages else [],
                            "complete": complete, "failed_pages": failed_pages, "low_text_pages": low_text,
                            "chunks_skipped": len(chunks) if preview else len(chunks) - len(entries)}, "metrics": metrics}
     if layout_stats is not None:

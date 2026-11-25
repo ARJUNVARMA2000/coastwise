@@ -8,7 +8,10 @@ evidence checks and output tables, but changes what the model reads:
 * pages with no usable text layer are read with tesseract OCR (low-confidence pages are skipped
   and reported, never guessed);
 * pile inspection forms with drawn X marks under rating codes (NI/ND/MN/MD/MJ/SV) are read from
-  word positions and rendered as one paragraph per pile.
+  word positions and added as one paragraph per pile;
+* a table row that is only a further line of the row above (one filled cell, identity column empty) is kept
+  as its own row, labelled with the row's identity plus "(continued)" (version 1 dropped these, losing
+  second and third comment lines on pile forms).
 
 Every paragraph keeps a bounding box and an ``origin`` (native_text, table_row, ocr_text,
 form_mark) so quotes stay checkable against exactly the text the model saw.
@@ -25,7 +28,7 @@ from pathlib import Path
 
 import pymupdf
 
-VERSION = "method-b-layout-1"
+VERSION = "method-b-layout-2"
 LOW_TEXT_CHARS = 50
 OCR_DPI = 200
 OCR_MIN_CONFIDENCE = 50  # mean tesseract word confidence (0–100); below this the page is treated as an image
@@ -99,6 +102,22 @@ def compress_table(raw: list[list], boxes: list[list] | None):
         filled = [v for v in out if v]
         subheader = all(w.lower() in header_words for v in filled for w in v.split())
         if len(filled) >= 2 and not subheader:
+            rows.append((i, out))
+        elif len(filled) == 1 and not out[0] and rows and not subheader and not filled[0].endswith(":"):
+            fragment, column = filled[0], out.index(filled[0])
+            previous = rows[-1][1]
+            if fragment[:1].islower() or fragment[:1] in ")]},.;:-":
+                # Text wrapped onto the next line of the same cell: join it back to that cell.
+                previous[column] = (previous[column] + " " + fragment).strip()
+                continue
+            if re.search(r"\d", previous[column]) and not re.search(r"\d", fragment):
+                # Words in a column that holds numbers above (e.g. a cost table's section heading): keep the
+                # row but do not attach it to the previous item.
+                rows.append((i, out))
+                continue
+            # A further line of the previous row, e.g. another comment for the same pile: keep it as its
+            # own row and carry the row's identity so it is neither lost nor misattributed.
+            out[0] = previous[0].removesuffix(" (continued)") + " (continued)" if previous[0] else ""
             rows.append((i, out))
     return headers, rows, head_idx
 
@@ -204,8 +223,12 @@ def ocr_paragraphs(page, number: int) -> tuple[list[dict], float | None, str]:
              for g in groups.values()], round(mean / 100, 2), "")
 
 
-def layout_pages(pdf: Path) -> tuple[list[dict], dict]:
-    """Pages in the one-shot pipeline's shape ({page, height, paragraphs:[{n, text, bbox, origin}]})."""
+def layout_pages(pdf: Path, only: set[int] | None = None) -> tuple[list[dict], dict]:
+    """Pages in the one-shot pipeline's shape ({page, height, paragraphs:[{n, text, bbox, origin}]}).
+
+    ``only`` limits the work (OCR, table rebuilding) to the selected PDF pages; the page just before a
+    selected page is still scanned for its table header so continuation tables keep their columns.
+    """
     pages = []
     stats = {"table_rows": 0, "tables_pages": [], "ocr_pages": [], "ocr_skipped": [], "form_pages": []}
     carried = None
@@ -213,6 +236,10 @@ def layout_pages(pdf: Path) -> tuple[list[dict], dict]:
         if not document.is_pdf or document.needs_pass:
             raise ValueError("Use an unlocked PDF")
         for number, page in enumerate(document, start=1):
+            if only is not None and number not in only:
+                if number + 1 in only:
+                    _, _, carried = _table_paragraphs(page, None)
+                continue
             native = [b for b in page.get_text("blocks", sort=False) if b[6] == 0 and b[4].strip()]
             paragraphs = []
             if sum(len(b[4].strip()) for b in native) < LOW_TEXT_CHARS and page.get_images():

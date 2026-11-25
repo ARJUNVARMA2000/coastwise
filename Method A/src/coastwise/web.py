@@ -659,13 +659,14 @@ def execute_run(directory: Path, job: dict, run_config: RunConfig | ScoringWebCo
                 names = ["structures.csv", "reports.csv", "observations.csv", "result.json", "contract.json", "outputs.zip"]
                 job.update(runtime_seconds=result["runtime_seconds"])
             final_stage = "Scoring finished" if isinstance(run_config, ScoringWebConfig) else "Extraction finished"
+            label = "Method B" if job.get("method") == "B" else "Method A"
             if "four-table.json" in names:
-                final_stage = "Method A results ready"
+                final_stage = f"{label} results ready"
             if store := cloud_store():
                 store.upload(job["id"], directory, names)
             terminal = job.pop("result_status", "complete")
             if terminal != "complete" and not preview:
-                final_stage = "Method A partial results — review coverage limitations"
+                final_stage = f"{label} partial results — review coverage limitations"
             job.update(status="complete" if preview else terminal,
                        stage="Preview ready" if preview else final_stage, artifacts_ready_at=time.time())
         except (RuntimeError, ValueError, TypeError, OSError, KeyError) as exc:
