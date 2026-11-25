@@ -25,6 +25,7 @@ from starlette.background import BackgroundTask
 from . import (
     auth,
     bulk,
+    client_access,
     defect_grading,
     defects,
     extraction_workspace,
@@ -47,6 +48,15 @@ from .scoring_web import SCORING_FILES, ScoringWebConfig, default_scoring_prompt
 
 ROOT = Path(os.getenv("COASTWISE_DATA_DIR", ".local/runs")).resolve()
 ROOT.mkdir(parents=True, exist_ok=True)
+
+
+def client_store() -> client_access.AccessStore:
+    # Next to the runs directory (the release installer manages that directory), on the same volume.
+    return client_access.AccessStore(Path(os.getenv("COASTWISE_CLIENT_ACCESS_FILE") or ROOT.parent / "client-access" / "client-access.json"))
+
+
+auth.client_store = client_store
+FORM_POSTS = {"/login", "/client-setup", "/client-password", "/client-access/link"}
 JOBS: dict[str, dict] = {}
 TASKS: set = set()
 PRIVATE = incognito.PrivateRuns(on_remove=lambda identity: JOBS.pop(identity, None))
@@ -121,7 +131,7 @@ async def local_requests(request: Request, call_next):
         if request.url.path != "/health" and not request.url.path.startswith("/internal/run/"):
             return Response("Not found", status_code=404)
         # Cloud Run IAM admits only the queue's dedicated invoker account.
-    elif (auth.required() and request.url.path not in {"/login", "/health", "/style.css"}
+    elif (auth.required() and request.url.path not in {"/login", "/health", "/style.css", "/client-setup"}
           and not auth.valid_session(request.cookies.get(auth.COOKIE))):
         if request.url.path.startswith("/api/"):
             return Response('{"detail":"Sign in to this workspace"}', status_code=401,
@@ -135,7 +145,7 @@ async def local_requests(request: Request, call_next):
         origin = request.headers.get("origin")
         expected = f"{request.url.scheme}://{request.headers.get('host')}"
         internal = request.url.path.startswith("/internal/run/") and os.getenv("COASTWISE_ROLE") == "worker"
-        is_login = request.url.path == "/login"
+        is_login = request.url.path in FORM_POSTS  # plain HTML forms; the origin check above still applies
         if not internal and ((origin and origin != expected) or
                              (not is_login and request.headers.get("x-coastwise-request") != "1")):
             return Response("Request must originate from this application", status_code=403)
@@ -206,13 +216,144 @@ def login_page(next: str = ""):
 
 @app.post("/login")
 def login(request: Request, password: str = Form(...), next: str = Form("")):
-    role = auth.password_role(password)
-    if role is None:
+    payload = auth.password_payload(password)
+    if payload is None:
         return HTMLResponse(login_html(next, '<p class="error">Incorrect workspace password.</p>'), status_code=401)
     response = RedirectResponse(login_destination(next), status_code=303)
-    response.set_cookie(auth.COOKIE, auth.signer().dumps(role), httponly=True,
+    response.set_cookie(auth.COOKIE, auth.signer().dumps(payload), httponly=True,
                         secure=auth.hosted() or request.url.scheme == "https", samesite="lax", max_age=86400)
     return response
+
+
+def sign_in(request: Request, response: Response, payload: str):
+    response.set_cookie(auth.COOKIE, auth.signer().dumps(payload), httponly=True,
+                        secure=auth.hosted() or request.url.scheme == "https", samesite="lax", max_age=86400)
+    return response
+
+
+def simple_page(title: str, body: str, status_code: int = 200) -> HTMLResponse:
+    return HTMLResponse(
+        '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+        # The server's Referrer-Policy (same-origin) keeps setup tokens from leaving the site; a stricter
+        # no-referrer policy would make browsers send "Origin: null" and fail the form-origin check.
+        f'<title>{escape(title)} · Coastwise</title><link rel="stylesheet" href="/style.css">'
+        '<body><main style="max-width:460px;margin:12vh auto;padding:25px"><span class="eyebrow">COASTWISE · CLIENT ACCESS</span>'
+        f'<h1>{escape(title)}</h1>{body}</main></body></html>', status_code=status_code)
+
+
+def password_fields(current: bool = False) -> str:
+    fields = ""
+    if current:
+        fields += ('<label class="field-label" for="current">Current password</label>'
+                   '<input id="current" name="current" type="password" autocomplete="current-password" required>')
+    fields += (f'<label class="field-label" for="password" style="margin-top:14px">New password (at least {client_access.MIN_LENGTH} characters)</label>'
+               f'<input id="password" name="password" type="password" autocomplete="new-password" minlength="{client_access.MIN_LENGTH}" required>'
+               '<label class="field-label" for="confirm" style="margin-top:14px">Repeat the new password</label>'
+               f'<input id="confirm" name="confirm" type="password" autocomplete="new-password" minlength="{client_access.MIN_LENGTH}" required>')
+    return fields
+
+
+PRIVACY_NOTE = ('<p class="hint">With this password every upload stays private: only the browser that uploaded it can see it, '
+                'it is never added to saved reports, and its files are deleted one hour after processing finishes. '
+                'Report text is still sent to the model provider.</p>')
+
+
+@app.get("/client-access", include_in_schema=False)
+def client_access_page(request: Request):
+    if not auth.is_team(request):
+        return simple_page("Team only", '<p class="intro">Only the team sign-in can create client setup links.</p>', 403)
+    info = client_store().status()
+    when = time.strftime("%d %b %Y %H:%M UTC", time.gmtime(info["password_set_at"])) if info["password_set"] else ""
+    state = (f'<p class="intro">A client password was chosen on {when}. The team cannot see it.</p>' if info["password_set"]
+             else '<p class="intro">No client password has been chosen through a setup link yet.</p>')
+    if info["link_pending"]:
+        state += '<p class="hint">An unused setup link exists. Creating a new one makes it stop working.</p>'
+    warn = ('<p class="hint">Using a new link replaces the current client password and signs the client out.</p>'
+            if info["password_set"] else '')
+    return simple_page("Client setup link", state + warn +
+                       '<form method="post" action="/client-access/link"><button class="primary-button" style="width:100%;margin-top:16px">'
+                       'Create a one-time setup link</button></form>')
+
+
+@app.post("/client-access/link", include_in_schema=False)
+def client_access_link(request: Request):
+    if not auth.is_team(request):
+        return simple_page("Team only", '<p class="intro">Only the team sign-in can create client setup links.</p>', 403)
+    token = client_store().create_link()
+    base = (os.getenv("COASTWISE_PUBLIC_URL") or str(request.base_url)).rstrip("/")
+    link = f"{base}/client-setup?{urlencode({'token': token})}"
+    return simple_page("Setup link created", (
+        '<p class="intro">Send this link to the client. It works once and expires in 24 hours. '
+        'It is shown only now.</p>'
+        f'<input readonly value="{escape(link, quote=True)}" onclick="this.select()" aria-label="Setup link" style="width:100%">'
+        '<p class="hint">Anyone with the link can set the client password, so send it to the client only.</p>'))
+
+
+@app.get("/client-setup", include_in_schema=False)
+def client_setup_page(token: str = ""):
+    return setup_form(token)
+
+
+def setup_form(token: str, error: str = "", status_code: int = 200) -> HTMLResponse:
+    if not client_store().link_valid(token):
+        return simple_page("Link not valid", '<p class="intro">This setup link is invalid, already used or expired. '
+                           'Ask the team for a new one.</p>', 404)
+    return simple_page("Choose your password", (
+        '<p class="intro">Choose the password you will use to sign in to Coastwise. The team will not see it.</p>'
+        + PRIVACY_NOTE + (f'<p class="error">{escape(error)}</p>' if error else '') + '<form method="post" action="/client-setup">'
+        f'<input type="hidden" name="token" value="{escape(token, quote=True)}">' + password_fields() +
+        '<button class="primary-button" style="width:100%;margin-top:20px">Set password and open Coastwise</button></form>'),
+        status_code)
+
+
+@app.post("/client-setup", include_in_schema=False)
+def client_setup(request: Request, token: str = Form(""), password: str = Form(""), confirm: str = Form("")):
+    store = client_store()
+    if not store.link_valid(token):
+        return simple_page("Link not valid", '<p class="intro">This setup link is invalid, already used or expired. '
+                           'Ask the team for a new one.</p>', 404)
+    if problem := client_access.password_problem(password, confirm):
+        return setup_form(token, problem, 400)
+    try:
+        version = store.use_link(token, password)
+    except PermissionError:
+        return simple_page("Link not valid", '<p class="intro">This setup link was just used or expired.</p>', 404)
+    return sign_in(request, RedirectResponse("/", status_code=303), "client:" + version)
+
+
+@app.get("/client-password", include_in_schema=False)
+def client_password_page(request: Request):
+    return password_form(request)
+
+
+def password_form(request: Request, error: str = "") -> HTMLResponse:
+    payload = auth.session_role(request.cookies.get(auth.COOKIE))
+    if payload != "client":
+        return simple_page("Client only", '<p class="intro">Sign in with the client password to change it.</p>', 403)
+    if not client_store().status()["password_set"]:
+        return simple_page("Change your password", '<p class="intro">This client password was set by the team on the server, '
+                           'so it cannot be changed here. Ask the team for a setup link to choose your own.</p>')
+    message = f'<p class="error">{escape(error)}</p>' if error else ""
+    return simple_page("Change your password", message + '<form method="post" action="/client-password">'
+                       + password_fields(current=True) +
+                       '<button class="primary-button" style="width:100%;margin-top:20px">Change password</button></form>')
+
+
+@app.post("/client-password", include_in_schema=False)
+def client_password(request: Request, current: str = Form(""), password: str = Form(""), confirm: str = Form("")):
+    if auth.session_role(request.cookies.get(auth.COOKIE)) != "client":
+        return simple_page("Client only", '<p class="intro">Sign in with the client password to change it.</p>', 403)
+    if problem := client_access.password_problem(password, confirm):
+        response = password_form(request, problem)
+        response.status_code = 400
+        return response
+    try:
+        version = client_store().change(current, password)
+    except PermissionError:
+        response = password_form(request, "The current password is incorrect.")
+        response.status_code = 400
+        return response
+    return sign_in(request, RedirectResponse("/", status_code=303), "client:" + version)
 
 
 @app.post("/api/logout")

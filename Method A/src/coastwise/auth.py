@@ -4,6 +4,8 @@ Two optional passwords give two roles:
   COASTWISE_ACCESS_PASSWORD  -> "workspace": the team. Uploads may be saved to the shared library.
   COASTWISE_CLIENT_PASSWORD  -> "client": Mira. Every upload is incognito (visible only to the uploading
                                 browser, never saved to the shared library); saved pages stay readable.
+A client password can also be chosen by Mira through a one-time setup link (client_access.py); it opens
+the same client role, and the team never sees it.
 """
 
 import hmac
@@ -45,32 +47,56 @@ def signer():
 
 ROLES = ("workspace", "client")
 
+# Set by web.py: returns the client_access.AccessStore for the password Mira chose through a setup link.
+client_store = lambda: None  # noqa: E731
+
+
+def _payload_role(payload) -> str | None:
+    """Session payloads: "workspace"; "client" or "client:env" (env password); "client:<version>" (chosen password).
+    A client session ends when its password is removed or replaced."""
+    if payload == "workspace":
+        return "workspace"
+    if payload in ("client", "client:env"):
+        return "client" if os.getenv("COASTWISE_CLIENT_PASSWORD") else None
+    if isinstance(payload, str) and payload.startswith("client:"):
+        store = client_store()
+        version = store.version() if store else None
+        return "client" if version and hmac.compare_digest(payload[7:], version) else None
+    return None
+
 
 def session_role(cookie: str | None) -> str | None:
-    """The signed-in role, or None. A client session stops working once the client password is removed."""
+    """The signed-in role ("workspace" or "client"), or None."""
     if not cookie:
         return None
     try:
-        role = signer().loads(cookie, max_age=86400)
+        payload = signer().loads(cookie, max_age=86400)
     except (BadSignature, SignatureExpired):
         return None
-    if role == "client" and not os.getenv("COASTWISE_CLIENT_PASSWORD"):
-        return None
-    return role if role in ROLES else None
+    return _payload_role(payload)
 
 
 def valid_session(cookie: str | None) -> bool:
     return session_role(cookie) is not None
 
 
-def password_role(password: str) -> str | None:
-    """Return the role a password opens. Both are compared so timing does not reveal which one matched."""
+def password_payload(password: str) -> str | None:
+    """Return the session payload a password opens, or None.
+    Environment passwords are all compared so timing does not reveal which one matched."""
     found = None
-    for role, variable in (("workspace", "COASTWISE_ACCESS_PASSWORD"), ("client", "COASTWISE_CLIENT_PASSWORD")):
+    for payload, variable in (("workspace", "COASTWISE_ACCESS_PASSWORD"), ("client:env", "COASTWISE_CLIENT_PASSWORD")):
         expected = os.getenv(variable, "")
         if hmac.compare_digest(password.encode(), expected.encode()) and expected and found is None:
-            found = role
+            found = payload
+    if found is None and password and (store := client_store()):
+        version = store.check(password)
+        if version:
+            found = "client:" + version
     return found
+
+
+def password_role(password: str) -> str | None:
+    return _payload_role(password_payload(password))
 
 
 def valid_password(password: str) -> bool:
@@ -80,6 +106,11 @@ def valid_password(password: str) -> bool:
 def private_only(request) -> bool:
     """Client sessions may only create incognito uploads and runs (only enforced when sign-in is required)."""
     return required() and session_role(request.cookies.get(COOKIE)) == "client"
+
+
+def is_team(request) -> bool:
+    """A team (workspace) session, or any local request when sign-in is not required."""
+    return not required() or session_role(request.cookies.get(COOKIE)) == "workspace"
 
 
 LOGIN_PAGE = """<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign in · Coastwise</title><link rel="stylesheet" href="/style.css"><body><main style="max-width:380px;margin:15vh auto;padding:25px"><span class="eyebrow">COASTWISE · PRIVATE WORKSPACE</span><h1>Welcome back.</h1><p class="intro">Enter the workspace password to access inspection reports.</p><form method="post" action="/login"><label class="field-label" for="password">Workspace password</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus><button class="primary-button" style="width:100%;margin-top:20px">Open workspace <span>↗</span></button></form>ERROR</main></body></html>"""

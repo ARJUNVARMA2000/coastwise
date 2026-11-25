@@ -37,6 +37,8 @@ Incognito uses temporary server files outside the persistent report directory. *
 
 **Client sign-in.** If `COASTWISE_CLIENT_PASSWORD` is set (it must differ from `COASTWISE_ACCESS_PASSWORD`), that password opens a client session for Mira: every upload it makes is incognito, whatever the checkbox says, it cannot start or update runs on shared uploads, and the saved pages stay readable. The team password keeps today's behaviour. Unset the variable to end all client sessions.
 
+**Client-chosen password.** Instead of the variable, the client can choose their own password. Signed in with the team password, open `/client-access` and create a one-time setup link (valid 24 hours; a new link voids any unused one) and send it to the client only. The client opens it, chooses a password of at least 12 characters, and is signed in with the same private-only rules. Only a salted scrypt hash is stored, in `client-access/client-access.json` next to the runs directory (`/data/client-access/` on Railway, created and handed to the app user by the container entrypoint; override with `COASTWISE_CLIENT_ACCESS_FILE`). The client can change it at `/client-password`. Using a new link replaces the client password and ends earlier client sessions, so a reset is never silent. Link creation and password changes are logged without the token or password.
+
 Report text is still sent to the configured model provider. Incognito does not promise zero-retention inference. This option supports the current single-process filesystem Railway deployment; cloud object-storage/queue hosting rejects private uploads rather than saving them. Multiple application processes do not share private session state.
 
 ## Run locally
