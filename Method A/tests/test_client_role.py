@@ -81,3 +81,115 @@ def test_team_can_still_save_and_client_session_ends_without_client_password(sig
     assert client.get("/api/settings").status_code == 200
     monkeypatch.delenv("COASTWISE_CLIENT_PASSWORD")
     assert client.get("/api/settings").status_code == 401
+
+
+# ---------------------------------------------------------------- password chosen through a setup link
+
+import re  # noqa: E402
+
+from coastwise import client_access  # noqa: E402
+
+CHOSEN = "mira-chose-this-one"
+
+
+@pytest.fixture
+def linked(signed, monkeypatch, tmp_path):
+    monkeypatch.delenv("COASTWISE_CLIENT_PASSWORD")
+    monkeypatch.setenv("COASTWISE_CLIENT_ACCESS_FILE", str(tmp_path / "access" / "client-access.json"))
+    login, manager, durable, pdf = signed
+
+    def new_link(client):
+        page = client.post("/client-access/link")
+        assert page.status_code == 200, page.text
+        return re.search(r'value="[^"]*?(/client-setup\?token=[^"]+)"', page.text).group(1)
+
+    return login, new_link, manager, pdf, tmp_path / "access" / "client-access.json"
+
+
+def test_only_team_can_create_links(linked):
+    login, new_link, *_ = linked
+    anonymous = login(TEAM)
+    anonymous.cookies.clear()
+    response = anonymous.post("/client-access/link", follow_redirects=False)
+    assert response.status_code == 303 and response.headers["location"].startswith("/login")
+    assert anonymous.get("/client-access", follow_redirects=False).status_code == 303
+    team = login(TEAM)
+    assert team.get("/client-access").status_code == 200
+    link = new_link(team)
+    client = team
+    client.cookies.clear()
+    client.post("/client-setup", data={"token": link.split("=", 1)[1], "password": CHOSEN, "confirm": CHOSEN})
+    assert client.get("/client-access").status_code == 403
+    assert client.post("/client-access/link").status_code == 403
+
+
+def test_setup_link_sets_hashed_password_once_and_forces_private(linked):
+    login, new_link, manager, pdf, store_file = linked
+    team = login(TEAM)
+    link = new_link(team)
+    team.cookies.clear()
+    assert team.get(link).status_code == 200
+    token = link.split("=", 1)[1]
+    bad = team.post("/client-setup", data={"token": token, "password": "short", "confirm": "short"})
+    assert bad.status_code == 400 and "at least" in bad.text
+    same = team.post("/client-setup", data={"token": token, "password": TEAM, "confirm": TEAM})
+    assert same.status_code == 400 and "different" in same.text
+    done = team.post("/client-setup", data={"token": token, "password": CHOSEN, "confirm": CHOSEN},
+                     follow_redirects=False)
+    assert done.status_code == 303
+    assert CHOSEN not in store_file.read_text() and token not in store_file.read_text()
+    assert team.get("/api/settings").json()["private_only"] is True
+    identity = upload(team, pdf, private=False)
+    assert identity in manager.entries
+    # The link works once.
+    assert team.get(link).status_code == 404
+    assert team.post("/client-setup", data={"token": token, "password": CHOSEN + "x", "confirm": CHOSEN + "x"}).status_code == 404
+    client = login(CHOSEN)
+    assert client.get("/api/settings").json()["private_only"] is True
+
+
+def test_new_link_voids_old_link_and_reset_ends_client_sessions(linked):
+    login, new_link, *_ = linked
+    team = login(TEAM)
+    first = new_link(team)
+    second = new_link(team)
+    team.cookies.clear()
+    assert team.get(first).status_code == 404
+    team.post("/client-setup", data={"token": second.split("=", 1)[1], "password": CHOSEN, "confirm": CHOSEN})
+    old_session = dict(team.cookies)
+    team = login(TEAM)
+    third = new_link(team)
+    team.cookies.clear()
+    team.post("/client-setup", data={"token": third.split("=", 1)[1], "password": CHOSEN + "-2", "confirm": CHOSEN + "-2"})
+    team.cookies.clear()
+    team.cookies.update(old_session)
+    assert team.get("/api/settings").status_code == 401
+    team.cookies.clear()
+    assert team.post("/login", data={"password": CHOSEN}).status_code == 401
+    assert login(CHOSEN + "-2").get("/api/settings").status_code == 200
+
+
+def test_client_changes_own_password(linked):
+    login, new_link, *_ = linked
+    team = login(TEAM)
+    link = new_link(team)
+    team.cookies.clear()
+    team.post("/client-setup", data={"token": link.split("=", 1)[1], "password": CHOSEN, "confirm": CHOSEN})
+    wrong = team.post("/client-password", data={"current": "nope", "password": CHOSEN + "-new", "confirm": CHOSEN + "-new"})
+    assert wrong.status_code == 400 and "incorrect" in wrong.text
+    ok = team.post("/client-password", data={"current": CHOSEN, "password": CHOSEN + "-new", "confirm": CHOSEN + "-new"},
+                   follow_redirects=False)
+    assert ok.status_code == 303 and team.get("/api/settings").status_code == 200
+    team.cookies.clear()
+    assert team.post("/login", data={"password": CHOSEN}).status_code == 401
+    assert login(CHOSEN + "-new").get("/api/settings").status_code == 200
+
+
+def test_expired_link_is_rejected(linked, monkeypatch):
+    login, new_link, *_ = linked
+    team = login(TEAM)
+    link = new_link(team)
+    later = client_access.time.time() + client_access.LINK_SECONDS + 1
+    monkeypatch.setattr(client_access.time, "time", lambda: later)
+    team.cookies.clear()
+    assert team.get(link).status_code == 404
