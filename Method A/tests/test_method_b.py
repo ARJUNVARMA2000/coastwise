@@ -138,3 +138,93 @@ def test_method_b_page_range_reports_full_pdf_size(private_app):  # noqa: F811
     assert result['coverage']['pdf_pages'] == total
     if total > 1:
         assert result['coverage']['selected_pdf_pages'] == [1]
+
+
+# ---------------------------------------------------------------- dense tables (mocked model, no paid calls)
+
+import asyncio  # noqa: E402
+import re  # noqa: E402
+
+from coastwise import method_a_one_shot as one_shot  # noqa: E402
+from coastwise.provider import ModelError  # noqa: E402
+
+
+def pile_table_pdf(path, rows=60):
+    lines = [("Pile", "Rating", "Comments")] + [(f"{100 + i}-A", "MD", f"VC 1/8 IN CRACK N FACE {i}") for i in range(rows)]
+    with pymupdf.open() as doc:
+        for start in range(0, len(lines), 30):
+            page = doc.new_page()
+            block = ([lines[0]] if start else []) + lines[start:start + 30]
+            for r, row in enumerate(block):
+                x = 40
+                for c, cell in enumerate(row):
+                    w = (80, 60, 260)[c]
+                    rect = pymupdf.Rect(x, 60 + r * 20, x + w, 80 + r * 20)
+                    page.draw_rect(rect, color=(0, 0, 0), width=0.8)
+                    page.insert_text((rect.x0 + 4, rect.y1 - 6), cell, fontsize=9)
+                    x += w
+        doc.save(path)
+    return path
+
+
+class RowModel:
+    """Cites table rows from PRIMARY; can refuse big chunks with a length stop or skip some rows."""
+
+    def __init__(self, max_rows=None, skip=()):
+        self.max_rows, self.skip, self.calls, self.logs, self.responses = max_rows, set(skip), [], [], []
+        self.pricing, self.reserved = {"prompt": "0.000001", "completion": "0.000002"}, 0
+
+    async def preflight(self):
+        pass
+
+    async def call(self, messages, schema):
+        text = messages[1]["content"]
+        self.calls.append(text)
+        self.logs.append({"usage": {"prompt_tokens": 10, "completion_tokens": 10, "total_tokens": 20, "cost": 0.0}})
+        primary = re.findall(r'<PRIMARY page="(\d+)" paragraph="\d+">\n(\[TABLE ROW\][^\n]*)', text)
+        if self.max_rows and len(primary) > self.max_rows:
+            raise ModelError("Completion stopped with length; partial data was not accepted")
+        cited = [(p, row) for p, row in primary if "RE-CHECK" in text or not any(k in row for k in self.skip)]
+        evidence = [{"id": f"e{i}", "page": int(p), "quote": row} for i, (p, row) in enumerate(cited, 1)]
+        return {"content": json.dumps({
+            "evidence": evidence,
+            "contexts": [{"id": f"c{i}", "structure": "Pier", "component": f"Pile {i}", "material": "concrete",
+                          "evidence": [e["id"]]} for i, e in enumerate(evidence, 1)],
+            "defects": [{"context": f"c{i}", "kind": "crack", "category": "Concrete Damage", "location": "N face",
+                         "finding": e["quote"], "rating": "MD", "rating_scale": "form codes", "temporal_status": "current",
+                         "evidence": [e["id"]], "measurements": [], "grade": None, "rule_id": "", "reason": "",
+                         "grade_evidence": []} for i, e in enumerate(evidence, 1)],
+            "limitations": []})}
+
+    async def close(self):
+        pass
+
+
+def run_b(tmp_path, client, pdf):
+    config = one_shot.OneShotConfig(reader="layout")
+    return asyncio.run(one_shot.run_report(pdf, "fixture", tmp_path / "run", config, client=client))
+
+
+def test_dense_tables_are_sent_in_short_slices(tmp_path):
+    pdf = pile_table_pdf(tmp_path / "piles.pdf")
+    pages, _ = method_b_layout.layout_pages(pdf)
+    chunks = one_shot.chunk_text(pages, 24000, 1500, method_b_layout.ROWS_PER_CHUNK)
+    rows = [sum(one_shot.is_row(u) for u in c["primary"]) for c in chunks]
+    assert len(chunks) >= 3 and max(rows) <= method_b_layout.ROWS_PER_CHUNK and sum(rows) == 60
+    # Method A's chunking is unchanged: everything fits one chunk.
+    assert len(one_shot.chunk_text(pages, 24000, 1500)) == 1
+
+
+def test_a_chunk_that_runs_out_of_output_is_split_not_dropped(tmp_path):
+    client = RowModel(max_rows=10)
+    result = run_b(tmp_path, client, pile_table_pdf(tmp_path / "piles.pdf"))
+    assert result["status"] == "complete" and not result["failures"]
+    assert len(result["defects"]) == 60
+
+
+def test_uncited_rows_are_asked_again_once(tmp_path):
+    client = RowModel(skip={"FACE 7", "FACE 41"})
+    result = run_b(tmp_path, client, pile_table_pdf(tmp_path / "piles.pdf"))
+    rechecks = [c for c in client.calls if "RE-CHECK" in c]
+    assert len(rechecks) == 1 and "FACE 7" in rechecks[0] and "FACE 41" in rechecks[0]
+    assert len(result["defects"]) == 60 and result["status"] == "complete"

@@ -35,6 +35,7 @@ from . import (
     method_a_evidence,
     method_a_exports,
     method_a_one_shot,
+    method_b_layout,
 )
 from .baseline import ASSETS, run_report, save_json, write_exports
 from .cloud import CloudStore, enqueue
@@ -778,9 +779,12 @@ async def run_method_a_one_shot(directory: Path, job: dict, run_config: ScoringW
     config = method_a_one_shot.OneShotConfig(
         model=run_config.model, provider=run_config.provider, chunk_chars=run_config.chunk_chars,
         context_chars=run_config.context_chars, concurrency=run_config.concurrency,
-        max_output_tokens=run_config.max_output_tokens, max_usd=run_config.max_usd,
-        max_requests=run_config.max_requests, reader=run_config.reader)
+        max_output_tokens=(max(run_config.max_output_tokens, method_b_layout.MAX_OUTPUT_TOKENS)
+                           if run_config.reader == "layout" else run_config.max_output_tokens),
+        max_usd=run_config.max_usd, max_requests=run_config.max_requests, reader=run_config.reader)
     client = None if preview else method_a_one_shot.make_client(config, key)
+    runtime = (max(run_config.max_runtime_seconds, method_b_layout.MAX_RUNTIME_SECONDS)
+               if run_config.reader == "layout" else run_config.max_runtime_seconds)
     selected = tuple(run_config.pages or ())
     if set(selected) == set(range(1, job["pages"] + 1)):
         selected = ()
@@ -788,7 +792,7 @@ async def run_method_a_one_shot(directory: Path, job: dict, run_config: ScoringW
         result = await method_a_one_shot.run_report(
             directory / "source.pdf", job["id"], directory / "four_table", config,
             client=client, preview=preview, progress=progress,
-            max_runtime_seconds=run_config.max_runtime_seconds, source_name=job.get("filename"),
+            max_runtime_seconds=runtime, source_name=job.get("filename"),
             body_pages=selected)
         if result["input_sha256"] != job["source_sha256"]:
             raise ValueError("The saved PDF differs from the uploaded source")

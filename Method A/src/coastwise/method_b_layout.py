@@ -28,7 +28,7 @@ from pathlib import Path
 
 import pymupdf
 
-VERSION = "method-b-layout-2"
+VERSION = "method-b-layout-3"
 LOW_TEXT_CHARS = 50
 OCR_DPI = 200
 OCR_MIN_CONFIDENCE = 50  # mean tesseract word confidence (0–100); below this the page is treated as an image
@@ -37,13 +37,25 @@ LIMITATION = ("Method B layout-aware text: tables are rebuilt by cell position a
               "their column headers; pages without a text layer are OCR'd (tesseract); X marks on pile "
               "rating forms are read from positions. Photographs, drawings and handwriting are not "
               "interpreted, and low-confidence OCR pages are skipped.")
+# Dense tables: a page of pile rows can hold 50+ findings, more than one response can list. Method B sends at most
+# ROWS_PER_CHUNK table rows per request (prose keeps the normal chunk size), allows the largest output budget,
+# splits a chunk that still runs out of output, and re-asks once for table rows no finding cites.
+ROWS_PER_CHUNK = 25
+MAX_OUTPUT_TOKENS = 24000
+MAX_REQUESTS = 300
+MAX_RUNTIME_SECONDS = 1800
+ROW_PREFIXES = ("[TABLE ROW]", "[FORM MARK]")
+
 PROMPT_NOTE = (
     "\n\nMETHOD B INPUT: paragraphs may be rebuilt from the page layout. A paragraph whose text starts with "
     "'[TABLE ROW]' is one table row written as 'Column header: cell value' pairs; treat each row as its own "
     "record (often one component and its defect/rating) and quote the row text exactly as given. "
     "'[OCR]' paragraphs come from scanned pages and may contain recognition errors; quote them exactly and "
     "do not correct spelling. '[FORM MARK]' paragraphs state which rating code carries an X mark on an "
-    "inspection form; the code is the form's own rating, keep its scale as the form's code list.")
+    "inspection form; the code is the form's own rating, keep its scale as the form's code list. "
+    "Every '[TABLE ROW]' that records damage (a comment, defect code or condition worse than none) is its own "
+    "defect record: list every such row and never summarise several rows into one finding. A row with no damage "
+    "needs no record.")
 
 
 def _clean(cell) -> str:
