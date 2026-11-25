@@ -206,10 +206,11 @@ def login_page(next: str = ""):
 
 @app.post("/login")
 def login(request: Request, password: str = Form(...), next: str = Form("")):
-    if not auth.valid_password(password):
+    role = auth.password_role(password)
+    if role is None:
         return HTMLResponse(login_html(next, '<p class="error">Incorrect workspace password.</p>'), status_code=401)
     response = RedirectResponse(login_destination(next), status_code=303)
-    response.set_cookie(auth.COOKIE, auth.signer().dumps("workspace"), httponly=True,
+    response.set_cookie(auth.COOKIE, auth.signer().dumps(role), httponly=True,
                         secure=auth.hosted() or request.url.scheme == "https", samesite="lax", max_age=86400)
     return response
 
@@ -260,7 +261,7 @@ def public_job(job_id: str) -> dict:
 
 
 @app.get("/api/settings")
-def settings():
+def settings(request: Request):
     return {"default_prompt": DEFAULT_PROMPT, "contract": load_contract(os.getenv("COASTWISE_CONTRACT") or None),
             "scoring_prompt": default_scoring_prompt(), "defect_prompt": defects.default_prompt(),
             "scoring_rubric": (ASSETS / "rubric.txt").read_text(),
@@ -274,6 +275,7 @@ def settings():
             "default_provider": os.getenv("OPENROUTER_PROVIDER", ""),
             "hosted": auth.hosted() or bool(cloud_store()),
             "incognito_available": not bool(cloud_store()),
+            "private_only": auth.private_only(request),
             "max_upload_mb": upload_limit_mb(), "bulk_available": False}
 
 
@@ -302,6 +304,9 @@ async def models(expanded: bool = False):
 async def upload(request: Request, response: Response, file: Annotated[UploadFile, File()],
                  source_url: str = Form(""), source_notes: str = Form(""),
                  reference_id: str = Form(""), incognito_upload: bool = Form(False)):
+    if auth.private_only(request):
+        # Client (Mira) sessions: every upload is incognito, whatever the form says.
+        incognito_upload = True
     if incognito_upload and cloud_store():
         raise HTTPException(400, "Incognito uploads require filesystem hosting")
     upload_started_at = time.time()
@@ -390,6 +395,8 @@ async def start_run(job_id: str, request: Request, config: str = Form(...), api_
     run_id = str(uuid.uuid4())
     private = job_id in PRIVATE.entries
     method_b = getattr(run_config, "reader", "native") == "layout"
+    if not private and auth.private_only(request):
+        raise HTTPException(403, "This sign-in can only run its own private uploads")
     if method_b and not private:
         # Method B is the internal comparison path: its results never enter the saved Method A library.
         raise HTTPException(400, "Method B runs only as an incognito upload")
@@ -700,6 +707,8 @@ def delete_private_run(job_id: str):
 @app.post("/api/runs/{job_id}/ready")
 async def results_ready(job_id: str, request: Request):
     """Record client-observed elapsed time only after the full defect table has rendered."""
+    if job_id not in PRIVATE.entries and auth.private_only(request):
+        raise HTTPException(403, "This sign-in can only update its own private runs")
     job = public_job(job_id)
     if job.get("extraction_mode") != "method_a_one_shot" or job["status"] not in {"complete", "partial"}:
         raise HTTPException(409, "The defect table is not ready")

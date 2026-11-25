@@ -35,6 +35,8 @@ On the upload page, enable **Incognito upload** before choosing the PDF. Method 
 
 Incognito uses temporary server files outside the persistent report directory. **Delete now** removes access immediately and cleans up the report's upload, previews, results and caches; if processing is active, file removal waits for it to finish. Completed/failed results expire after one hour; abandoned uploads expire after one hour. A cleanup task removes expired files within 30 seconds, and expired requests are denied immediately. Closing a tab is not an immediate deletion signal. Server restarts discard private sessions and reclaim orphaned temporary files. No private report content or run metrics are retained in Coastwise's durable index; ordinary hosting request logs and provider billing/retention still apply.
 
+**Client sign-in.** If `COASTWISE_CLIENT_PASSWORD` is set (it must differ from `COASTWISE_ACCESS_PASSWORD`), that password opens a client session for Mira: every upload it makes is incognito, whatever the checkbox says, it cannot start or update runs on shared uploads, and the saved pages stay readable. The team password keeps today's behaviour. Unset the variable to end all client sessions.
+
 Report text is still sent to the configured model provider. Incognito does not promise zero-retention inference. This option supports the current single-process filesystem Railway deployment; cloud object-storage/queue hosting rejects private uploads rather than saving them. Multiple application processes do not share private session state.
 
 ## Run locally
