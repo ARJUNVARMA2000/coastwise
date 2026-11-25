@@ -61,6 +61,12 @@ FORM_POSTS = {"/login", "/client-setup", "/client-password", "/client-access/lin
               "/library-admin/hide", "/library-admin/restore"}
 
 
+# Fixed run settings for client sessions. Method B also raises output, request and runtime limits itself
+# (method_b_layout.MAX_OUTPUT_TOKENS etc.); the cost cap applies to the client's own OpenRouter key.
+CLIENT_RUN_SETTINGS = {"workflow": "scoring", "extraction_mode": "method_a_one_shot", "reader": "layout",
+                       "max_usd": 5.0, "max_output_tokens": 24000}
+
+
 def release_sources() -> set[str]:
     """PDF hashes of the curated release reports shown in the shared library."""
     reports = extraction_workspace.release_metadata().get("reports", {})
@@ -495,6 +501,7 @@ def settings(request: Request):
             "hosted": auth.hosted() or bool(cloud_store()),
             "incognito_available": not bool(cloud_store()),
             "private_only": auth.private_only(request),
+            "client_run_settings": CLIENT_RUN_SETTINGS if auth.private_only(request) else None,
             "max_upload_mb": upload_limit_mb(), "bulk_available": False}
 
 
@@ -600,6 +607,9 @@ async def start_run(job_id: str, request: Request, config: str = Form(...), api_
         upload_info = (store.get_json(job_id, "upload.json") if store else
                        json.loads((upload_directory / "upload.json").read_text()))
         options["pages"] = parse_pages(options.get("pages", ""), upload_info["pages"])
+        if auth.private_only(request):
+            # Client (Mira) runs: Method B with the server's fixed settings; only the page range is the client's.
+            options = {**CLIENT_RUN_SETTINGS, "pages": options["pages"]}
         run_config = parse_run_config(options)
         contract = None if isinstance(run_config, ScoringWebConfig) else load_contract(os.getenv("COASTWISE_CONTRACT") or None)
     except (ValueError, TypeError, KeyError) as exc:
